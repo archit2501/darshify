@@ -9,8 +9,8 @@ describe("engine", () => {
     expect(nextIndex(1, 3, "one")).toBe(1);
   });
   it("prev clamps at 0", () => {
-    expect(prevIndex(0, 3)).toBe(0);
-    expect(prevIndex(2, 3)).toBe(1);
+    expect(prevIndex(0)).toBe(0);
+    expect(prevIndex(2)).toBe(1);
   });
   it("shuffleOrder is a deterministic permutation for a seed", () => {
     const a = shuffleOrder(6, 42), b = shuffleOrder(6, 42);

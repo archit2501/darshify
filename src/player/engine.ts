@@ -7,7 +7,7 @@ export const nextIndex = (i: number, len: number, repeat: Repeat): number => {
   return repeat === "all" ? 0 : -1;
 };
 
-export const prevIndex = (i: number, _len: number): number => Math.max(0, i - 1);
+export const prevIndex = (i: number): number => Math.max(0, i - 1);
 
 // deterministic seeded shuffle (mulberry32) — returns a permutation of [0..len)
 export const shuffleOrder = (len: number, seed: number): number[] => {

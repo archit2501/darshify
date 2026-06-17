@@ -2,6 +2,7 @@ import { createContext, useContext, useState, type ReactNode } from "react";
 
 type Toast = { id: number; text: string };
 const ToastCtx = createContext<(text: string) => void>(() => {});
+// eslint-disable-next-line react-refresh/only-export-components
 export const useToast = () => useContext(ToastCtx);
 
 let _id = 0;

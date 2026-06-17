@@ -39,11 +39,18 @@ export function PlayerBar({ onToggleQueue, onOpenNowPlaying }: { onToggleQueue: 
         <div className="flex items-center gap-5 text-sub">
           <button onClick={p.toggleShuffle} aria-label="Shuffle" className={`hidden md:block ${p.shuffle ? "text-accent" : "hover:text-white"}`}><ShuffleIcon size={18} /></button>
           <button onClick={p.prev} aria-label="Previous" className="hidden md:block hover:text-white"><PrevIcon size={20} /></button>
-          <button onClick={p.toggle} aria-label={p.isPlaying ? "Pause" : "Play"}
-            className="grid place-items-center w-9 h-9 rounded-full bg-white text-black hover:scale-105 transition-transform disabled:opacity-40"
-            disabled={!c}>
-            {p.isPlaying ? <PauseIcon size={18} /> : <PlayIcon size={18} />}
-          </button>
+          <div className="relative">
+            <button onClick={p.toggle} aria-label={p.isPlaying ? "Pause" : "Play"}
+              className={`grid place-items-center w-9 h-9 rounded-full bg-white text-black hover:scale-105 transition-transform disabled:opacity-40 ${!p.hasPlayed ? "animate-pulse ring-2 ring-accent" : ""}`}
+              disabled={!c}>
+              {p.isPlaying ? <PauseIcon size={18} /> : <PlayIcon size={18} />}
+            </button>
+            {!p.hasPlayed && (
+              <span className="absolute left-1/2 -translate-x-1/2 -top-8 whitespace-nowrap bg-accent text-black text-[11px] font-bold rounded-full px-2.5 py-1 shadow-lg">
+                Press play ▸
+              </span>
+            )}
+          </div>
           <button onClick={p.next} aria-label="Next" className="hover:text-white"><NextIcon size={20} /></button>
           <button onClick={p.cycleRepeat} aria-label={`Repeat ${p.repeat}`}
             className={`hidden md:block ${p.repeat !== "off" ? "text-accent relative" : "hover:text-white"}`}>
@@ -54,6 +61,7 @@ export function PlayerBar({ onToggleQueue, onOpenNowPlaying }: { onToggleQueue: 
           <span>{formatTime(p.progress)}</span>
           <input type="range" min={0} max={dur || 1} step={1} value={Math.min(p.progress, dur)} disabled={!c}
             onChange={(e) => p.seek(Number(e.target.value))} aria-label="Seek"
+            aria-valuetext={`${formatTime(p.progress)} of ${formatTime(dur)}`}
             className="flex-1 h-1 accent-accent cursor-pointer" />
           <span>{formatTime(dur)}</span>
         </div>
@@ -67,6 +75,7 @@ export function PlayerBar({ onToggleQueue, onOpenNowPlaying }: { onToggleQueue: 
         <VolumeIcon size={18} />
         <input type="range" min={0} max={1} step={0.01} value={p.volume}
           onChange={(e) => p.setVolume(Number(e.target.value))} aria-label="Volume"
+          aria-valuetext={`${Math.round(p.volume * 100)} percent`}
           className="w-24 h-1 accent-accent cursor-pointer" />
       </div>
     </footer>
