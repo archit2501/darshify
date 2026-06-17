@@ -12,7 +12,7 @@ export function PlayerBar({ onToggleQueue, onOpenNowPlaying }: { onToggleQueue: 
   const liked = c ? p.isLiked(c.id) : false;
 
   return (
-    <footer className="h-20 bg-[#181818] border-t border-[#282828] grid grid-cols-[1fr_auto_1fr] items-center px-4 gap-4">
+    <footer className="h-16 md:h-20 bg-[#181818] border-t border-[#282828] grid grid-cols-[1fr_auto] md:grid-cols-[1fr_auto_1fr] items-center px-3 md:px-4 gap-3 md:gap-4">
       {/* left: track */}
       <div className="flex items-center gap-3 min-w-0">
         {c ? (
@@ -35,10 +35,10 @@ export function PlayerBar({ onToggleQueue, onOpenNowPlaying }: { onToggleQueue: 
       </div>
 
       {/* center: controls + progress */}
-      <div className="flex flex-col items-center gap-1 w-[min(40vw,520px)]">
+      <div className="flex flex-col items-center gap-1 md:w-[min(40vw,520px)] justify-self-end md:justify-self-center">
         <div className="flex items-center gap-5 text-sub">
-          <button onClick={p.toggleShuffle} aria-label="Shuffle" className={p.shuffle ? "text-accent" : "hover:text-white"}><ShuffleIcon size={18} /></button>
-          <button onClick={p.prev} aria-label="Previous" className="hover:text-white"><PrevIcon size={20} /></button>
+          <button onClick={p.toggleShuffle} aria-label="Shuffle" className={`hidden md:block ${p.shuffle ? "text-accent" : "hover:text-white"}`}><ShuffleIcon size={18} /></button>
+          <button onClick={p.prev} aria-label="Previous" className="hidden md:block hover:text-white"><PrevIcon size={20} /></button>
           <button onClick={p.toggle} aria-label={p.isPlaying ? "Pause" : "Play"}
             className="grid place-items-center w-9 h-9 rounded-full bg-white text-black hover:scale-105 transition-transform disabled:opacity-40"
             disabled={!c}>
@@ -46,11 +46,11 @@ export function PlayerBar({ onToggleQueue, onOpenNowPlaying }: { onToggleQueue: 
           </button>
           <button onClick={p.next} aria-label="Next" className="hover:text-white"><NextIcon size={20} /></button>
           <button onClick={p.cycleRepeat} aria-label={`Repeat ${p.repeat}`}
-            className={p.repeat !== "off" ? "text-accent relative" : "hover:text-white"}>
+            className={`hidden md:block ${p.repeat !== "off" ? "text-accent relative" : "hover:text-white"}`}>
             <RepeatIcon size={18} />{p.repeat === "one" && <span className="absolute -right-1 -top-1 text-[9px] font-bold">1</span>}
           </button>
         </div>
-        <div className="flex items-center gap-2 w-full text-[11px] text-sub tabular-nums">
+        <div className="hidden md:flex items-center gap-2 w-full text-[11px] text-sub tabular-nums">
           <span>{formatTime(p.progress)}</span>
           <input type="range" min={0} max={dur || 1} step={1} value={Math.min(p.progress, dur)} disabled={!c}
             onChange={(e) => p.seek(Number(e.target.value))} aria-label="Seek"
@@ -60,7 +60,7 @@ export function PlayerBar({ onToggleQueue, onOpenNowPlaying }: { onToggleQueue: 
       </div>
 
       {/* right: queue + audio + volume */}
-      <div className="flex items-center justify-end gap-3 text-sub">
+      <div className="hidden md:flex items-center justify-end gap-3 text-sub">
         <button onClick={p.toggleAudio} aria-label="Toggle ambient audio"
           className={`text-xs font-bold ${p.audioOn ? "text-accent" : "hover:text-white"}`}>♪</button>
         <button onClick={onToggleQueue} aria-label="Queue" className="hover:text-white"><QueueIcon size={18} /></button>

@@ -5,6 +5,7 @@ import { TopBar } from "./TopBar";
 import { PlayerBar } from "./PlayerBar";
 import { QueuePanel } from "./QueuePanel";
 import { NowPlayingPanel } from "./NowPlayingPanel";
+import { BottomNav } from "./BottomNav";
 import { usePlayer } from "../player/PlayerContext";
 
 function isTyping(el: EventTarget | null) {
@@ -48,6 +49,7 @@ export function AppShell() {
         onToggleQueue={() => { setQueueOpen((q) => !q); setNpOpen(false); }}
         onOpenNowPlaying={() => { setNpOpen((n) => !n); setQueueOpen(false); }}
       />
+      <BottomNav />
     </div>
   );
 }

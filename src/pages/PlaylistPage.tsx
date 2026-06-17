@@ -18,7 +18,7 @@ export function PlaylistPage() {
 
   return (
     <div>
-      <header className="flex items-end gap-6 pt-4 pb-6 -mx-4 md:-mx-6 px-4 md:px-6"
+      <header className="flex flex-col md:flex-row md:items-end gap-4 md:gap-6 pt-4 pb-6 -mx-4 md:-mx-6 px-4 md:px-6"
         style={{ background: `linear-gradient(180deg, rgba(0,0,0,.1), var(--color-panel)), ${pl.gradient}` }}>
         <div className="w-40 h-40 md:w-52 md:h-52 rounded shadow-2xl shrink-0" style={{ background: pl.gradient }} />
         <div>
