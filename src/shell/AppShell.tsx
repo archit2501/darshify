@@ -44,9 +44,10 @@ export function AppShell() {
         {npOpen && <NowPlayingPanel onClose={() => setNpOpen(false)} />}
         {queueOpen && <QueuePanel onClose={() => setQueueOpen(false)} />}
       </div>
-      <PlayerBar onToggleQueue={() => { setQueueOpen((q) => !q); setNpOpen(false); }} />
-      {/* hidden affordance: open now-playing panel from track detail clicks could call setNpOpen */}
-      <button className="sr-only" onClick={() => setNpOpen(true)} aria-hidden tabIndex={-1} data-open-np />
+      <PlayerBar
+        onToggleQueue={() => { setQueueOpen((q) => !q); setNpOpen(false); }}
+        onOpenNowPlaying={() => { setNpOpen((n) => !n); setQueueOpen(false); }}
+      />
     </div>
   );
 }

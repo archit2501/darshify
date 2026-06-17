@@ -5,7 +5,7 @@ import {
   HeartIcon, HeartFill, QueueIcon, VolumeIcon,
 } from "../icons/icons";
 
-export function PlayerBar({ onToggleQueue }: { onToggleQueue: () => void }) {
+export function PlayerBar({ onToggleQueue, onOpenNowPlaying }: { onToggleQueue: () => void; onOpenNowPlaying: () => void }) {
   const p = usePlayer();
   const c = p.current;
   const dur = c?.durationSec ?? 0;
@@ -17,11 +17,13 @@ export function PlayerBar({ onToggleQueue }: { onToggleQueue: () => void }) {
       <div className="flex items-center gap-3 min-w-0">
         {c ? (
           <>
-            <div className="w-14 h-14 rounded shrink-0" style={{ background: c.gradient }} />
-            <div className="min-w-0">
-              <div className="font-medium truncate">{c.title}</div>
-              <div className="text-sub text-sm truncate">{c.subtitle}</div>
-            </div>
+            <button onClick={onOpenNowPlaying} aria-label="Open now playing view" className="flex items-center gap-3 min-w-0 text-left hover:opacity-90">
+              <div className="w-14 h-14 rounded shrink-0" style={{ background: c.gradient }} />
+              <div className="min-w-0">
+                <div className="font-medium truncate">{c.title}</div>
+                <div className="text-sub text-sm truncate">{c.subtitle}</div>
+              </div>
+            </button>
             <button onClick={() => p.toggleLike(c.id)} aria-label={liked ? "Unlike" : "Like"}
               className={`ml-2 shrink-0 ${liked ? "text-accent" : "text-sub hover:text-white"}`}>
               {liked ? <HeartFill size={18} /> : <HeartIcon size={18} />}
