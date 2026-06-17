@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { tracks, playlists, genres } from "../data/library";
 import { TrackRow } from "../shell/TrackRow";
+import { useLocalStorage } from "../lib/useLocalStorage";
 
 const genreLink: Record<string, string> = {
   skills: "/playlist/skills", experience: "/playlist/experience",
@@ -10,7 +11,9 @@ const genreLink: Record<string, string> = {
 
 export function Search() {
   const [q, setQ] = useState("");
+  const [recents, setRecents] = useLocalStorage<string[]>("dx_recents", []);
   const query = q.trim().toLowerCase();
+
   const results = useMemo(
     () => (query ? tracks.filter((t) => (t.title + " " + t.subtitle + " " + t.detail).toLowerCase().includes(query)) : []),
     [query]
@@ -20,16 +23,38 @@ export function Search() {
     [query]
   );
 
+  const remember = (term: string) => {
+    const t = term.trim();
+    if (t.length < 2) return;
+    setRecents([t, ...recents.filter((r) => r.toLowerCase() !== t.toLowerCase())].slice(0, 6));
+  };
+
   return (
     <div className="pt-2">
       <input
         autoFocus value={q} onChange={(e) => setQ(e.target.value)}
+        onKeyDown={(e) => { if (e.key === "Enter") remember(q); }}
+        onBlur={() => { if (results.length) remember(q); }}
         placeholder="What do you want to play?"
         className="w-full max-w-md bg-white text-black rounded-full px-5 py-3 font-medium outline-none mb-6"
       />
 
       {!query ? (
         <>
+          {recents.length > 0 && (
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-2xl font-bold">Recent searches</h2>
+                <button onClick={() => setRecents([])} className="text-sub text-sm hover:text-white">Clear</button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {recents.map((r) => (
+                  <button key={r} onClick={() => setQ(r)}
+                    className="rounded-full bg-card-hi hover:bg-[#333] px-4 py-1.5 text-sm">{r}</button>
+                ))}
+              </div>
+            </div>
+          )}
           <h2 className="text-2xl font-bold mb-4">Browse all</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {genres.map((g) => (
@@ -39,6 +64,18 @@ export function Search() {
             ))}
           </div>
         </>
+      ) : results.length === 0 && plResults.length === 0 ? (
+        <div className="py-10">
+          <div className="text-2xl font-bold mb-1">No results for “{q}”</div>
+          <p className="text-sub mb-6">Try a skill, a company, or a project — or browse a category.</p>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {genres.map((g) => (
+              <Link key={g.id} to={genreLink[g.id]} className="relative h-24 rounded-lg overflow-hidden p-4 font-bold text-lg" style={{ background: g.gradient }}>
+                {g.title}
+              </Link>
+            ))}
+          </div>
+        </div>
       ) : (
         <>
           {plResults.length > 0 && (
@@ -52,11 +89,11 @@ export function Search() {
               ))}
             </div>
           )}
-          <h2 className="text-xl font-bold mb-2">Songs</h2>
-          {results.length === 0 ? (
-            <div className="text-sub">No results for “{q}”.</div>
-          ) : (
-            results.map((t, i) => <TrackRow key={t.id} track={t} index={i} context={results.map((x) => x.id)} />)
+          {results.length > 0 && (
+            <>
+              <h2 className="text-xl font-bold mb-2">Songs</h2>
+              {results.map((t, i) => <TrackRow key={t.id} track={t} index={i} context={results.map((x) => x.id)} />)}
+            </>
           )}
         </>
       )}

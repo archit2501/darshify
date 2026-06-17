@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { tracks, trackById, likedTrackIds, type Track } from "../data/library";
+import { tracks, trackById, likedTrackIds, type Track, type Kind } from "../data/library";
 import { nextIndex, prevIndex, shuffleOrder, type Repeat } from "./engine";
 import { useLocalStorage } from "../lib/useLocalStorage";
 import { useAmbient } from "./useAmbient";
@@ -25,6 +25,15 @@ export const usePlayer = () => {
 };
 
 const ALL = tracks.map((t) => t.id);
+
+// a distinct soft 3-note chord (Hz) per track type
+const CHORDS: Record<Kind, number[]> = {
+  skill: [261.63, 329.63, 392.0],     // C major — bright
+  role: [220.0, 277.18, 329.63],      // A major — warm
+  project: [196.0, 261.63, 311.13],   // G minor — deep
+  achievement: [293.66, 369.99, 440.0], // D major — triumphant
+  cert: [246.94, 311.13, 392.0],      // soft
+};
 
 export function PlayerProvider({ children }: { children: ReactNode }) {
   const [order, setOrder] = useState<string[]>(ALL);
@@ -90,8 +99,12 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     return () => cancelAnimationFrame(raf.current);
   }, [isPlaying, current, pos, order.length, repeat]);
 
-  // ambient audio follows play state + toggle
-  useEffect(() => { ambient.setPlaying(isPlaying, audioOn); }, [isPlaying, audioOn, ambient]);
+  // ambient audio follows play state, toggle, volume, and the current track's type
+  useEffect(() => {
+    const freqs = current ? CHORDS[current.kind] : CHORDS.skill;
+    ambient.update(isPlaying, audioOn, freqs, volume);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPlaying, audioOn, volume, current?.kind]);
 
   const value = useMemo<PlayerState>(() => ({
     current, isPlaying, progress, volume, repeat, shuffle, queue: order, pos, likes, audioOn, hasPlayed,
