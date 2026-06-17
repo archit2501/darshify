@@ -1,7 +1,8 @@
 import { usePlayer } from "../player/PlayerContext";
-import { trackById, likedTrackIds } from "../data/library";
+import { trackById, likedTrackIds, LIKED_COVER } from "../data/library";
 import { TrackRow } from "../shell/TrackRow";
 import { PlayButton } from "../shell/PlayButton";
+import { Art } from "../shell/Art";
 
 export function LikedSongs() {
   const p = usePlayer();
@@ -14,8 +15,8 @@ export function LikedSongs() {
     <div>
       <header className="flex flex-col md:flex-row md:items-end gap-4 md:gap-6 pt-4 pb-6 -mx-4 md:-mx-6 px-4 md:px-6"
         style={{ background: "linear-gradient(180deg, rgba(0,0,0,.1), var(--color-panel)), linear-gradient(135deg,#4a00e0,#b3b3ff)" }}>
-        <div className="w-40 h-40 md:w-52 md:h-52 rounded shadow-2xl grid place-items-center text-6xl shrink-0"
-          style={{ background: "linear-gradient(135deg,#4a00e0,#b3b3ff)" }}>♥</div>
+        <Art src={LIKED_COVER} gradient="linear-gradient(135deg,#4a00e0,#b3b3ff)" alt="Liked Songs"
+          className="w-40 h-40 md:w-52 md:h-52 rounded shadow-2xl shrink-0" />
         <div>
           <div className="text-xs font-bold uppercase tracking-wide">Playlist</div>
           <h1 className="text-4xl md:text-7xl font-black my-3">Liked Songs</h1>

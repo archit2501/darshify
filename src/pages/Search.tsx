@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { tracks, playlists, genres } from "../data/library";
 import { TrackRow } from "../shell/TrackRow";
+import { Art } from "../shell/Art";
 import { useLocalStorage } from "../lib/useLocalStorage";
 
 const genreLink: Record<string, string> = {
@@ -82,7 +83,7 @@ export function Search() {
             <div className="flex gap-4 overflow-x-auto pb-4 mb-2">
               {plResults.map((pl) => (
                 <Link key={pl.id} to={`/playlist/${pl.id}`} className="w-44 shrink-0 bg-card hover:bg-card-hi rounded-lg p-4">
-                  <div className="aspect-square rounded mb-3" style={{ background: pl.gradient }} />
+                  <Art src={pl.cover} gradient={pl.gradient} alt={pl.title} className="aspect-square rounded mb-3" />
                   <div className="font-bold truncate">{pl.title}</div>
                   <div className="text-sub text-sm">{pl.kind}</div>
                 </Link>

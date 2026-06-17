@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
-import { playlists } from "../data/library";
+import { playlists, AVATAR, LIKED_COVER } from "../data/library";
 import { HomeIcon, SearchIcon, LibraryIcon } from "../icons/icons";
+import { Art } from "./Art";
 
 const navCls = ({ isActive }: { isActive: boolean }) =>
   `flex items-center gap-4 font-bold ${isActive ? "text-white" : "text-sub hover:text-white"}`;
@@ -29,16 +30,16 @@ export function Sidebar() {
         </div>
         <div className="flex flex-col gap-1">
           <NavLink to="/artist" className={({ isActive }) => `flex items-center gap-3 rounded-md p-2 ${isActive ? "bg-card-hi" : "hover:bg-card"}`}>
-            <span className="w-11 h-11 rounded-full shrink-0" style={{ background: "linear-gradient(135deg,#1ed760,#0a5)" }} />
+            <Art src={AVATAR} gradient="linear-gradient(135deg,#1ed760,#0a5)" className="w-11 h-11 rounded-full shrink-0" />
             <span><span className="block font-semibold text-white">This Is Darshil</span><span className="text-sub text-xs">Artist</span></span>
           </NavLink>
           <NavLink to="/liked" className={({ isActive }) => `flex items-center gap-3 rounded-md p-2 ${isActive ? "bg-card-hi" : "hover:bg-card"}`}>
-            <span className="w-11 h-11 rounded grid place-items-center shrink-0" style={{ background: "linear-gradient(135deg,#4a00e0,#b3b3ff)" }}>♥</span>
+            <Art src={LIKED_COVER} gradient="linear-gradient(135deg,#4a00e0,#b3b3ff)" className="w-11 h-11 rounded shrink-0" />
             <span><span className="block font-semibold text-white">Liked Songs</span><span className="text-sub text-xs">Playlist · Achievements</span></span>
           </NavLink>
           {playlists.map((pl) => (
             <NavLink key={pl.id} to={`/playlist/${pl.id}`} className={({ isActive }) => `flex items-center gap-3 rounded-md p-2 ${isActive ? "bg-card-hi" : "hover:bg-card"}`}>
-              <span className="w-11 h-11 rounded shrink-0" style={{ background: pl.gradient }} />
+              <Art src={pl.cover} gradient={pl.gradient} className="w-11 h-11 rounded shrink-0" />
               <span className="min-w-0"><span className="block font-semibold text-white truncate">{pl.title}</span><span className="text-sub text-xs">{pl.kind} · Darshil Jain</span></span>
             </NavLink>
           ))}

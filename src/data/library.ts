@@ -1,6 +1,6 @@
 export type Kind = "skill" | "role" | "project" | "achievement" | "cert";
 export interface Track { id: string; title: string; subtitle: string; kind: Kind; durationSec: number; plays: number; detail: string; gradient: string; }
-export interface Playlist { id: string; title: string; kind: "EP" | "LP" | "Playlist"; description: string; gradient: string; trackIds: string[]; }
+export interface Playlist { id: string; title: string; kind: "EP" | "LP" | "Playlist"; description: string; gradient: string; cover: string; trackIds: string[]; }
 export interface Genre { id: string; title: string; gradient: string; }
 
 const G = {
@@ -39,13 +39,23 @@ export const tracks: Track[] = [
 ];
 
 export const playlists: Playlist[] = [
-  { id: "experience", title: "Experience", kind: "EP", description: "Internships on heavy rotation.", gradient: G.blue, trackIds: ["r1", "r2", "r3"] },
-  { id: "projects", title: "Projects", kind: "LP", description: "Consulting & analytics, full length.", gradient: G.purple, trackIds: ["p1", "p2", "p3", "p4"] },
-  { id: "skills", title: "Top Skills", kind: "Playlist", description: "The greatest hits.", gradient: G.pink, trackIds: ["s1", "s2", "s3", "s4", "s5", "s6"] },
-  { id: "certs", title: "Certifications", kind: "EP", description: "Bonus tracks.", gradient: G.green, trackIds: ["c1", "c2", "c3"] },
+  { id: "experience", title: "Experience", kind: "EP", description: "Internships on heavy rotation.", gradient: G.blue, cover: "/covers/experience.png", trackIds: ["r1", "r2", "r3"] },
+  { id: "projects", title: "Projects", kind: "LP", description: "Consulting & analytics, full length.", gradient: G.purple, cover: "/covers/projects.png", trackIds: ["p1", "p2", "p3", "p4"] },
+  { id: "skills", title: "Top Skills", kind: "Playlist", description: "The greatest hits.", gradient: G.pink, cover: "/covers/skills.png", trackIds: ["s1", "s2", "s3", "s4", "s5", "s6"] },
+  { id: "certs", title: "Certifications", kind: "EP", description: "Bonus tracks.", gradient: G.green, cover: "/covers/certs.png", trackIds: ["c1", "c2", "c3"] },
 ];
 
 export const likedTrackIds = ["a1", "a2", "a3", "a4"];
+
+// generated cover art (with gradient fallback if an image is missing)
+export const LIKED_COVER = "/covers/liked.png";
+export const ARTIST_HERO = "/covers/artist-hero.png";
+export const AVATAR = "/covers/avatar.png";
+const KIND_COVER: Record<Kind, string> = {
+  skill: "/covers/skills.png", role: "/covers/experience.png", project: "/covers/projects.png",
+  achievement: "/covers/liked.png", cert: "/covers/certs.png",
+};
+export const coverFor = (kind: Kind): string => KIND_COVER[kind];
 
 export const genres: Genre[] = [
   { id: "skills", title: "Skills", gradient: G.pink },

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { usePlayer } from "../player/PlayerContext";
-import { artist } from "../data/library";
+import { artist, coverFor, ARTIST_HERO } from "../data/library";
+import { Art } from "./Art";
 
 export function NowPlayingPanel({ onClose, variant = "panel" }: { onClose: () => void; variant?: "panel" | "sheet" }) {
   const p = usePlayer();
@@ -18,12 +19,13 @@ export function NowPlayingPanel({ onClose, variant = "panel" }: { onClose: () =>
       </div>
       {c ? (
         <>
-          <div className={`w-full rounded-lg mb-4 ${sheet ? "max-w-sm mx-auto aspect-square" : "aspect-square"}`} style={{ background: c.gradient }} />
+          <Art src={coverFor(c.kind)} gradient={c.gradient} alt={c.title}
+            className={`w-full rounded-lg mb-4 ${sheet ? "max-w-sm mx-auto aspect-square" : "aspect-square"}`} />
           <div className="text-2xl font-bold">{c.title}</div>
           <div className="text-sub">{c.subtitle}</div>
           <p className="text-sm text-sub mt-4 leading-relaxed">{c.detail}</p>
           <div className="mt-6 rounded-lg overflow-hidden bg-card">
-            <div className="h-24" style={{ background: artist.gradient }} />
+            <Art src={ARTIST_HERO} gradient={artist.gradient} className="h-24" />
             <div className="p-4">
               <div className="text-xs font-bold text-sub mb-1">About the artist</div>
               <Link to="/artist" onClick={onClose} className="font-bold hover:underline">{artist.name}</Link>

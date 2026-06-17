@@ -1,4 +1,6 @@
 import { usePlayer } from "../player/PlayerContext";
+import { coverFor } from "../data/library";
+import { Art } from "./Art";
 import { formatTime } from "../lib/format";
 import {
   PlayIcon, PauseIcon, NextIcon, PrevIcon, ShuffleIcon, RepeatIcon,
@@ -18,7 +20,7 @@ export function PlayerBar({ onToggleQueue, onOpenNowPlaying }: { onToggleQueue: 
         {c ? (
           <>
             <button onClick={onOpenNowPlaying} aria-label="Open now playing view" className="flex items-center gap-3 min-w-0 text-left hover:opacity-90">
-              <div className="w-14 h-14 rounded shrink-0" style={{ background: c.gradient }} />
+              <Art src={coverFor(c.kind)} gradient={c.gradient} alt={c.title} className="w-14 h-14 rounded shrink-0" />
               <div className="min-w-0">
                 <div className="font-medium truncate">{c.title}</div>
                 <div className="text-sub text-sm truncate">{c.subtitle}</div>

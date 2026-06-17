@@ -3,6 +3,7 @@ import { playlists, trackById } from "../data/library";
 import { usePlayer } from "../player/PlayerContext";
 import { TrackRow } from "../shell/TrackRow";
 import { PlayButton } from "../shell/PlayButton";
+import { Art } from "../shell/Art";
 import { formatTime } from "../lib/format";
 import { NotFound } from "./NotFound";
 
@@ -20,7 +21,7 @@ export function PlaylistPage() {
     <div>
       <header className="flex flex-col md:flex-row md:items-end gap-4 md:gap-6 pt-4 pb-6 -mx-4 md:-mx-6 px-4 md:px-6"
         style={{ background: `linear-gradient(180deg, rgba(0,0,0,.1), var(--color-panel)), ${pl.gradient}` }}>
-        <div className="w-40 h-40 md:w-52 md:h-52 rounded shadow-2xl shrink-0" style={{ background: pl.gradient }} />
+        <Art src={pl.cover} gradient={pl.gradient} alt={pl.title} className="w-40 h-40 md:w-52 md:h-52 rounded shadow-2xl shrink-0" />
         <div>
           <div className="text-xs font-bold uppercase tracking-wide">{pl.kind}</div>
           <h1 className="text-4xl md:text-7xl font-black my-3">{pl.title}</h1>

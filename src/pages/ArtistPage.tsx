@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { artist, tracks, playlists } from "../data/library";
+import { artist, tracks, playlists, ARTIST_HERO } from "../data/library";
 import { usePlayer } from "../player/PlayerContext";
 import { PlayButton } from "../shell/PlayButton";
 import { TrackRow } from "../shell/TrackRow";
 import { MediaCard } from "../shell/MediaCard";
+import { Art } from "../shell/Art";
 import { formatPlays } from "../lib/format";
 import { contact } from "../data/library";
 
@@ -17,10 +18,12 @@ export function ArtistPage() {
   return (
     <div className="-mx-4 md:-mx-6">
       {/* hero */}
-      <header className="h-72 flex items-end p-6" style={{ background: `linear-gradient(180deg, rgba(0,0,0,.2), var(--color-panel)), ${artist.gradient}` }}>
-        <div>
+      <header className="relative h-80 flex items-end p-6 overflow-hidden">
+        <Art src={ARTIST_HERO} gradient={artist.gradient} className="absolute inset-0 w-full h-full" />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(0,0,0,.25), rgba(0,0,0,.1) 40%, var(--color-panel))" }} />
+        <div className="relative z-10">
           <div className="text-xs font-bold">✓ Verified Candidate</div>
-          <h1 className="text-5xl md:text-8xl font-black my-2">{artist.name}</h1>
+          <h1 className="text-5xl md:text-8xl font-black my-2 drop-shadow-lg">{artist.name}</h1>
           <div className="text-white/90">{formatPlays(artist.monthlyListeners)} monthly listeners</div>
         </div>
       </header>
@@ -41,7 +44,7 @@ export function ArtistPage() {
         <div className="flex gap-4 overflow-x-auto pb-2">
           {playlists.map((pl) => (
             <MediaCard key={pl.id} to={`/playlist/${pl.id}`} title={pl.title} subtitle={`${pl.kind} · Darshil Jain`}
-              gradient={pl.gradient} onPlay={() => p.play(tracks.find((t) => t.id === pl.trackIds[0])!, pl.trackIds)} />
+              gradient={pl.gradient} cover={pl.cover} onPlay={() => p.play(tracks.find((t) => t.id === pl.trackIds[0])!, pl.trackIds)} />
           ))}
         </div>
 

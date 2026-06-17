@@ -1,5 +1,6 @@
 import { usePlayer } from "../player/PlayerContext";
-import { trackById } from "../data/library";
+import { trackById, coverFor } from "../data/library";
+import { Art } from "./Art";
 
 export function QueuePanel({ onClose }: { onClose: () => void }) {
   const p = usePlayer();
@@ -14,7 +15,7 @@ export function QueuePanel({ onClose }: { onClose: () => void }) {
         <>
           <div className="text-sub text-xs font-bold mb-2">Now playing</div>
           <div className="flex items-center gap-3 mb-5 p-2 rounded-md bg-card-hi">
-            <div className="w-10 h-10 rounded shrink-0" style={{ background: p.current.gradient }} />
+            <Art src={coverFor(p.current.kind)} gradient={p.current.gradient} className="w-10 h-10 rounded shrink-0" />
             <div className="min-w-0"><div className="text-accent font-medium truncate">{p.current.title}</div><div className="text-sub text-xs truncate">{p.current.subtitle}</div></div>
           </div>
         </>
@@ -25,7 +26,7 @@ export function QueuePanel({ onClose }: { onClose: () => void }) {
         {upcoming.map((t, i) => (
           <button key={`${t!.id}-${i}`} onClick={() => p.jumpTo(p.pos + 1 + i)}
             className="flex items-center gap-3 p-2 rounded-md hover:bg-card text-left">
-            <div className="w-10 h-10 rounded shrink-0" style={{ background: t!.gradient }} />
+            <Art src={coverFor(t!.kind)} gradient={t!.gradient} className="w-10 h-10 rounded shrink-0" />
             <div className="min-w-0"><div className="font-medium truncate">{t!.title}</div><div className="text-sub text-xs truncate">{t!.subtitle}</div></div>
           </button>
         ))}
