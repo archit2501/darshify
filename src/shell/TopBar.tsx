@@ -1,15 +1,33 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { playlists } from "../data/library";
 
-export function TopBar() {
+function accentFor(path: string): string | null {
+  if (path.startsWith("/playlist/")) {
+    const id = path.split("/")[2];
+    return playlists.find((p) => p.id === id)?.gradient ?? null;
+  }
+  if (path === "/artist") return "linear-gradient(180deg,#1ed760,#0a5)";
+  if (path === "/liked") return "linear-gradient(180deg,#4a00e0,#b3b3ff)";
+  return null;
+}
+
+export function TopBar({ scrollY = 0 }: { scrollY?: number }) {
   const nav = useNavigate();
+  const { pathname } = useLocation();
+  const accent = accentFor(pathname);
+  const tint = Math.min(scrollY / 140, 1);
+
   return (
-    <div className="sticky top-0 z-20 flex items-center gap-2 px-4 md:px-6 py-3 bg-bg/40 backdrop-blur-md">
+    <div className="sticky top-0 z-20 flex items-center gap-2 px-4 md:px-6 py-3">
+      {/* scroll tint layer (accent gradient on detail pages, dark elsewhere) */}
+      <div aria-hidden className="absolute inset-0 -z-10 transition-[background] backdrop-blur-md"
+        style={{ background: accent ?? "#0d0d12", opacity: tint }} />
       <button onClick={() => nav(-1)} aria-label="Back"
         className="grid place-items-center w-8 h-8 rounded-full bg-black/60 text-white hover:bg-black">‹</button>
       <button onClick={() => nav(1)} aria-label="Forward"
         className="grid place-items-center w-8 h-8 rounded-full bg-black/60 text-white hover:bg-black">›</button>
       <a href="/Darshil_Jain_Resume.pdf" download
-        className="ml-auto bg-white text-black text-sm font-bold rounded-full px-4 py-1.5 hover:scale-105 transition-transform">
+        className="ml-auto hidden sm:inline bg-white text-black text-sm font-bold rounded-full px-4 py-1.5 hover:scale-105 transition-transform">
         Download CV
       </a>
       <span className="bg-black/60 rounded-full pl-1 pr-3 py-1 text-sm font-bold flex items-center gap-2">
