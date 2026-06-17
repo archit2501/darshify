@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { PlayButton } from "./PlayButton";
 
 export function MediaCard({ to, title, subtitle, gradient, onPlay, round = false }: {
   to: string; title: string; subtitle?: string; gradient: string; onPlay?: () => void; round?: boolean;

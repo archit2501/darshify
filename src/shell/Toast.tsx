@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useState, type ReactNode } from "react";
 
 type Toast = { id: number; text: string };
 const ToastCtx = createContext<(text: string) => void>(() => {});
