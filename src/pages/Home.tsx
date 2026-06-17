@@ -1,9 +1,10 @@
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { playlists, tracks, trackById, coverFor, AVATAR } from "../data/library";
+import { playlists, tracks, trackById, coverFor, AVATAR, LIKED_COVER } from "../data/library";
 import { usePlayer } from "../player/PlayerContext";
 import { Shelf } from "../shell/Shelf";
 import { MediaCard } from "../shell/MediaCard";
+import { Art } from "../shell/Art";
 
 function greeting() {
   const h = new Date().getHours();
@@ -17,12 +18,12 @@ export function Home() {
   useEffect(() => { h1.current?.focus(); }, []);
 
   const quick = [
-    { to: "/artist", title: "This Is Darshil", gradient: "linear-gradient(135deg,#1ed760,#0a5)", ctx: tracks.map((t) => t.id) },
-    { to: "/playlist/skills", title: "Top Skills", gradient: "linear-gradient(135deg,#ff4d6d,#7b2ff7)", ctx: playlists[2].trackIds },
-    { to: "/playlist/experience", title: "Experience", gradient: "linear-gradient(135deg,#36c6ff,#2536ff)", ctx: playlists[0].trackIds },
-    { to: "/liked", title: "Liked Songs", gradient: "linear-gradient(135deg,#4a00e0,#b3b3ff)", ctx: ["a1", "a2", "a3", "a4"] },
-    { to: "/playlist/projects", title: "Projects", gradient: "linear-gradient(135deg,#8e2de2,#4a00e0)", ctx: playlists[1].trackIds },
-    { to: "/playlist/certs", title: "Certifications", gradient: "linear-gradient(135deg,#1ed760,#0a5)", ctx: playlists[3].trackIds },
+    { to: "/artist", title: "This Is Darshil", gradient: "linear-gradient(135deg,#1ed760,#0a5)", cover: AVATAR, ctx: tracks.map((t) => t.id) },
+    { to: "/playlist/skills", title: "Top Skills", gradient: "linear-gradient(135deg,#ff4d6d,#7b2ff7)", cover: playlists[2].cover, ctx: playlists[2].trackIds },
+    { to: "/playlist/experience", title: "Experience", gradient: "linear-gradient(135deg,#36c6ff,#2536ff)", cover: playlists[0].cover, ctx: playlists[0].trackIds },
+    { to: "/liked", title: "Liked Songs", gradient: "linear-gradient(135deg,#4a00e0,#b3b3ff)", cover: LIKED_COVER, ctx: ["a1", "a2", "a3", "a4"] },
+    { to: "/playlist/projects", title: "Projects", gradient: "linear-gradient(135deg,#8e2de2,#4a00e0)", cover: playlists[1].cover, ctx: playlists[1].trackIds },
+    { to: "/playlist/certs", title: "Certifications", gradient: "linear-gradient(135deg,#1ed760,#0a5)", cover: playlists[3].cover, ctx: playlists[3].trackIds },
   ];
 
   const topHits = [...tracks].sort((a, b) => b.plays - a.plays).slice(0, 6);
@@ -36,7 +37,7 @@ export function Home() {
         {quick.map((q) => (
           <div key={q.to} onClick={() => nav(q.to)}
             className="group relative flex items-center gap-4 bg-white/10 hover:bg-white/20 rounded-md overflow-hidden cursor-pointer transition-colors">
-            <div className="w-16 h-16 shrink-0" style={{ background: q.gradient }} />
+            <Art src={q.cover} gradient={q.gradient} alt={q.title} className="w-16 h-16 shrink-0" />
             <span className="font-bold">{q.title}</span>
             <button
               onClick={(e) => { e.stopPropagation(); const t = trackById(q.ctx[0]); if (t) p.play(t, q.ctx); }}
