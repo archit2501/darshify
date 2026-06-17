@@ -48,21 +48,21 @@ export function Home() {
         ))}
       </div>
 
-      <Shelf title="Made for Recruiters">
+      <Shelf title="Made for Recruiters" to="/library">
         {playlists.map((pl) => (
           <MediaCard key={pl.id} to={`/playlist/${pl.id}`} title={pl.title} subtitle={pl.description}
             gradient={pl.gradient} onPlay={() => { const t = trackById(pl.trackIds[0]); if (t) p.play(t, pl.trackIds); }} />
         ))}
       </Shelf>
 
-      <Shelf title="Your Top Hits">
+      <Shelf title="Your Top Hits" to="/artist">
         {topHits.map((t) => (
           <MediaCard key={t.id} to="/artist" title={t.title} subtitle={t.subtitle}
             gradient={t.gradient} onPlay={() => p.play(t, topHits.map((x) => x.id))} />
         ))}
       </Shelf>
 
-      <Shelf title="Jump back in">
+      <Shelf title="Jump back in" to="/library">
         <MediaCard to="/artist" title="This Is Darshil" subtitle="The essential tracks" round
           gradient="linear-gradient(135deg,#1ed760,#0a5)" onPlay={() => p.play(tracks[0], tracks.map((t) => t.id))} />
         {playlists.slice(0, 2).map((pl) => (

@@ -1,13 +1,24 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { playlists } from "../data/library";
 
 type Filter = "all" | "playlists" | "achievements";
+type Sort = "recents" | "az";
 
 export function Library() {
   const [filter, setFilter] = useState<Filter>("all");
-  const [sort, setSort] = useState<"recents" | "az">("recents");
+  const [sort, setSort] = useState<Sort>("recents");
+  const [sortOpen, setSortOpen] = useState(false);
   const [q, setQ] = useState("");
+
+  useEffect(() => {
+    if (!sortOpen) return;
+    const close = () => setSortOpen(false);
+    window.addEventListener("click", close);
+    return () => window.removeEventListener("click", close);
+  }, [sortOpen]);
+
+  const sortLabel = sort === "recents" ? "Recents" : "A–Z";
 
   const items = useMemo(() => {
     let list: { to: string; title: string; sub: string; gradient: string }[] = [
@@ -35,8 +46,22 @@ export function Library() {
         <div className="ml-auto flex items-center gap-2">
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search in library"
             className="bg-card-hi rounded-full px-3 py-1.5 text-sm outline-none" />
-          <button onClick={() => setSort((s) => (s === "recents" ? "az" : "recents"))}
-            className="text-sub text-sm hover:text-white">{sort === "recents" ? "Recents" : "A–Z"} ⇅</button>
+          <div className="relative" onClick={(e) => e.stopPropagation()}>
+            <button onClick={() => setSortOpen((o) => !o)} aria-haspopup="menu" aria-expanded={sortOpen}
+              className="text-sub text-sm hover:text-white">{sortLabel} ⇅</button>
+            {sortOpen && (
+              <ul role="menu" className="absolute right-0 mt-2 w-36 bg-[#282828] rounded-md shadow-2xl py-1 z-30 text-sm">
+                {([["recents", "Recents"], ["az", "A–Z"]] as [Sort, string][]).map(([val, label]) => (
+                  <li key={val} role="menuitemradio" aria-checked={sort === val}>
+                    <button onClick={() => { setSort(val); setSortOpen(false); }}
+                      className={`w-full text-left px-3 py-2 hover:bg-white/10 flex items-center justify-between ${sort === val ? "text-accent" : "text-white"}`}>
+                      {label}{sort === val && <span>✓</span>}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
       </div>
       <div className="flex flex-col">
