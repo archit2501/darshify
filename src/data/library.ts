@@ -125,14 +125,15 @@ export const playlists: Playlist[] = legacyCollectionIds.map((id) => {
     description: collection.description,
     gradient: collection.gradient,
     cover: collection.cover,
-    trackIds: collection.caseStudyIds,
+    trackIds: [...collection.caseStudyIds],
   };
 });
 
 /** @deprecated Use the achievements collection. */
 export const likedTrackIds =
-  portfolio.collections.find((item) => item.id === "achievements")
-    ?.caseStudyIds ?? [];
+  portfolio.collections
+    .find((item) => item.id === "achievements")
+    ?.caseStudyIds.slice() ?? [];
 
 // Generated cover art retained until the view migration is complete.
 export const LIKED_COVER = "/covers/liked.png";

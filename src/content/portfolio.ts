@@ -250,7 +250,6 @@ const caseStudies: CaseStudy[] = [
     result: "Listed as a finalist in the résumé.",
     proofIds: [],
     skills: ["Strategic Analysis", "Business Development"],
-    relatedIds: ["p1"],
   }),
   resumeCase({
     id: "a2",
@@ -393,7 +392,7 @@ export const portfolio: Portfolio = {
       "BBA Business and Industry student with résumé-listed experience across operations, recruitment, consulting, analytics, and student leadership.",
     email: "darshijain0809@gmail.com",
     phone: "+91 9268264843",
-    linkedInUrl: "https://www.linkedin.com/in/darshil-jain08/",
+    linkedInUrl: "https://www.linkedin.com/in/darshil-jain-611a3332b",
     resumeUrl: "/Darshil_Jain_Resume.pdf",
     skills: [
       "Market Research",

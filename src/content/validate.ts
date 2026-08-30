@@ -16,9 +16,17 @@ const duplicateValues = (values: string[]) => {
 
 export const validatePortfolio = (value: Portfolio): string[] => {
   const errors: string[] = [];
+  const sourceById = new Map(
+    value.sources.map((source) => [source.id, source]),
+  );
   const sourceIds = new Set(value.sources.map((source) => source.id));
-  const proofIds = new Set(value.proofPoints.map((proof) => proof.id));
+  const proofById = new Map(
+    value.proofPoints.map((proof) => [proof.id, proof]),
+  );
   const artifactIds = new Set(value.artifacts.map((artifact) => artifact.id));
+  const caseStudyById = new Map(
+    value.caseStudies.map((caseStudy) => [caseStudy.id, caseStudy]),
+  );
   const caseStudyIds = new Set(
     value.caseStudies.map((caseStudy) => caseStudy.id),
   );
@@ -66,6 +74,19 @@ export const validatePortfolio = (value: Portfolio): string[] => {
     if (proof.sourceIds.length === 0) {
       errors.push(`Proof point ${proof.id} is missing a source`);
     }
+    const resolvedSources = proof.sourceIds
+      .map((sourceId) => sourceById.get(sourceId))
+      .filter((source) => source !== undefined);
+    if (
+      resolvedSources.length > 0 &&
+      resolvedSources.length === proof.sourceIds.length &&
+      resolvedSources.every((source) => source.kind === "resume") &&
+      proof.status !== "self-reported"
+    ) {
+      errors.push(
+        `Proof point ${proof.id} uses only resume sources and must be self-reported`,
+      );
+    }
     for (const sourceId of proof.sourceIds) {
       if (!sourceIds.has(sourceId)) {
         errors.push(
@@ -73,10 +94,18 @@ export const validatePortfolio = (value: Portfolio): string[] => {
         );
       }
     }
+    if (proof.caseStudyIds.length === 0) {
+      errors.push(`Proof point ${proof.id} is missing a case study link`);
+    }
     for (const caseStudyId of proof.caseStudyIds) {
-      if (!caseStudyIds.has(caseStudyId)) {
+      const caseStudy = caseStudyById.get(caseStudyId);
+      if (!caseStudy) {
         errors.push(
           `Proof point ${proof.id} references unknown case study ${caseStudyId}`,
+        );
+      } else if (!caseStudy.proofIds.includes(proof.id)) {
+        errors.push(
+          `Proof point ${proof.id} is not linked back from case study ${caseStudyId}`,
         );
       }
     }
@@ -100,9 +129,14 @@ export const validatePortfolio = (value: Portfolio): string[] => {
 
   for (const caseStudy of value.caseStudies) {
     for (const proofId of caseStudy.proofIds) {
-      if (!proofIds.has(proofId)) {
+      const proof = proofById.get(proofId);
+      if (!proof) {
         errors.push(
           `Case study ${caseStudy.id} references unknown proof point ${proofId}`,
+        );
+      } else if (!proof.caseStudyIds.includes(caseStudy.id)) {
+        errors.push(
+          `Case study ${caseStudy.id} is not linked back from proof point ${proofId}`,
         );
       }
     }

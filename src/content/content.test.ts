@@ -15,6 +15,59 @@ describe("portfolio content", () => {
     );
   });
 
+  it("does not associate the IIM Bangalore achievement with ZautoAI", () => {
+    const achievement = portfolio.caseStudies.find((item) => item.id === "a1");
+    expect(achievement?.relatedIds).not.toContain("p1");
+  });
+
+  it("uses the LinkedIn URL embedded in the résumé PDF", () => {
+    expect(portfolio.candidate.linkedInUrl).toBe(
+      "https://www.linkedin.com/in/darshil-jain-611a3332b",
+    );
+  });
+
+  it("requires every quantitative proof to identify a case study", () => {
+    const invalid = structuredClone(portfolio);
+    invalid.proofPoints[0].caseStudyIds = [];
+
+    expect(validatePortfolio(invalid)).toContain(
+      "Proof point figmenta-projects is missing a case study link",
+    );
+  });
+
+  it("requires proof-to-case links to be reciprocal", () => {
+    const invalid = structuredClone(portfolio);
+    invalid.caseStudies[0].proofIds = invalid.caseStudies[0].proofIds.filter(
+      (id) => id !== "figmenta-projects",
+    );
+
+    expect(validatePortfolio(invalid)).toContain(
+      "Proof point figmenta-projects is not linked back from case study r1",
+    );
+  });
+
+  it("requires case-to-proof links to be reciprocal", () => {
+    const invalid = structuredClone(portfolio);
+    const proof = invalid.proofPoints.find(
+      (item) => item.id === "figmenta-projects",
+    );
+    if (!proof) throw new Error("Fixture proof point is missing");
+    proof.caseStudyIds = proof.caseStudyIds.filter((id) => id !== "r1");
+
+    expect(validatePortfolio(invalid)).toContain(
+      "Case study r1 is not linked back from proof point figmenta-projects",
+    );
+  });
+
+  it("rejects verified status when a proof has only résumé sources", () => {
+    const invalid = structuredClone(portfolio);
+    invalid.proofPoints[0].status = "verified";
+
+    expect(validatePortfolio(invalid)).toContain(
+      "Proof point figmenta-projects uses only resume sources and must be self-reported",
+    );
+  });
+
   it("describes duplicate, unresolved, and incomplete evidence errors", () => {
     const invalid = structuredClone(portfolio);
     invalid.caseStudies[1].id = invalid.caseStudies[0].id;
