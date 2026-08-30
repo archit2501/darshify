@@ -472,6 +472,7 @@
                   title: "Establish reproducible quality gates and CI",
                   hours: 5,
                   critical: true,
+                  status: "done",
                   deps: [],
                   complexity: "n/a",
                   files: [
@@ -499,6 +500,7 @@
                   title: "Create the evidence-first content model",
                   hours: 8,
                   critical: true,
+                  status: "in_progress",
                   deps: ["1.1.1"],
                   complexity: "O(1) lookup · O(n) validation/search",
                   files: [
@@ -904,7 +906,10 @@
       );
       const stored = JSON.parse(localStorage.getItem(storageKey) || "{}");
       const states = Object.fromEntries(
-        allTasks.map((task) => [task.id, stored[task.id] || "todo"]),
+        allTasks.map((task) => [
+          task.id,
+          stored[task.id] || task.status || "todo",
+        ]),
       );
       let activeFilter = "all";
 
