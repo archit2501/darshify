@@ -1,14 +1,29 @@
+import { portfolio } from "../content/portfolio";
+import type { CaseStudy } from "../content/types";
+
+/**
+ * @deprecated Compile-only presentation adapter for the pre-redesign pages and
+ * player. New code must consume `src/content` and must not treat playback or
+ * popularity placeholders in this module as portfolio evidence. The remaining
+ * legacy fields are removed when those consumers migrate in Tasks 2.4.1–3.2.1.
+ */
 export type Kind = "skill" | "role" | "project" | "achievement" | "cert";
+
+/** @deprecated Use `CaseStudy` from `src/content/types`. */
 export interface Track {
   id: string;
   title: string;
   subtitle: string;
   kind: Kind;
+  /** @deprecated Simulated player placeholder; not evidence. */
   durationSec: number;
+  /** @deprecated Simulated popularity placeholder; not evidence. */
   plays: number;
   detail: string;
   gradient: string;
 }
+
+/** @deprecated Use `Collection` from `src/content/types`. */
 export interface Playlist {
   id: string;
   title: string;
@@ -18,303 +33,138 @@ export interface Playlist {
   cover: string;
   trackIds: string[];
 }
+
+/** @deprecated Use portfolio collections. */
 export interface Genre {
   id: string;
   title: string;
   gradient: string;
 }
 
-const G = {
-  green: "linear-gradient(135deg,#1ed760,#0a5)",
-  pink: "linear-gradient(135deg,#ff4d6d,#7b2ff7)",
-  blue: "linear-gradient(135deg,#36c6ff,#2536ff)",
-  gold: "linear-gradient(135deg,#f7971e,#ffd200)",
-  purple: "linear-gradient(135deg,#8e2de2,#4a00e0)",
-  liked: "linear-gradient(160deg,#4a00e0,#b3b3ff)",
+const gradients: Record<CaseStudy["kind"], string> = {
+  experience: "linear-gradient(135deg,#36c6ff,#2536ff)",
+  project: "linear-gradient(135deg,#8e2de2,#4a00e0)",
+  leadership: "linear-gradient(135deg,#1ed760,#0a5)",
+  achievement: "linear-gradient(135deg,#f7971e,#ffd200)",
+  education: "linear-gradient(135deg,#1ed760,#0a5)",
 };
 
+const kindByCaseStudy: Record<CaseStudy["kind"], Kind> = {
+  experience: "role",
+  project: "project",
+  leadership: "role",
+  achievement: "achievement",
+  education: "cert",
+};
+
+/*
+ * These values preserve behavior only for the legacy simulated player. They
+ * are intentionally isolated from `portfolio`, selectors, and validation.
+ */
+const legacySimulationById: Record<
+  string,
+  { durationSec: number; plays: number }
+> = {
+  r1: { durationSec: 260, plays: 500000 },
+  r2: { durationSec: 244, plays: 320000 },
+  r3: { durationSec: 236, plays: 300000 },
+  p1: { durationSec: 268, plays: 410000 },
+  p2: { durationSec: 255, plays: 390000 },
+  p3: { durationSec: 242, plays: 350000 },
+  p4: { durationSec: 228, plays: 330000 },
+  a1: { durationSec: 210, plays: 270000 },
+  a2: { durationSec: 198, plays: 250000 },
+  a3: { durationSec: 205, plays: 260000 },
+  a4: { durationSec: 192, plays: 240000 },
+  c1: { durationSec: 180, plays: 120000 },
+  c2: { durationSec: 175, plays: 110000 },
+  c3: { durationSec: 185, plays: 130000 },
+};
+
+const emptyLegacySimulation = { durationSec: 0, plays: 0 };
+
+/** @deprecated Use `portfolio.candidate`. */
 export const artist = {
-  name: "Darshil Jain",
-  tagline: "Strategy & Operations · BBA (B&I) · CGPA 9.39",
+  name: portfolio.candidate.name,
+  tagline: portfolio.candidate.headline,
+  /** @deprecated Simulated popularity placeholder; not evidence. */
   monthlyListeners: 98_400,
-  gradient: G.green,
-  about:
-    "Business, consulting and operations builder. Three internships, four consulting/analytics projects, founder of an 80+ member club, and a national-level case competitor. Maharaja Surajmal Institute, GGSIPU.",
+  gradient: "linear-gradient(135deg,#1ed760,#0a5)",
+  about: portfolio.candidate.summary,
 };
 
-export const tracks: Track[] = [
-  {
-    id: "s1",
-    title: "Market Research",
-    subtitle: "Top Skills",
-    kind: "skill",
-    durationSec: 232,
-    plays: 920000,
-    detail: "Primary & secondary research, sizing, synthesis.",
-    gradient: G.pink,
-  },
-  {
-    id: "s2",
-    title: "Competitive Analysis",
-    subtitle: "Top Skills",
-    kind: "skill",
-    durationSec: 215,
-    plays: 900000,
-    detail: "Benchmarking, positioning, teardown.",
-    gradient: G.pink,
-  },
-  {
-    id: "s3",
-    title: "Strategic Analysis",
-    subtitle: "Top Skills",
-    kind: "skill",
-    durationSec: 248,
-    plays: 880000,
-    detail: "Frameworks to recommendations.",
-    gradient: G.pink,
-  },
-  {
-    id: "s4",
-    title: "Stakeholder Management",
-    subtitle: "Top Skills",
-    kind: "skill",
-    durationSec: 201,
-    plays: 870000,
-    detail: "Leadership comms, alignment.",
-    gradient: G.pink,
-  },
-  {
-    id: "s5",
-    title: "Excel · Notion",
-    subtitle: "Top Skills",
-    kind: "skill",
-    durationSec: 190,
-    plays: 900000,
-    detail: "Dashboards, trackers, ops systems.",
-    gradient: G.pink,
-  },
-  {
-    id: "s6",
-    title: "Business Development",
-    subtitle: "Top Skills",
-    kind: "skill",
-    durationSec: 205,
-    plays: 850000,
-    detail: "Upsell, renewals, monetization.",
-    gradient: G.pink,
-  },
-  {
-    id: "r1",
-    title: "Operations Intern",
-    subtitle: "Figmenta · Jan–Feb 2026",
-    kind: "role",
-    durationSec: 260,
-    plays: 500000,
-    detail:
-      "Centralized tracker for 35+ projects / 15+ members across Asia; screened 500+ resumes, onboarded 5+.",
-    gradient: G.blue,
-  },
-  {
-    id: "r2",
-    title: "Operations Intern",
-    subtitle: "PSR Compliance · 2025",
-    kind: "role",
-    durationSec: 244,
-    plays: 320000,
-    detail:
-      "Compliance for 70+ clients during a transition; consulting + upsell improving retention.",
-    gradient: G.blue,
-  },
-  {
-    id: "r3",
-    title: "Human Resource Intern",
-    subtitle: "MJ Marketing · 2025",
-    kind: "role",
-    durationSec: 236,
-    plays: 300000,
-    detail: "Analyzed 500+ candidates; ran 100+ interviews, assessed 300+.",
-    gradient: G.blue,
-  },
-  {
-    id: "p1",
-    title: "ZautoAI Consulting",
-    subtitle: "Projects",
-    kind: "project",
-    durationSec: 268,
-    plays: 410000,
-    detail:
-      "GTM/pricing/positioning for an AI health startup; finalist at IIHMR Saamarthya 5.0.",
-    gradient: G.purple,
-  },
-  {
-    id: "p2",
-    title: "IIT-G Capstone",
-    subtitle: "Projects",
-    kind: "project",
-    durationSec: 255,
-    plays: 390000,
-    detail: "Telemedicine no-show intervention; Top 10%.",
-    gradient: G.purple,
-  },
-  {
-    id: "p3",
-    title: "Haldiram's Expansion",
-    subtitle: "Projects",
-    kind: "project",
-    durationSec: 242,
-    plays: 350000,
-    detail: "International market-entry case; publication-ready.",
-    gradient: G.purple,
-  },
-  {
-    id: "p4",
-    title: "Zomato Dashboard",
-    subtitle: "Projects",
-    kind: "project",
-    durationSec: 228,
-    plays: 330000,
-    detail: "Looker Studio dashboard, 5+ metrics.",
-    gradient: G.purple,
-  },
-  {
-    id: "a1",
-    title: "IIM-B BPlan Finalist",
-    subtitle: "Achievements",
-    kind: "achievement",
-    durationSec: 210,
-    plays: 270000,
-    detail: "National Business Plan Championship — IIM Bangalore × MakeIntern.",
-    gradient: G.gold,
-  },
-  {
-    id: "a2",
-    title: "IIM-C Product Decode — 4th",
-    subtitle: "Achievements",
-    kind: "achievement",
-    durationSec: 198,
-    plays: 250000,
-    detail: "4th nationally — IIM Calcutta.",
-    gradient: G.gold,
-  },
-  {
-    id: "a3",
-    title: "BPlan Showdown — Winner",
-    subtitle: "Achievements",
-    kind: "achievement",
-    durationSec: 205,
-    plays: 260000,
-    detail: "1st place.",
-    gradient: G.gold,
-  },
-  {
-    id: "a4",
-    title: "IIT-G Consulting — Top 10%",
-    subtitle: "Achievements",
-    kind: "achievement",
-    durationSec: 192,
-    plays: 240000,
-    detail: "Winter Consulting Program.",
-    gradient: G.gold,
-  },
-  {
-    id: "c1",
-    title: "Hult Prize Bootcamp",
-    subtitle: "Certifications",
-    kind: "cert",
-    durationSec: 180,
-    plays: 120000,
-    detail: "Global Entrepreneurship Bootcamp, IIT Bombay — 2026.",
-    gradient: G.green,
-  },
-  {
-    id: "c2",
-    title: "Winter Consulting Program",
-    subtitle: "Certifications",
-    kind: "cert",
-    durationSec: 175,
-    plays: 110000,
-    detail: "2025.",
-    gradient: G.green,
-  },
-  {
-    id: "c3",
-    title: "BI & Data Analysis",
-    subtitle: "Certifications",
-    kind: "cert",
-    durationSec: 185,
-    plays: 130000,
-    detail: "IIM Bangalore — 2024.",
-    gradient: G.green,
-  },
-];
+/** @deprecated Use `portfolio.caseStudies`. */
+export const tracks: Track[] = portfolio.caseStudies.map((caseStudy) => ({
+  id: caseStudy.id,
+  title: caseStudy.title,
+  subtitle: `${caseStudy.organization} · ${caseStudy.period}`,
+  kind: kindByCaseStudy[caseStudy.kind],
+  ...(legacySimulationById[caseStudy.id] ?? emptyLegacySimulation),
+  detail: caseStudy.recruiterTakeaway,
+  gradient: gradients[caseStudy.kind],
+}));
 
-export const playlists: Playlist[] = [
-  {
-    id: "experience",
-    title: "Experience",
-    kind: "EP",
-    description: "Internships on heavy rotation.",
-    gradient: G.blue,
-    cover: "/covers/experience.png",
-    trackIds: ["r1", "r2", "r3"],
-  },
-  {
-    id: "projects",
-    title: "Projects",
-    kind: "LP",
-    description: "Consulting & analytics, full length.",
-    gradient: G.purple,
-    cover: "/covers/projects.png",
-    trackIds: ["p1", "p2", "p3", "p4"],
-  },
-  {
-    id: "skills",
-    title: "Top Skills",
-    kind: "Playlist",
-    description: "The greatest hits.",
-    gradient: G.pink,
-    cover: "/covers/skills.png",
-    trackIds: ["s1", "s2", "s3", "s4", "s5", "s6"],
-  },
-  {
-    id: "certs",
-    title: "Certifications",
-    kind: "EP",
-    description: "Bonus tracks.",
-    gradient: G.green,
-    cover: "/covers/certs.png",
-    trackIds: ["c1", "c2", "c3"],
-  },
-];
+const playlistKinds: Record<string, Playlist["kind"]> = {
+  experience: "EP",
+  projects: "LP",
+  skills: "Playlist",
+  certs: "EP",
+};
 
-export const likedTrackIds = ["a1", "a2", "a3", "a4"];
+const legacyCollectionIds = ["experience", "projects", "skills", "certs"];
 
-// generated cover art (with gradient fallback if an image is missing)
+/** @deprecated Use `portfolio.collections`. */
+export const playlists: Playlist[] = legacyCollectionIds.map((id) => {
+  const collection = portfolio.collections.find((item) => item.id === id);
+  if (!collection) throw new Error(`Missing portfolio collection: ${id}`);
+
+  return {
+    id: collection.id,
+    title: collection.title,
+    kind: playlistKinds[collection.id],
+    description: collection.description,
+    gradient: collection.gradient,
+    cover: collection.cover,
+    trackIds: collection.caseStudyIds,
+  };
+});
+
+/** @deprecated Use the achievements collection. */
+export const likedTrackIds =
+  portfolio.collections.find((item) => item.id === "achievements")
+    ?.caseStudyIds ?? [];
+
+// Generated cover art retained until the view migration is complete.
 export const LIKED_COVER = "/covers/liked.png";
 export const ARTIST_HERO = "/covers/artist-hero.png";
 export const AVATAR = "/covers/avatar.png";
-const KIND_COVER: Record<Kind, string> = {
+
+const coverByKind: Record<Kind, string> = {
   skill: "/covers/skills.png",
   role: "/covers/experience.png",
   project: "/covers/projects.png",
   achievement: "/covers/liked.png",
   cert: "/covers/certs.png",
 };
-export const coverFor = (kind: Kind): string => KIND_COVER[kind];
 
-export const genres: Genre[] = [
-  { id: "skills", title: "Skills", gradient: G.pink },
-  { id: "experience", title: "Experience", gradient: G.blue },
-  { id: "projects", title: "Projects", gradient: G.purple },
-  { id: "certs", title: "Certifications", gradient: G.green },
-  { id: "liked", title: "Achievements", gradient: G.liked },
-];
+/** @deprecated Covers are owned by portfolio collections. */
+export const coverFor = (kind: Kind): string => coverByKind[kind];
 
-const map = new Map(tracks.map((t) => [t.id, t]));
-export const trackById = (id: string): Track | undefined => map.get(id);
+/** @deprecated Use `portfolio.collections`. */
+export const genres: Genre[] = portfolio.collections.map((collection) => ({
+  id: collection.id,
+  title: collection.title,
+  gradient: collection.gradient,
+}));
 
+const trackMap = new Map(tracks.map((track) => [track.id, track]));
+
+/** @deprecated Use `caseStudyById` from `src/content/selectors`. */
+export const trackById = (id: string): Track | undefined => trackMap.get(id);
+
+/** @deprecated Use `portfolio.candidate`. */
 export const contact = {
-  email: "darshijain0809@gmail.com",
-  phone: "+91 9268264843",
-  linkedin: "https://www.linkedin.com/in/darshil-jain08/",
+  email: portfolio.candidate.email,
+  phone: portfolio.candidate.phone,
+  linkedin: portfolio.candidate.linkedInUrl,
 };
