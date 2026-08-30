@@ -577,10 +577,6 @@ git commit -m "feat: add sourced Proof Waveform artwork [2.3.1]"
 - Create: `src/career-mix/CareerMixDock.test.tsx`
 - Modify: `app/root.tsx`
 - Modify: `src/shell/AppShell.tsx`
-- Remove: `src/player/PlayerContext.tsx`
-- Remove: `src/player/engine.ts`
-- Remove: `src/player/engine.test.ts`
-- Remove: `src/player/useAmbient.ts`
 - Remove: `src/shell/PlayerBar.tsx`
 - Remove: `src/shell/NowPlayingPanel.tsx`
 - Remove: `src/shell/QueuePanel.tsx`
@@ -613,7 +609,7 @@ Render the dock only when status is not `closed`. Include chapter label, takeawa
 
 - [ ] **Step 5: Remove legacy playback and dead semantics**
 
-Delete the player engine, ambient audio, fake seek/volume, likes, queue, shuffle, repeat, and now-playing panels. Remove all imports and local-storage keys tied to simulated music behavior.
+Delete the visible player bar, queue, and now-playing panels, and stop exposing ambient audio, fake seek/volume, likes, shuffle, and repeat in the product UI. Keep `PlayerContext`, `engine`, and `useAmbient` as a deprecated compile-only compatibility layer for the still-unmigrated Artist/collection pages; Task 9 removes that layer immediately after those consumers move to proof rows.
 
 - [ ] **Step 6: Verify and commit**
 
@@ -623,7 +619,7 @@ npm run lint
 npm run type-check
 npm run build
 git add app/root.tsx src/career-mix src/shell/AppShell.tsx
-git rm -r src/player src/shell/PlayerBar.tsx src/shell/NowPlayingPanel.tsx src/shell/QueuePanel.tsx
+git rm src/shell/PlayerBar.tsx src/shell/NowPlayingPanel.tsx src/shell/QueuePanel.tsx
 git commit -m "feat: replace fake playback with Career Mix [2.4.1]"
 ```
 
@@ -700,6 +696,10 @@ git commit -m "feat: make Home a recruiter briefing [3.1.1]"
 - Modify: `app/routes/collection.tsx`
 - Remove: `src/shell/TrackRow.tsx`
 - Remove: `src/shell/TrackRow.test.tsx`
+- Remove: `src/player/PlayerContext.tsx`
+- Remove: `src/player/engine.ts`
+- Remove: `src/player/engine.test.ts`
+- Remove: `src/player/useAmbient.ts`
 
 **Interfaces:**
 - Consumes: candidate, ordered proof tracks, collections, case-study routes, `ContactActions`, `ProofWaveform`, and evidence covers.
@@ -726,6 +726,8 @@ Render proposition and conversion first, followed by Selected Impact, Proof Wave
 
 Use collection data and proof rows. Preserve `/playlist/:id` and `/liked`, but replace “Liked Songs” ownership semantics with truthful achievement/release labels and redirects/canonical metadata where appropriate.
 
+After Artist, collection, achievement, MediaCard, and Home consumers no longer import `usePlayer`, delete the deprecated compatibility provider, engine, tests, ambient-audio hook, and their local-storage keys. Confirm `rg "usePlayer|PlayerProvider|durationSec|plays|toggleLike|toggleAudio" src app` returns no simulated-player consumers.
+
 - [ ] **Step 6: Verify and commit**
 
 ```bash
@@ -734,7 +736,7 @@ npm run lint
 npm run type-check
 npm run build
 git add src/components/ProofTrackRow.tsx src/components/ProofTrackRow.test.tsx src/components/ReleaseCard.tsx src/components/ReleaseCard.test.tsx src/pages app/routes/artist.tsx app/routes/collection.tsx
-git rm src/shell/TrackRow.tsx src/shell/TrackRow.test.tsx
+git rm src/shell/TrackRow.tsx src/shell/TrackRow.test.tsx src/player/PlayerContext.tsx src/player/engine.ts src/player/engine.test.ts src/player/useAmbient.ts
 git commit -m "feat: turn releases into sourced career proof [3.2.1]"
 ```
 
@@ -1049,4 +1051,3 @@ Promote the verified preview deployment, run a production smoke test for Home, A
 - **Type consistency:** `Portfolio`, `ProofPoint`, `CaseStudy`, `Artifact`, `CareerMixChapter`, `caseStudyBySlug`, `searchPortfolio`, `useCareerMix`, `ContactActions`, `EvidenceCover`, and `ProofWaveform` retain the same names across producer and consumer tasks.
 - **Quality continuity:** Task 1 establishes gates; every later task runs affected tests plus lint, type-check, and build; Task 13 makes final coverage, accessibility, and performance thresholds release-blocking.
 - **Sequential constraint:** Tasks execute in numeric order. Independent work is documented in the protocol dashboard but does not begin concurrently unless the user explicitly changes the execution policy.
-

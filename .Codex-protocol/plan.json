@@ -186,7 +186,7 @@
               "acceptance": [
                 "Global Play opens a silent 60-second guided tour",
                 "Pause, previous, next, progress, evidence link, and close are keyboard operable",
-                "Legacy ambient audio, seek, likes, queue, shuffle, repeat, and fake timing are removed",
+                "Legacy player UI and all visible ambient audio, seek, likes, queue, shuffle, repeat, and fake timing are removed; compile-only compatibility code is deleted in Task 3.2.1",
                 "Timed state updates remain isolated to the Career Mix provider"
               ],
               "estimateHours": 8,
