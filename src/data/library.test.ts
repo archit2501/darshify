@@ -29,6 +29,7 @@ describe("library data", () => {
     );
 
     for (const playlist of playlists) {
+      if (playlist.id === "skills") continue;
       const collection = portfolio.collections.find(
         (item) => item.id === playlist.id,
       );
@@ -36,6 +37,25 @@ describe("library data", () => {
       expect(playlist.title).toBe(collection?.title);
       expect(playlist.trackIds).toEqual(collection?.caseStudyIds);
     }
+  });
+
+  it("preserves the legacy first skill track for current UI consumers", () => {
+    expect(tracks[0]).toEqual({
+      id: "s1",
+      title: "Market Research",
+      subtitle: "Top Skills",
+      kind: "skill",
+      durationSec: 232,
+      plays: 920000,
+      detail: "Primary & secondary research, sizing, synthesis.",
+      gradient: "linear-gradient(135deg,#ff4d6d,#7b2ff7)",
+    });
+  });
+
+  it("preserves the legacy skills playlist membership and order", () => {
+    expect(
+      playlists.find((playlist) => playlist.id === "skills")?.trackIds,
+    ).toEqual(["s1", "s2", "s3", "s4", "s5", "s6"]);
   });
 
   it("does not let playlist adapter mutation alter canonical collections", () => {

@@ -82,6 +82,74 @@ const legacySimulationById: Record<
 };
 
 const emptyLegacySimulation = { durationSec: 0, plays: 0 };
+const legacySkillGradient = "linear-gradient(135deg,#ff4d6d,#7b2ff7)";
+
+/**
+ * @deprecated Compatibility-only simulated skill records. These are not
+ * canonical evidence and must not be imported by `src/content` consumers.
+ */
+const legacySkillTracks: Track[] = [
+  {
+    id: "s1",
+    title: "Market Research",
+    subtitle: "Top Skills",
+    kind: "skill",
+    durationSec: 232,
+    plays: 920000,
+    detail: "Primary & secondary research, sizing, synthesis.",
+    gradient: legacySkillGradient,
+  },
+  {
+    id: "s2",
+    title: "Competitive Analysis",
+    subtitle: "Top Skills",
+    kind: "skill",
+    durationSec: 215,
+    plays: 900000,
+    detail: "Benchmarking, positioning, teardown.",
+    gradient: legacySkillGradient,
+  },
+  {
+    id: "s3",
+    title: "Strategic Analysis",
+    subtitle: "Top Skills",
+    kind: "skill",
+    durationSec: 248,
+    plays: 880000,
+    detail: "Frameworks to recommendations.",
+    gradient: legacySkillGradient,
+  },
+  {
+    id: "s4",
+    title: "Stakeholder Management",
+    subtitle: "Top Skills",
+    kind: "skill",
+    durationSec: 201,
+    plays: 870000,
+    detail: "Leadership comms, alignment.",
+    gradient: legacySkillGradient,
+  },
+  {
+    id: "s5",
+    title: "Excel · Notion",
+    subtitle: "Top Skills",
+    kind: "skill",
+    durationSec: 190,
+    plays: 900000,
+    detail: "Dashboards, trackers, ops systems.",
+    gradient: legacySkillGradient,
+  },
+  {
+    id: "s6",
+    title: "Business Development",
+    subtitle: "Top Skills",
+    kind: "skill",
+    durationSec: 205,
+    plays: 850000,
+    detail: "Upsell, renewals, monetization.",
+    gradient: legacySkillGradient,
+  },
+];
 
 /** @deprecated Use `portfolio.candidate`. */
 export const artist = {
@@ -94,15 +162,18 @@ export const artist = {
 };
 
 /** @deprecated Use `portfolio.caseStudies`. */
-export const tracks: Track[] = portfolio.caseStudies.map((caseStudy) => ({
-  id: caseStudy.id,
-  title: caseStudy.title,
-  subtitle: `${caseStudy.organization} · ${caseStudy.period}`,
-  kind: kindByCaseStudy[caseStudy.kind],
-  ...(legacySimulationById[caseStudy.id] ?? emptyLegacySimulation),
-  detail: caseStudy.recruiterTakeaway,
-  gradient: gradients[caseStudy.kind],
-}));
+export const tracks: Track[] = [
+  ...legacySkillTracks,
+  ...portfolio.caseStudies.map((caseStudy) => ({
+    id: caseStudy.id,
+    title: caseStudy.title,
+    subtitle: `${caseStudy.organization} · ${caseStudy.period}`,
+    kind: kindByCaseStudy[caseStudy.kind],
+    ...(legacySimulationById[caseStudy.id] ?? emptyLegacySimulation),
+    detail: caseStudy.recruiterTakeaway,
+    gradient: gradients[caseStudy.kind],
+  })),
+];
 
 const playlistKinds: Record<string, Playlist["kind"]> = {
   experience: "EP",
@@ -125,7 +196,10 @@ export const playlists: Playlist[] = legacyCollectionIds.map((id) => {
     description: collection.description,
     gradient: collection.gradient,
     cover: collection.cover,
-    trackIds: [...collection.caseStudyIds],
+    trackIds:
+      collection.id === "skills"
+        ? legacySkillTracks.map((track) => track.id)
+        : [...collection.caseStudyIds],
   };
 });
 
