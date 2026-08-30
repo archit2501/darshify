@@ -13,7 +13,7 @@ a Search page, a Library, an artist page ("This Is Darshil"), and a Liked-Songs
 list, all under a persistent **now-playing player bar** with real play/pause/
 next/prev/seek/shuffle/repeat and a queue.
 
-**Original build.** Inspired by streaming-app *UI patterns* only. No real brand
+**Original build.** Inspired by streaming-app _UI patterns_ only. No real brand
 name, logo, trademarked icon, copyrighted album art, or song lyrics. Original
 wordmark ("DARSHIFY"), original icon set (Unicode/SVG), original color tokens.
 

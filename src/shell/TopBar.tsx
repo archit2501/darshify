@@ -20,18 +20,37 @@ export function TopBar({ scrollY = 0 }: { scrollY?: number }) {
   return (
     <div className="sticky top-0 z-20 flex items-center gap-2 px-4 md:px-6 py-3">
       {/* scroll tint layer (accent gradient on detail pages, dark elsewhere) */}
-      <div aria-hidden className="absolute inset-0 -z-10 transition-[background] backdrop-blur-md"
-        style={{ background: accent ?? "#0d0d12", opacity: tint }} />
-      <button onClick={() => nav(-1)} aria-label="Back"
-        className="grid place-items-center w-8 h-8 rounded-full bg-black/60 text-white hover:bg-black">‹</button>
-      <button onClick={() => nav(1)} aria-label="Forward"
-        className="grid place-items-center w-8 h-8 rounded-full bg-black/60 text-white hover:bg-black">›</button>
-      <a href="/Darshil_Jain_Resume.pdf" download
-        className="ml-auto hidden sm:inline bg-white text-black text-sm font-bold rounded-full px-4 py-1.5 hover:scale-105 transition-transform">
+      <div
+        aria-hidden
+        className="absolute inset-0 -z-10 transition-[background] backdrop-blur-md"
+        style={{ background: accent ?? "#0d0d12", opacity: tint }}
+      />
+      <button
+        onClick={() => nav(-1)}
+        aria-label="Back"
+        className="grid place-items-center w-8 h-8 rounded-full bg-black/60 text-white hover:bg-black"
+      >
+        ‹
+      </button>
+      <button
+        onClick={() => nav(1)}
+        aria-label="Forward"
+        className="grid place-items-center w-8 h-8 rounded-full bg-black/60 text-white hover:bg-black"
+      >
+        ›
+      </button>
+      <a
+        href="/Darshil_Jain_Resume.pdf"
+        download
+        className="ml-auto hidden sm:inline bg-white text-black text-sm font-bold rounded-full px-4 py-1.5 hover:scale-105 transition-transform"
+      >
         Download CV
       </a>
       <span className="bg-black/60 rounded-full pl-1 pr-3 py-1 text-sm font-bold flex items-center gap-2">
-        <span className="grid place-items-center w-6 h-6 rounded-full bg-accent text-black">D</span>Darshil
+        <span className="grid place-items-center w-6 h-6 rounded-full bg-accent text-black">
+          D
+        </span>
+        Darshil
       </span>
     </div>
   );

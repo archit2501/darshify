@@ -7,7 +7,8 @@ describe("library data", () => {
     expect(tracks.length).toBeGreaterThanOrEqual(15);
   });
   it("every playlist trackId resolves to a track", () => {
-    for (const p of playlists) for (const id of p.trackIds) expect(trackById(id)).toBeTruthy();
+    for (const p of playlists)
+      for (const id of p.trackIds) expect(trackById(id)).toBeTruthy();
   });
   it("exposes genre tiles for search", () => {
     expect(genres.length).toBeGreaterThanOrEqual(4);
