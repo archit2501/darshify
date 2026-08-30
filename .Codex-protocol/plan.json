@@ -35,7 +35,13 @@
               "estimateHours": 5,
               "timeComplexity": "n/a",
               "spaceComplexity": "n/a",
-              "files": ["package.json", "vite.config.ts", "playwright.config.ts", ".github/workflows/ci.yml", "e2e/baseline.spec.ts"],
+              "files": [
+                "package.json",
+                "vite.config.ts",
+                "playwright.config.ts",
+                ".github/workflows/ci.yml",
+                "e2e/baseline.spec.ts"
+              ],
               "dependencies": [],
               "smokeTest": "npm run format && npm run check && npm run test:e2e",
               "ciJobs": ["quality", "test", "build", "browser"],
@@ -60,7 +66,13 @@
               "estimateHours": 8,
               "timeComplexity": "O(1) lookup; O(n) validation/search",
               "spaceComplexity": "O(n)",
-              "files": ["src/content/types.ts", "src/content/portfolio.ts", "src/content/selectors.ts", "src/content/validate.ts", "src/data/library.ts"],
+              "files": [
+                "src/content/types.ts",
+                "src/content/portfolio.ts",
+                "src/content/selectors.ts",
+                "src/content/validate.ts",
+                "src/data/library.ts"
+              ],
               "dependencies": ["1.1.1"],
               "smokeTest": "npm test -- src/content src/data/library.test.ts && npm run lint && npm run type-check && npm run build",
               "ciJobs": ["quality", "test", "build"],
@@ -85,7 +97,13 @@
               "estimateHours": 8,
               "timeComplexity": "O(n) route list generation",
               "spaceComplexity": "O(n) generated route manifests",
-              "files": ["react-router.config.ts", "app/root.tsx", "app/routes.ts", "app/routes/*.tsx", "vercel.json"],
+              "files": [
+                "react-router.config.ts",
+                "app/root.tsx",
+                "app/routes.ts",
+                "app/routes/*.tsx",
+                "vercel.json"
+              ],
               "dependencies": ["1.2.1"],
               "smokeTest": "npm run type-check && npm run build && npm run test:e2e -- e2e/baseline.spec.ts e2e/prerender.spec.ts",
               "ciJobs": ["quality", "test", "build", "browser"],
@@ -117,7 +135,13 @@
               "estimateHours": 6,
               "timeComplexity": "n/a",
               "spaceComplexity": "n/a",
-              "files": ["src/styles/tokens.css", "src/styles/base.css", "src/motion/MotionProvider.tsx", "src/index.css", "package.json"],
+              "files": [
+                "src/styles/tokens.css",
+                "src/styles/base.css",
+                "src/motion/MotionProvider.tsx",
+                "src/index.css",
+                "package.json"
+              ],
               "dependencies": ["1.3.1"],
               "smokeTest": "npm test -- src/motion src/lib/useReducedMotion.test.ts && npm run lint && npm run type-check && npm run build",
               "ciJobs": ["quality", "test", "build"],
@@ -142,7 +166,13 @@
               "estimateHours": 6,
               "timeComplexity": "n/a",
               "spaceComplexity": "n/a",
-              "files": ["src/components/ContactActions.tsx", "src/shell/AppShell.tsx", "src/shell/Sidebar.tsx", "src/shell/TopBar.tsx", "src/shell/BottomNav.tsx"],
+              "files": [
+                "src/components/ContactActions.tsx",
+                "src/shell/AppShell.tsx",
+                "src/shell/Sidebar.tsx",
+                "src/shell/TopBar.tsx",
+                "src/shell/BottomNav.tsx"
+              ],
               "dependencies": ["2.1.1"],
               "smokeTest": "npm test -- src/components/ContactActions.test.tsx && npm run test:e2e -- e2e/shell-accessibility.spec.ts && npm run build",
               "ciJobs": ["quality", "test", "build", "browser"],
@@ -167,7 +197,13 @@
               "estimateHours": 7,
               "timeComplexity": "O(n) waveform normalization",
               "spaceComplexity": "O(n)",
-              "files": ["src/components/EvidenceCover.tsx", "src/components/ProofWaveform.tsx", "src/content/waveform.ts", "public/artifacts/*.svg", "src/shell/Art.tsx"],
+              "files": [
+                "src/components/EvidenceCover.tsx",
+                "src/components/ProofWaveform.tsx",
+                "src/content/waveform.ts",
+                "public/artifacts/*.svg",
+                "src/shell/Art.tsx"
+              ],
               "dependencies": ["2.2.1"],
               "smokeTest": "npm test -- src/components/ProofWaveform.test.tsx src/components/EvidenceCover.test.tsx && npm run lint && npm run type-check && npm run build",
               "ciJobs": ["quality", "test", "build"],
@@ -192,7 +228,12 @@
               "estimateHours": 8,
               "timeComplexity": "O(1) per reducer action",
               "spaceComplexity": "O(1) runtime state",
-              "files": ["src/career-mix/reducer.ts", "src/career-mix/CareerMixContext.tsx", "src/career-mix/CareerMixDock.tsx", "src/shell/AppShell.tsx"],
+              "files": [
+                "src/career-mix/reducer.ts",
+                "src/career-mix/CareerMixContext.tsx",
+                "src/career-mix/CareerMixDock.tsx",
+                "src/shell/AppShell.tsx"
+              ],
               "dependencies": ["2.2.1", "1.2.1"],
               "smokeTest": "npm test -- src/career-mix && npm run lint && npm run type-check && npm run build",
               "ciJobs": ["quality", "test", "build"],
@@ -224,7 +265,13 @@
               "estimateHours": 7,
               "timeComplexity": "O(n) evidence shelf rendering",
               "spaceComplexity": "O(n)",
-              "files": ["src/components/RecruiterHero.tsx", "src/pages/Home.tsx", "src/shell/MediaCard.tsx", "src/shell/Shelf.tsx", "app/routes/home.tsx"],
+              "files": [
+                "src/components/RecruiterHero.tsx",
+                "src/pages/Home.tsx",
+                "src/shell/MediaCard.tsx",
+                "src/shell/Shelf.tsx",
+                "app/routes/home.tsx"
+              ],
               "dependencies": ["2.3.1", "2.4.1"],
               "smokeTest": "npm test -- src/components/RecruiterHero.test.tsx src/pages/Home.test.tsx && npm run test:e2e -- e2e/recruiter-home.spec.ts && npm run build",
               "ciJobs": ["quality", "test", "build", "browser"],
@@ -249,7 +296,13 @@
               "estimateHours": 8,
               "timeComplexity": "O(n) ordered proof rendering",
               "spaceComplexity": "O(n)",
-              "files": ["src/components/ProofTrackRow.tsx", "src/components/ReleaseCard.tsx", "src/pages/ArtistPage.tsx", "src/pages/PlaylistPage.tsx", "src/pages/LikedSongs.tsx"],
+              "files": [
+                "src/components/ProofTrackRow.tsx",
+                "src/components/ReleaseCard.tsx",
+                "src/pages/ArtistPage.tsx",
+                "src/pages/PlaylistPage.tsx",
+                "src/pages/LikedSongs.tsx"
+              ],
               "dependencies": ["3.1.1"],
               "smokeTest": "npm test -- src/pages/ArtistPage.test.tsx src/components/ProofTrackRow.test.tsx src/components/ReleaseCard.test.tsx && npm run lint && npm run type-check && npm run build",
               "ciJobs": ["quality", "test", "build"],
@@ -274,7 +327,13 @@
               "estimateHours": 8,
               "timeComplexity": "O(1) slug lookup; O(n) related-item rendering",
               "spaceComplexity": "O(n) prerender output",
-              "files": ["src/components/CaseStudyHeader.tsx", "src/components/EvidencePanel.tsx", "src/pages/CaseStudyPage.tsx", "app/routes/case-study.tsx", "react-router.config.ts"],
+              "files": [
+                "src/components/CaseStudyHeader.tsx",
+                "src/components/EvidencePanel.tsx",
+                "src/pages/CaseStudyPage.tsx",
+                "app/routes/case-study.tsx",
+                "react-router.config.ts"
+              ],
               "dependencies": ["3.2.1"],
               "smokeTest": "npm test -- src/pages/CaseStudyPage.test.tsx && npm run build && npm run test:e2e -- e2e/case-studies.spec.ts e2e/prerender.spec.ts",
               "ciJobs": ["quality", "test", "build", "browser"],
@@ -299,7 +358,14 @@
               "estimateHours": 7,
               "timeComplexity": "O(n) search/filter; O(n log n) explicit A-Z sort",
               "spaceComplexity": "O(n) normalized corpus",
-              "files": ["src/components/SearchField.tsx", "src/components/SearchResults.tsx", "src/pages/Search.tsx", "src/pages/Library.tsx", "app/routes/search.tsx", "app/routes/library.tsx"],
+              "files": [
+                "src/components/SearchField.tsx",
+                "src/components/SearchResults.tsx",
+                "src/pages/Search.tsx",
+                "src/pages/Library.tsx",
+                "app/routes/search.tsx",
+                "app/routes/library.tsx"
+              ],
               "dependencies": ["3.3.1"],
               "smokeTest": "npm test -- src/pages/Search.test.tsx src/pages/Library.test.tsx src/content/selectors.test.ts && npm run test:e2e -- e2e/discovery.spec.ts && npm run build",
               "ciJobs": ["quality", "test", "build", "browser"],
@@ -331,7 +397,14 @@
               "estimateHours": 6,
               "timeComplexity": "O(n) sitemap and metadata generation",
               "spaceComplexity": "O(n)",
-              "files": ["src/seo/meta.ts", "src/seo/structuredData.ts", "src/analytics/outcomes.ts", "src/components/OutcomeLink.tsx", "public/sitemap.xml", "public/robots.txt"],
+              "files": [
+                "src/seo/meta.ts",
+                "src/seo/structuredData.ts",
+                "src/analytics/outcomes.ts",
+                "src/components/OutcomeLink.tsx",
+                "public/sitemap.xml",
+                "public/robots.txt"
+              ],
               "dependencies": ["3.3.1"],
               "smokeTest": "npm test -- src/seo src/analytics src/components/ContactActions.test.tsx && npm run build && npm run test:e2e -- e2e/prerender.spec.ts",
               "ciJobs": ["quality", "test", "build", "browser"],
@@ -357,7 +430,14 @@
               "estimateHours": 8,
               "timeComplexity": "O(r + a) route and asset validation",
               "spaceComplexity": "O(r + a) reports",
-              "files": ["e2e/*.spec.ts", "scripts/check-links.mjs", "scripts/check-content.mjs", "lighthouserc.json", "vite.config.ts", ".github/workflows/ci.yml"],
+              "files": [
+                "e2e/*.spec.ts",
+                "scripts/check-links.mjs",
+                "scripts/check-content.mjs",
+                "lighthouserc.json",
+                "vite.config.ts",
+                ".github/workflows/ci.yml"
+              ],
               "dependencies": ["3.4.1", "4.1.1"],
               "smokeTest": "npm run check && npm run test:e2e && npx lhci autorun",
               "ciJobs": ["quality", "test", "build", "browser"],
@@ -383,7 +463,13 @@
               "estimateHours": 8,
               "timeComplexity": "O(r + c) route and claim audit",
               "spaceComplexity": "O(r + c) audit evidence",
-              "files": ["docs/release/2026-08-31-preview-audit.md", "docs/release/2026-08-31-manual-a11y.md", "docs/release/2026-08-31-content-sources.md", "README.md", ".Codex-protocol/state.json"],
+              "files": [
+                "docs/release/2026-08-31-preview-audit.md",
+                "docs/release/2026-08-31-manual-a11y.md",
+                "docs/release/2026-08-31-content-sources.md",
+                "README.md",
+                ".Codex-protocol/state.json"
+              ],
               "dependencies": ["4.2.1"],
               "smokeTest": "PLAYWRIGHT_BASE_URL=$PREVIEW_URL npm run test:e2e && LHCI_BUILD_CONTEXT__CURRENT_HASH=$(git rev-parse HEAD) npx lhci autorun",
               "ciJobs": ["quality", "test", "build", "browser"],

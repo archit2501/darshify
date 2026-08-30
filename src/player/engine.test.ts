@@ -13,7 +13,8 @@ describe("engine", () => {
     expect(prevIndex(2)).toBe(1);
   });
   it("shuffleOrder is a deterministic permutation for a seed", () => {
-    const a = shuffleOrder(6, 42), b = shuffleOrder(6, 42);
+    const a = shuffleOrder(6, 42),
+      b = shuffleOrder(6, 42);
     expect(a).toEqual(b);
     expect([...a].sort((x, y) => x - y)).toEqual([0, 1, 2, 3, 4, 5]);
   });

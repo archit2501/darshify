@@ -128,15 +128,15 @@ Required validation:
 
 ### Color
 
-| Token | Value | Purpose |
-|---|---:|---|
-| `ink` | `#000000` | App canvas only |
-| `panel` | `#121212` | Main surfaces |
-| `elevated` | `#1B1B1B` | Cards and drawers |
-| `line` | `#303030` | Dividers and focus offsets |
-| `text` | `#F7F7F5` | Primary text |
-| `muted` | `#B3B3B3` | Secondary text |
-| `signal` | `#1ED760` | Primary actions, current state, and proof markers |
+| Token      |     Value | Purpose                                           |
+| ---------- | --------: | ------------------------------------------------- |
+| `ink`      | `#000000` | App canvas only                                   |
+| `panel`    | `#121212` | Main surfaces                                     |
+| `elevated` | `#1B1B1B` | Cards and drawers                                 |
+| `line`     | `#303030` | Dividers and focus offsets                        |
+| `text`     | `#F7F7F5` | Primary text                                      |
+| `muted`    | `#B3B3B3` | Secondary text                                    |
+| `signal`   | `#1ED760` | Primary actions, current state, and proof markers |
 
 Black and green preserve brand memory. At most four accessible secondary signals may differentiate categories, and only in chips, thin edges, or waveform segments. Full-card rainbow gradients are removed.
 
@@ -272,4 +272,3 @@ The full redesign is deployed to a private preview and audited across desktop, m
 - Strict lightweight complexity and sub-50ms interaction contract.
 - WCAG 2.2 AA.
 - Silent 60-second guided Career Mix.
-

@@ -22,11 +22,11 @@ The blunt diagnosis: **the Spotify theme is not the problem; treating Spotify's 
 
 **Screenshot evidence**
 
-| Screenshot | What it proves |
-|---|---|
+| Screenshot                                                    | What it proves                                                                                                                                                                                                                                                                                              |
+| ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `DESIGN-IS-2026-08-29/screenshots/desktop-home-1440x1000.png` | The first viewport is dominated by greeting, duplicated navigation, six category tiles, four generic covers, and a full player. No role proposition, contact route, or project outcome appears in the main content. “Your Top Hits” repeats one brain image six times and the last card is visibly clipped. |
-| `DESIGN-IS-2026-08-29/screenshots/mobile-home-390x844.png` | At 390 px, the first viewport is almost entirely greeting plus six navigation tiles. The first evidence card is cut off; CV, email, LinkedIn, quantified proof, and an explanatory value proposition are absent. |
-| `DESIGN-IS-2026-08-29/screenshots/desktop-projects.png` | The project page devotes a large hero and most table columns to album type, fake plays, and invented duration while hiding the actual case outcomes. Roughly the lower half of the viewport is empty. |
+| `DESIGN-IS-2026-08-29/screenshots/mobile-home-390x844.png`    | At 390 px, the first viewport is almost entirely greeting plus six navigation tiles. The first evidence card is cut off; CV, email, LinkedIn, quantified proof, and an explanatory value proposition are absent.                                                                                            |
+| `DESIGN-IS-2026-08-29/screenshots/desktop-projects.png`       | The project page devotes a large hero and most table columns to album type, fake plays, and invented duration while hiding the actual case outcomes. Roughly the lower half of the viewport is empty.                                                                                                       |
 
 ### 2. The “player” is a high-effort decoy, not a career communication tool
 
@@ -121,20 +121,20 @@ The exact sentence should be verified against the CV before launch, but the stru
 
 ### 3. Truthful copy system
 
-| Current copy/pattern | Replacement | Rule |
-|---|---|---|
-| “✓ Verified Candidate” | “Open to strategy & operations roles” or a linked, named credential | Never imply third-party verification without a real verifier and link. |
-| “98,400 monthly listeners” | “BBA (B&I) · CGPA 9.39” plus a source/date, or omit | A number must represent an actual measured fact and explain what it measures. |
-| “920,000 plays” | “500+ résumés screened” / “35+ projects coordinated,” only where attributable | No metaphorical metrics in numeric columns. |
-| “Popular” / “Your Top Hits” | “Core strengths” / “Selected impact” | Rank only when a real ranking rule is visible. |
-| “Made for Recruiters” | “Selected work” | The content itself should be recruiter-oriented; do not narrate the audience back to them. |
-| “Liked Songs” | “Awards & recognition” | Clever labels may be secondary, never at the cost of meaning. |
-| “Follow” | “Connect on LinkedIn” | Action labels must describe the actual outcome. |
-| “Play” | “Start highlight tour” or “Play 75-sec introduction” | Only use “Play” when media or a defined tour actually starts. |
-| “Songs” | “Results,” “Projects,” or “Experience” | Result grouping should match what the user is searching. |
-| “EP / LP / Playlist” | “Experience · EP,” “Projects · LP” | Keep the themed term as flavor after the plain-language category. |
-| “Show all” | “View all projects” / “View all experience” | Every CTA names its destination. |
-| “Internships on heavy rotation.” | “3 operations & HR internships · 2025–26” | Supporting copy should add specific information, not theme filler. |
+| Current copy/pattern             | Replacement                                                                   | Rule                                                                                       |
+| -------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| “✓ Verified Candidate”           | “Open to strategy & operations roles” or a linked, named credential           | Never imply third-party verification without a real verifier and link.                     |
+| “98,400 monthly listeners”       | “BBA (B&I) · CGPA 9.39” plus a source/date, or omit                           | A number must represent an actual measured fact and explain what it measures.              |
+| “920,000 plays”                  | “500+ résumés screened” / “35+ projects coordinated,” only where attributable | No metaphorical metrics in numeric columns.                                                |
+| “Popular” / “Your Top Hits”      | “Core strengths” / “Selected impact”                                          | Rank only when a real ranking rule is visible.                                             |
+| “Made for Recruiters”            | “Selected work”                                                               | The content itself should be recruiter-oriented; do not narrate the audience back to them. |
+| “Liked Songs”                    | “Awards & recognition”                                                        | Clever labels may be secondary, never at the cost of meaning.                              |
+| “Follow”                         | “Connect on LinkedIn”                                                         | Action labels must describe the actual outcome.                                            |
+| “Play”                           | “Start highlight tour” or “Play 75-sec introduction”                          | Only use “Play” when media or a defined tour actually starts.                              |
+| “Songs”                          | “Results,” “Projects,” or “Experience”                                        | Result grouping should match what the user is searching.                                   |
+| “EP / LP / Playlist”             | “Experience · EP,” “Projects · LP”                                            | Keep the themed term as flavor after the plain-language category.                          |
+| “Show all”                       | “View all projects” / “View all experience”                                   | Every CTA names its destination.                                                           |
+| “Internships on heavy rotation.” | “3 operations & HR internships · 2025–26”                                     | Supporting copy should add specific information, not theme filler.                         |
 
 Every quantitative statement should carry an internal content field for source, period, and verification status. If that data is missing, the metric does not render.
 
@@ -159,15 +159,15 @@ Preserve the recognizable dark streaming foundation, but make it editorial and e
 
 **Color tokens**
 
-| Token | Value | Use |
-|---|---:|---|
-| `ink` | `#000000` | App canvas only |
-| `panel` | `#121212` | Main surfaces |
-| `elevated` | `#1B1B1B` | Cards/drawers |
-| `line` | `#303030` | Dividers and focus offsets |
-| `text` | `#F7F7F5` | Primary text |
-| `muted` | `#B3B3B3` | Secondary text; existing contrast is strong |
-| `signal` | `#1ED760` | Primary action, current item, proof marker |
+| Token      |     Value | Use                                         |
+| ---------- | --------: | ------------------------------------------- |
+| `ink`      | `#000000` | App canvas only                             |
+| `panel`    | `#121212` | Main surfaces                               |
+| `elevated` | `#1B1B1B` | Cards/drawers                               |
+| `line`     | `#303030` | Dividers and focus offsets                  |
+| `text`     | `#F7F7F5` | Primary text                                |
+| `muted`    | `#B3B3B3` | Secondary text; existing contrast is strong |
+| `signal`   | `#1ED760` | Primary action, current item, proof marker  |
 
 Keep black/green as the brand memory. Eliminate the current rainbow of category gradients as full-background decoration. If categories need differentiation, use 4 accessible secondary signal colors only in small chips or waveform segments, never for body copy.
 

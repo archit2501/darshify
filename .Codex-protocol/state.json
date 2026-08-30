@@ -11,7 +11,11 @@
     "architecture": "React Router 7 Framework Mode with static prerendering; preserve URLs and client navigation",
     "libraries": "Motion 13 with LazyMotion and original Darshify icons",
     "ui_architecture": "Artist profile to proof tracks to conversion",
-    "front_loaded_ux_wins": ["truth and conversion", "proof-driven identity", "accessibility and mobile"],
+    "front_loaded_ux_wins": [
+      "truth and conversion",
+      "proof-driven identity",
+      "accessibility and mobile"
+    ],
     "test_coverage": "90% on new and modified code plus route, keyboard, accessibility, responsive, and critical-flow browser tests",
     "release_strategy": "Private preview validation followed by one atomic production cutover with a known rollback point",
     "performance_contract": "O(1) direct lookup, O(n) search/filter, O(n log n) explicit sorting, no global frame-by-frame state updates, interactions below 50ms",

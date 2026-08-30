@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 
-export function useLocalStorage<T>(key: string, initial: T): [T, (v: T) => void] {
+export function useLocalStorage<T>(
+  key: string,
+  initial: T,
+): [T, (v: T) => void] {
   const [value, setValue] = useState<T>(() => {
     try {
       const raw = localStorage.getItem(key);
@@ -10,7 +13,11 @@ export function useLocalStorage<T>(key: string, initial: T): [T, (v: T) => void]
     }
   });
   useEffect(() => {
-    try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* ignore quota/availability */ }
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch {
+      /* ignore quota/availability */
+    }
   }, [key, value]);
   return [value, setValue];
 }

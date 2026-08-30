@@ -12,7 +12,10 @@ import { useReducedMotion } from "../lib/useReducedMotion";
 
 function isTyping(el: EventTarget | null) {
   const t = el as HTMLElement | null;
-  return !!t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable);
+  return (
+    !!t &&
+    (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)
+  );
 }
 
 export function AppShell() {
@@ -27,7 +30,10 @@ export function AppShell() {
   // a11y: move focus to the page heading on route change
   useEffect(() => {
     const h1 = mainRef.current?.querySelector("h1");
-    if (h1) { h1.setAttribute("tabindex", "-1"); (h1 as HTMLElement).focus({ preventScroll: true }); }
+    if (h1) {
+      h1.setAttribute("tabindex", "-1");
+      (h1 as HTMLElement).focus({ preventScroll: true });
+    }
     mainRef.current?.scrollTo({ top: 0 });
     // eslint-disable-next-line react-hooks/set-state-in-effect -- reset header tint on navigation
     setScrollY(0);
@@ -37,24 +43,45 @@ export function AppShell() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (isTyping(e.target)) return;
-      if (e.key === " ") { e.preventDefault(); p.toggle(); }
-      else if (e.key === "ArrowRight" && e.shiftKey) { e.preventDefault(); p.next(); }
-      else if (e.key === "ArrowLeft" && e.shiftKey) { e.preventDefault(); p.prev(); }
-      else if (e.key === "ArrowRight") { e.preventDefault(); p.seek(Math.min((p.current?.durationSec ?? 0), p.progress + 5)); }
-      else if (e.key === "ArrowLeft") { e.preventDefault(); p.seek(Math.max(0, p.progress - 5)); }
+      if (e.key === " ") {
+        e.preventDefault();
+        p.toggle();
+      } else if (e.key === "ArrowRight" && e.shiftKey) {
+        e.preventDefault();
+        p.next();
+      } else if (e.key === "ArrowLeft" && e.shiftKey) {
+        e.preventDefault();
+        p.prev();
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        p.seek(Math.min(p.current?.durationSec ?? 0, p.progress + 5));
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        p.seek(Math.max(0, p.progress - 5));
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [p]);
 
-  const slide = reduced ? {} : { initial: { x: 40, opacity: 0 }, animate: { x: 0, opacity: 1 }, exit: { x: 40, opacity: 0 }, transition: { duration: 0.22, ease: "easeOut" as const } };
+  const slide = reduced
+    ? {}
+    : {
+        initial: { x: 40, opacity: 0 },
+        animate: { x: 0, opacity: 1 },
+        exit: { x: 40, opacity: 0 },
+        transition: { duration: 0.22, ease: "easeOut" as const },
+      };
 
   return (
     <div className="h-screen flex flex-col bg-bg">
       <div className="flex-1 flex min-h-0 gap-0">
         <Sidebar />
-        <main ref={mainRef} onScroll={(e) => setScrollY((e.target as HTMLElement).scrollTop)}
-          className="flex-1 min-w-0 m-2 rounded-lg overflow-y-auto bg-panel relative">
+        <main
+          ref={mainRef}
+          onScroll={(e) => setScrollY((e.target as HTMLElement).scrollTop)}
+          className="flex-1 min-w-0 m-2 rounded-lg overflow-y-auto bg-panel relative"
+        >
           <TopBar scrollY={scrollY} />
           <div className="px-4 md:px-6 pb-8">
             <Outlet />
@@ -75,17 +102,28 @@ export function AppShell() {
       </div>
 
       <PlayerBar
-        onToggleQueue={() => { setQueueOpen((q) => !q); setNpOpen(false); }}
-        onOpenNowPlaying={() => { setNpOpen((n) => !n); setQueueOpen(false); }}
+        onToggleQueue={() => {
+          setQueueOpen((q) => !q);
+          setNpOpen(false);
+        }}
+        onOpenNowPlaying={() => {
+          setNpOpen((n) => !n);
+          setQueueOpen(false);
+        }}
       />
       <BottomNav />
 
       {/* mobile full-screen now-playing sheet */}
       <AnimatePresence>
         {npOpen && (
-          <motion.div key="sheet" className="lg:hidden fixed inset-0 z-50"
-            initial={reduced ? undefined : { y: "100%" }} animate={reduced ? undefined : { y: 0 }}
-            exit={reduced ? undefined : { y: "100%" }} transition={{ duration: 0.28, ease: "easeOut" }}>
+          <motion.div
+            key="sheet"
+            className="lg:hidden fixed inset-0 z-50"
+            initial={reduced ? undefined : { y: "100%" }}
+            animate={reduced ? undefined : { y: 0 }}
+            exit={reduced ? undefined : { y: "100%" }}
+            transition={{ duration: 0.28, ease: "easeOut" }}
+          >
             <NowPlayingPanel onClose={() => setNpOpen(false)} variant="sheet" />
           </motion.div>
         )}

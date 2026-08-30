@@ -9,28 +9,53 @@ export function useAmbient() {
 
   const ensure = () => {
     if (ctxRef.current) return;
-    const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const Ctx =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext })
+        .webkitAudioContext;
     const ctx = new Ctx();
     const master = ctx.createGain();
-    master.gain.value = 0; master.connect(ctx.destination);
+    master.gain.value = 0;
+    master.connect(ctx.destination);
     const oscs = [0, 1, 2].map(() => {
-      const o = ctx.createOscillator(); const g = ctx.createGain();
-      o.type = "sine"; g.gain.value = 0.5; o.connect(g); g.connect(master); o.start();
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = "sine";
+      g.gain.value = 0.5;
+      o.connect(g);
+      g.connect(master);
+      o.start();
       return o;
     });
-    ctxRef.current = ctx; masterRef.current = master; oscsRef.current = oscs;
+    ctxRef.current = ctx;
+    masterRef.current = master;
+    oscsRef.current = oscs;
   };
 
   // playing: is a track playing · enabled: ambient toggle on · freqs: 3-note chord · volume: 0..1
-  const update = (playing: boolean, enabled: boolean, freqs: number[], volume: number) => {
+  const update = (
+    playing: boolean,
+    enabled: boolean,
+    freqs: number[],
+    volume: number,
+  ) => {
     if (!enabled) {
-      if (masterRef.current && ctxRef.current) masterRef.current.gain.setTargetAtTime(0, ctxRef.current.currentTime, 0.2);
+      if (masterRef.current && ctxRef.current)
+        masterRef.current.gain.setTargetAtTime(
+          0,
+          ctxRef.current.currentTime,
+          0.2,
+        );
       return;
     }
     ensure();
-    const ctx = ctxRef.current!; const m = masterRef.current!;
+    const ctx = ctxRef.current!;
+    const m = masterRef.current!;
     if (ctx.state === "suspended") ctx.resume();
-    oscsRef.current.forEach((o, i) => { if (freqs[i]) o.frequency.setTargetAtTime(freqs[i], ctx.currentTime, 0.12); });
+    oscsRef.current.forEach((o, i) => {
+      if (freqs[i])
+        o.frequency.setTargetAtTime(freqs[i], ctx.currentTime, 0.12);
+    });
     m.gain.setTargetAtTime(playing ? 0.06 * volume : 0, ctx.currentTime, 0.3);
   };
 

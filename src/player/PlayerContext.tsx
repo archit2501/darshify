@@ -1,18 +1,47 @@
-import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { tracks, trackById, likedTrackIds, type Track, type Kind } from "../data/library";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+import {
+  tracks,
+  trackById,
+  likedTrackIds,
+  type Track,
+  type Kind,
+} from "../data/library";
 import { nextIndex, prevIndex, shuffleOrder, type Repeat } from "./engine";
 import { useLocalStorage } from "../lib/useLocalStorage";
 import { useAmbient } from "./useAmbient";
 
 interface PlayerState {
-  current?: Track; isPlaying: boolean; progress: number; volume: number;
-  repeat: Repeat; shuffle: boolean; queue: string[]; pos: number;
-  likes: string[]; audioOn: boolean; hasPlayed: boolean;
+  current?: Track;
+  isPlaying: boolean;
+  progress: number;
+  volume: number;
+  repeat: Repeat;
+  shuffle: boolean;
+  queue: string[];
+  pos: number;
+  likes: string[];
+  audioOn: boolean;
+  hasPlayed: boolean;
   play: (track: Track, context?: string[]) => void;
-  toggle: () => void; next: () => void; prev: () => void; jumpTo: (pos: number) => void;
-  seek: (sec: number) => void; setVolume: (v: number) => void;
-  cycleRepeat: () => void; toggleShuffle: () => void;
-  enqueue: (id: string) => void; toggleLike: (id: string) => void; isLiked: (id: string) => boolean;
+  toggle: () => void;
+  next: () => void;
+  prev: () => void;
+  jumpTo: (pos: number) => void;
+  seek: (sec: number) => void;
+  setVolume: (v: number) => void;
+  cycleRepeat: () => void;
+  toggleShuffle: () => void;
+  enqueue: (id: string) => void;
+  toggleLike: (id: string) => void;
+  isLiked: (id: string) => boolean;
   toggleAudio: () => void;
 }
 
@@ -28,11 +57,11 @@ const ALL = tracks.map((t) => t.id);
 
 // a distinct soft 3-note chord (Hz) per track type
 const CHORDS: Record<Kind, number[]> = {
-  skill: [261.63, 329.63, 392.0],     // C major — bright
-  role: [220.0, 277.18, 329.63],      // A major — warm
-  project: [196.0, 261.63, 311.13],   // G minor — deep
+  skill: [261.63, 329.63, 392.0], // C major — bright
+  role: [220.0, 277.18, 329.63], // A major — warm
+  project: [196.0, 261.63, 311.13], // G minor — deep
   achievement: [293.66, 369.99, 440.0], // D major — triumphant
-  cert: [246.94, 311.13, 392.0],      // soft
+  cert: [246.94, 311.13, 392.0], // soft
 };
 
 export function PlayerProvider({ children }: { children: ReactNode }) {
@@ -44,7 +73,10 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const [volume, setVolume] = useLocalStorage<number>("dx_vol", 0.8);
   const [repeat, setRepeat] = useState<Repeat>("off");
   const [shuffle, setShuffle] = useState(false);
-  const [likes, setLikes] = useLocalStorage<string[]>("dx_likes", likedTrackIds);
+  const [likes, setLikes] = useLocalStorage<string[]>(
+    "dx_likes",
+    likedTrackIds,
+  );
   const [audioOn, setAudioOn] = useLocalStorage<boolean>("dx_audio", false);
   const raf = useRef(0);
   const ambient = useAmbient();
@@ -56,25 +88,51 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     let q = context;
     if (shuffle) q = shuffleOrder(context.length, 7).map((i) => context[i]);
     const idx = q.indexOf(track.id);
-    setOrder(q); setPos(idx < 0 ? 0 : idx); setProgress(0); setHasTrack(true); setPlaying(true); setHasPlayed(true);
+    setOrder(q);
+    setPos(idx < 0 ? 0 : idx);
+    setProgress(0);
+    setHasTrack(true);
+    setPlaying(true);
+    setHasPlayed(true);
   };
-  const toggle = () => { if (current) { setPlaying((p) => !p); setHasPlayed(true); } };
+  const toggle = () => {
+    if (current) {
+      setPlaying((p) => !p);
+      setHasPlayed(true);
+    }
+  };
   const next = () => {
     const i = nextIndex(pos, order.length, repeat);
-    if (i === -1) { setPlaying(false); return; }
-    setPos(i); setProgress(0);
+    if (i === -1) {
+      setPlaying(false);
+      return;
+    }
+    setPos(i);
+    setProgress(0);
   };
   const prev = () => {
-    if (progress > 3) { setProgress(0); return; }
-    setPos((p) => prevIndex(p)); setProgress(0);
+    if (progress > 3) {
+      setProgress(0);
+      return;
+    }
+    setPos((p) => prevIndex(p));
+    setProgress(0);
   };
-  const jumpTo = (p: number) => { setPos(p); setProgress(0); setHasTrack(true); setPlaying(true); };
+  const jumpTo = (p: number) => {
+    setPos(p);
+    setProgress(0);
+    setHasTrack(true);
+    setPlaying(true);
+  };
   const seek = (sec: number) => setProgress(sec);
-  const cycleRepeat = () => setRepeat((r) => (r === "off" ? "all" : r === "all" ? "one" : "off"));
+  const cycleRepeat = () =>
+    setRepeat((r) => (r === "off" ? "all" : r === "all" ? "one" : "off"));
   const toggleShuffle = () => setShuffle((s) => !s);
   const enqueue = (id: string) => setOrder((o) => [...o, id]);
   const toggleLike = (id: string) =>
-    setLikes(likes.includes(id) ? likes.filter((x) => x !== id) : [...likes, id]);
+    setLikes(
+      likes.includes(id) ? likes.filter((x) => x !== id) : [...likes, id],
+    );
   const isLiked = (id: string) => likes.includes(id);
   const toggleAudio = () => setAudioOn(!audioOn);
 
@@ -83,13 +141,18 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     if (!isPlaying || !current) return;
     let last = performance.now();
     const tick = (t: number) => {
-      const dt = (t - last) / 1000; last = t;
+      const dt = (t - last) / 1000;
+      last = t;
       setProgress((p) => {
         const np = p + dt;
         if (np >= current.durationSec) {
           const i = nextIndex(pos, order.length, repeat);
-          if (i === -1) { setPlaying(false); return current.durationSec; }
-          setPos(i); return 0;
+          if (i === -1) {
+            setPlaying(false);
+            return current.durationSec;
+          }
+          setPos(i);
+          return 0;
         }
         return np;
       });
@@ -106,11 +169,48 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPlaying, audioOn, volume, current?.kind]);
 
-  const value = useMemo<PlayerState>(() => ({
-    current, isPlaying, progress, volume, repeat, shuffle, queue: order, pos, likes, audioOn, hasPlayed,
-    play, toggle, next, prev, jumpTo, seek, setVolume, cycleRepeat, toggleShuffle, enqueue, toggleLike, isLiked, toggleAudio,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [current, isPlaying, progress, volume, repeat, shuffle, order, pos, likes, audioOn, hasPlayed]);
+  const value = useMemo<PlayerState>(
+    () => ({
+      current,
+      isPlaying,
+      progress,
+      volume,
+      repeat,
+      shuffle,
+      queue: order,
+      pos,
+      likes,
+      audioOn,
+      hasPlayed,
+      play,
+      toggle,
+      next,
+      prev,
+      jumpTo,
+      seek,
+      setVolume,
+      cycleRepeat,
+      toggleShuffle,
+      enqueue,
+      toggleLike,
+      isLiked,
+      toggleAudio,
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }),
+    [
+      current,
+      isPlaying,
+      progress,
+      volume,
+      repeat,
+      shuffle,
+      order,
+      pos,
+      likes,
+      audioOn,
+      hasPlayed,
+    ],
+  );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

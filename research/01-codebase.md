@@ -88,20 +88,20 @@ The original approved design specification describes this same architecture and 
 
 The lockfile, not the semver ranges in `package.json`, is authoritative for installed versions.
 
-| Layer | Installed version | Evidence |
-|---|---:|---|
-| React | 19.2.7 | `package-lock.json:3555` |
-| React DOM | 19.2.7 | `package-lock.json:3564` |
-| React Router DOM | 7.18.0 | `package-lock.json:3606` |
-| Framer Motion | 12.40.0 | `package-lock.json:2634` |
-| Tailwind CSS | 4.3.1 | `package-lock.json:3789` |
-| Tailwind Vite plugin | 4.3.1 | `package-lock.json:1381` |
-| TypeScript | 6.0.3 | `package-lock.json:3932` |
-| Vite | 8.0.16 | `package-lock.json:4028` |
-| Vitest | 4.1.9 | `package-lock.json:4106` |
-| ESLint | 10.5.0 | `package-lock.json:2339` |
-| Testing Library React | 16.3.2 | `package-lock.json:1444` |
-| jsdom | 29.1.1 | `package-lock.json:2833` |
+| Layer                 | Installed version | Evidence                 |
+| --------------------- | ----------------: | ------------------------ |
+| React                 |            19.2.7 | `package-lock.json:3555` |
+| React DOM             |            19.2.7 | `package-lock.json:3564` |
+| React Router DOM      |            7.18.0 | `package-lock.json:3606` |
+| Framer Motion         |           12.40.0 | `package-lock.json:2634` |
+| Tailwind CSS          |             4.3.1 | `package-lock.json:3789` |
+| Tailwind Vite plugin  |             4.3.1 | `package-lock.json:1381` |
+| TypeScript            |             6.0.3 | `package-lock.json:3932` |
+| Vite                  |            8.0.16 | `package-lock.json:4028` |
+| Vitest                |             4.1.9 | `package-lock.json:4106` |
+| ESLint                |            10.5.0 | `package-lock.json:2339` |
+| Testing Library React |            16.3.2 | `package-lock.json:1444` |
+| jsdom                 |            29.1.1 | `package-lock.json:2833` |
 
 Local runtime observed during this research: Node `v25.9.0`, npm `11.12.1`. The repository does not pin Node through `.nvmrc`, `.node-version`, Volta, or a `package.json#engines` field, so CI and local reproducibility are currently under-specified.
 
@@ -294,14 +294,14 @@ There are no fetches or API clients. All content is compiled into the bundle, au
 
 ### Commands available today
 
-| Gate | Exact command | Current result | Notes |
-|---|---|---|---|
-| Install | `npm ci` | Not rerun in this read-only pass | Lockfile exists; use this in CI. |
-| Lint | `npm run lint` | Pass, no warnings | Runs `eslint .` (`package.json:9`). |
-| Type-check | `npx tsc -b` | Covered by build | No dedicated script. `npm run build` begins with `tsc -b` (`package.json:8`). |
-| Unit/component tests | `npm test` | Pass: 5 files, 10 tests | Runs `vitest run --passWithNoTests` (`package.json:11`). |
-| Production build | `npm run build` | Pass: Vite 8.0.16, 453 modules | Current output has a 385.84kB raw / 123.91kB gzip shared JS chunk. |
-| Preview | `npm run preview -- --host 127.0.0.1 --port 4173` | Script exists | Required for browser smoke tests (`package.json:10`). |
+| Gate                 | Exact command                                     | Current result                   | Notes                                                                         |
+| -------------------- | ------------------------------------------------- | -------------------------------- | ----------------------------------------------------------------------------- |
+| Install              | `npm ci`                                          | Not rerun in this read-only pass | Lockfile exists; use this in CI.                                              |
+| Lint                 | `npm run lint`                                    | Pass, no warnings                | Runs `eslint .` (`package.json:9`).                                           |
+| Type-check           | `npx tsc -b`                                      | Covered by build                 | No dedicated script. `npm run build` begins with `tsc -b` (`package.json:8`). |
+| Unit/component tests | `npm test`                                        | Pass: 5 files, 10 tests          | Runs `vitest run --passWithNoTests` (`package.json:11`).                      |
+| Production build     | `npm run build`                                   | Pass: Vite 8.0.16, 453 modules   | Current output has a 385.84kB raw / 123.91kB gzip shared JS chunk.            |
+| Preview              | `npm run preview -- --host 127.0.0.1 --port 4173` | Script exists                    | Required for browser smoke tests (`package.json:10`).                         |
 
 All three current gates were rerun on this inspected revision: lint exited 0; all 10 tests passed; TypeScript plus Vite build exited 0.
 
@@ -375,19 +375,19 @@ This is not an algorithm-heavy product today, but Large scope requires explicit 
 
 ### Current operations
 
-| Operation | Current complexity | Space | Evidence / risk |
-|---|---:|---:|---|
-| `trackById(id)` | O(1) average | O(n) index | Precomputed `Map` (`src/data/library.ts:68-69`). Preserve this pattern. |
-| Playlist hydration | O(k) | O(k) | Map `k` IDs through the lookup (`src/pages/PlaylistPage.tsx:16`). |
-| Home/Artist ranking | O(n log n) | O(n) | Clone, sort by fabricated plays, slice six (`src/pages/Home.tsx:29`; `src/pages/ArtistPage.tsx:15`). Recompute per render. |
-| Search query | O(n * m) per keystroke | O(r) plus transient strings | Scans tracks and concatenates/lowercases searchable fields (`src/pages/Search.tsx:18-25`); `m` is searchable text length. |
-| Library filter/sort | O(n) normally; O(n log n) for A–Z | O(n) | Memoized view-model construction (`src/pages/Library.tsx:23-34`). |
-| Shuffle | O(n) | O(n) | Fisher–Yates over a generated index array (`src/player/engine.ts:12-27`). |
-| Like lookup | O(l) | O(l) persisted | `likes.includes(id)` and filters use arrays (`src/player/PlayerContext.tsx:76-78`). |
-| Liked union | O(a + l) expected | O(a + l) | Rebuilds `Set` each render (`src/pages/LikedSongs.tsx:9-12`). |
-| Queue append | O(n) immutable copy | O(n) per append | Array spread (`src/player/PlayerContext.tsx:75`). |
-| Queue panel projection | O(q) | O(q) | Slices/maps/filter on render (`src/shell/QueuePanel.tsx:5-8`). |
-| Player progress | O(c) render work per animation frame | O(1) state | Context progress updates can re-render all `c` consumers up to display refresh rate (`src/player/PlayerContext.tsx:81-100`, `src/player/PlayerContext.tsx:109-115`). This is the highest current algorithmic/runtime risk. |
+| Operation              |                   Current complexity |                       Space | Evidence / risk                                                                                                                                                                                                            |
+| ---------------------- | -----------------------------------: | --------------------------: | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `trackById(id)`        |                         O(1) average |                  O(n) index | Precomputed `Map` (`src/data/library.ts:68-69`). Preserve this pattern.                                                                                                                                                    |
+| Playlist hydration     |                                 O(k) |                        O(k) | Map `k` IDs through the lookup (`src/pages/PlaylistPage.tsx:16`).                                                                                                                                                          |
+| Home/Artist ranking    |                           O(n log n) |                        O(n) | Clone, sort by fabricated plays, slice six (`src/pages/Home.tsx:29`; `src/pages/ArtistPage.tsx:15`). Recompute per render.                                                                                                 |
+| Search query           |               O(n * m) per keystroke | O(r) plus transient strings | Scans tracks and concatenates/lowercases searchable fields (`src/pages/Search.tsx:18-25`); `m` is searchable text length.                                                                                                  |
+| Library filter/sort    |    O(n) normally; O(n log n) for A–Z |                        O(n) | Memoized view-model construction (`src/pages/Library.tsx:23-34`).                                                                                                                                                          |
+| Shuffle                |                                 O(n) |                        O(n) | Fisher–Yates over a generated index array (`src/player/engine.ts:12-27`).                                                                                                                                                  |
+| Like lookup            |                                 O(l) |              O(l) persisted | `likes.includes(id)` and filters use arrays (`src/player/PlayerContext.tsx:76-78`).                                                                                                                                        |
+| Liked union            |                    O(a + l) expected |                    O(a + l) | Rebuilds `Set` each render (`src/pages/LikedSongs.tsx:9-12`).                                                                                                                                                              |
+| Queue append           |                  O(n) immutable copy |             O(n) per append | Array spread (`src/player/PlayerContext.tsx:75`).                                                                                                                                                                          |
+| Queue panel projection |                                 O(q) |                        O(q) | Slices/maps/filter on render (`src/shell/QueuePanel.tsx:5-8`).                                                                                                                                                             |
+| Player progress        | O(c) render work per animation frame |                  O(1) state | Context progress updates can re-render all `c` consumers up to display refresh rate (`src/player/PlayerContext.tsx:81-100`, `src/player/PlayerContext.tsx:109-115`). This is the highest current algorithmic/runtime risk. |
 
 ### Complexity targets for the redesign
 

@@ -61,6 +61,7 @@ playwright.config.ts                 # Browser matrix and local server contract
 ### Task 1 (1.1.1): Establish reproducible quality gates and CI
 
 **Files:**
+
 - Create: `.node-version`
 - Create: `.prettierrc.json`
 - Create: `.prettierignore`
@@ -73,6 +74,7 @@ playwright.config.ts                 # Browser matrix and local server contract
 - Modify: `eslint.config.js`
 
 **Interfaces:**
+
 - Consumes: current Vite application and existing Vitest suite.
 - Produces: `npm run type-check`, `format:check`, `test:coverage`, `test:e2e`, and `check`; CI jobs named `quality`, `test`, `build`, and `browser`.
 
@@ -111,7 +113,9 @@ Create `e2e/baseline.spec.ts`:
 ```ts
 import { expect, test } from "@playwright/test";
 
-test("primary routes render one visible heading without console errors", async ({ page }) => {
+test("primary routes render one visible heading without console errors", async ({
+  page,
+}) => {
   const errors: string[] = [];
   page.on("console", (message) => {
     if (message.type() === "error") errors.push(message.text());
@@ -162,6 +166,7 @@ git commit -m "ci: add Darshify quality gates [1.1.1]"
 ### Task 2 (1.2.1): Create the evidence-first content model
 
 **Files:**
+
 - Create: `src/content/types.ts`
 - Create: `src/content/portfolio.ts`
 - Create: `src/content/selectors.ts`
@@ -171,6 +176,7 @@ git commit -m "ci: add Darshify quality gates [1.1.1]"
 - Modify: `src/data/library.ts`
 
 **Interfaces:**
+
 - Consumes: facts currently encoded in `src/data/library.ts` and the résumé at `public/Darshil_Jain_Resume.pdf`.
 - Produces: `portfolio`, `caseStudyById`, `caseStudyBySlug`, `proofById`, `searchPortfolio(query)`, `collections`, and `validatePortfolio(portfolio)`.
 
@@ -188,7 +194,9 @@ describe("portfolio content", () => {
 
   it("contains no simulated popularity or playback fields", () => {
     const serialized = JSON.stringify(portfolio);
-    expect(serialized).not.toMatch(/monthlyListeners|plays|durationSec|verifiedCandidate/);
+    expect(serialized).not.toMatch(
+      /monthlyListeners|plays|durationSec|verifiedCandidate/,
+    );
   });
 });
 ```
@@ -245,13 +253,18 @@ Use the résumé as the source for résumé-derived claims and mark them `self-r
 Build maps once at module initialization for O(1) lookup. Normalize searchable text once per case study, then implement O(n) filtering:
 
 ```ts
-const normalize = (value: string) => value.normalize("NFKD").toLowerCase().trim();
-const caseStudySlugMap = new Map(portfolio.caseStudies.map((item) => [item.slug, item]));
+const normalize = (value: string) =>
+  value.normalize("NFKD").toLowerCase().trim();
+const caseStudySlugMap = new Map(
+  portfolio.caseStudies.map((item) => [item.slug, item]),
+);
 
 export const caseStudyBySlug = (slug: string) => caseStudySlugMap.get(slug);
 export const searchPortfolio = (query: string) => {
   const needle = normalize(query);
-  return needle ? searchableCaseStudies.filter((item) => item.searchText.includes(needle)) : [];
+  return needle
+    ? searchableCaseStudies.filter((item) => item.searchText.includes(needle))
+    : [];
 };
 ```
 
@@ -286,6 +299,7 @@ git commit -m "refactor: model sourced portfolio evidence [1.2.1]"
 ### Task 3 (1.3.1): Migrate to React Router Framework Mode and prerender routes
 
 **Files:**
+
 - Create: `react-router.config.ts`
 - Create: `app/root.tsx`
 - Create: `app/routes.ts`
@@ -306,6 +320,7 @@ git commit -m "refactor: model sourced portfolio evidence [1.2.1]"
 - Remove after parity is proven: `src/main.tsx`, `src/App.tsx`
 
 **Interfaces:**
+
 - Consumes: `portfolio`, `caseStudyBySlug`, current page components, and `AppShell`.
 - Produces: Framework Mode route modules, static HTML for primary routes, and compatible legacy URLs.
 
@@ -383,6 +398,7 @@ git commit -m "feat: prerender portfolio routes [1.3.1]"
 ### Task 4 (2.1.1): Implement the editorial design system and Motion policy
 
 **Files:**
+
 - Create: `src/styles/tokens.css`
 - Create: `src/styles/base.css`
 - Create: `src/motion/MotionProvider.tsx`
@@ -395,6 +411,7 @@ git commit -m "feat: prerender portfolio routes [1.3.1]"
 - Remove: `public/fonts/Display.ttf`
 
 **Interfaces:**
+
 - Consumes: approved color, typography, spacing, motion, and reduced-motion rules.
 - Produces: semantic CSS tokens, Archivo/Plex typography, `MotionProvider`, and reduced-motion-safe transitions.
 
@@ -447,6 +464,7 @@ git commit -m "style: establish evidence-led design system [2.1.1]"
 ### Task 5 (2.2.1): Build the semantic responsive shell and conversion primitives
 
 **Files:**
+
 - Create: `src/components/ContactActions.tsx`
 - Create: `src/components/ContactActions.test.tsx`
 - Create: `src/shell/RouteFocus.tsx`
@@ -459,6 +477,7 @@ git commit -m "style: establish evidence-led design system [2.1.1]"
 - Create: `e2e/shell-accessibility.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `portfolio.candidate`, Framework Mode root, design tokens.
 - Produces: `ContactActions`, named navigation landmarks, route-focus behavior, responsive rail/top/bottom navigation, and an unambiguous main-content target.
 
@@ -466,9 +485,18 @@ git commit -m "style: establish evidence-led design system [2.1.1]"
 
 ```tsx
 render(<ContactActions candidate={portfolio.candidate} placement="hero" />);
-expect(screen.getByRole("link", { name: /download cv/i })).toHaveAttribute("href", "/Darshil_Jain_Resume.pdf");
-expect(screen.getByRole("link", { name: /email/i })).toHaveAttribute("href", expect.stringMatching(/^mailto:/));
-expect(screen.getByRole("link", { name: /linkedin/i })).toHaveAttribute("rel", expect.stringContaining("noreferrer"));
+expect(screen.getByRole("link", { name: /download cv/i })).toHaveAttribute(
+  "href",
+  "/Darshil_Jain_Resume.pdf",
+);
+expect(screen.getByRole("link", { name: /email/i })).toHaveAttribute(
+  "href",
+  expect.stringMatching(/^mailto:/),
+);
+expect(screen.getByRole("link", { name: /linkedin/i })).toHaveAttribute(
+  "rel",
+  expect.stringContaining("noreferrer"),
+);
 ```
 
 The browser test asserts a skip link, named primary/mobile navigation, exactly one main landmark, visible focus, and conversion controls at 390×844 and 1440×900.
@@ -512,6 +540,7 @@ git commit -m "feat: add recruiter-focused app shell [2.2.1]"
 ### Task 6 (2.3.1): Build artifact-led covers and the Proof Waveform
 
 **Files:**
+
 - Create: `src/components/EvidenceCover.tsx`
 - Create: `src/components/EvidenceCover.test.tsx`
 - Create: `src/components/ProofWaveform.tsx`
@@ -522,6 +551,7 @@ git commit -m "feat: add recruiter-focused app shell [2.2.1]"
 - Remove after replacement: `public/covers/*.png`
 
 **Interfaces:**
+
 - Consumes: `Artifact[]`, `ProofPoint[]`, evidence sources, and reduced-motion policy.
 - Produces: `EvidenceCover({ artifact, aspect, priority })`, `ProofWaveform({ points, compact })`, and `buildWaveformData(proofPoints)`.
 
@@ -529,7 +559,9 @@ git commit -m "feat: add recruiter-focused app shell [2.2.1]"
 
 ```tsx
 render(<ProofWaveform points={portfolio.proofPoints.slice(0, 3)} />);
-expect(screen.getByRole("img", { name: /career proof waveform/i })).toBeVisible();
+expect(
+  screen.getByRole("img", { name: /career proof waveform/i }),
+).toBeVisible();
 expect(screen.getAllByRole("link")).toHaveLength(3);
 ```
 
@@ -569,6 +601,7 @@ git commit -m "feat: add sourced Proof Waveform artwork [2.3.1]"
 ### Task 7 (2.4.1): Replace simulated playback with the silent Career Mix
 
 **Files:**
+
 - Create: `src/career-mix/reducer.ts`
 - Create: `src/career-mix/reducer.test.ts`
 - Create: `src/career-mix/CareerMixContext.tsx`
@@ -582,14 +615,21 @@ git commit -m "feat: add sourced Proof Waveform artwork [2.3.1]"
 - Remove: `src/shell/QueuePanel.tsx`
 
 **Interfaces:**
+
 - Consumes: `portfolio.careerMix`, case-study/proof selectors, and `ContactActions` tracking hook.
 - Produces: `useCareerMix()` with `open`, `toggle`, `next`, `previous`, `close`, `state`, `activeChapter`, and `progressRatio`.
 
 - [ ] **Step 1: Write failing reducer tests**
 
 ```ts
-expect(reduce(initialState, { type: "OPEN" })).toMatchObject({ status: "playing", chapterIndex: 0, elapsedMs: 0 });
-expect(reduce({ ...playing, chapterIndex: 0 }, { type: "PREVIOUS" }).chapterIndex).toBe(0);
+expect(reduce(initialState, { type: "OPEN" })).toMatchObject({
+  status: "playing",
+  chapterIndex: 0,
+  elapsedMs: 0,
+});
+expect(
+  reduce({ ...playing, chapterIndex: 0 }, { type: "PREVIOUS" }).chapterIndex,
+).toBe(0);
 expect(reduce(lastChapter, { type: "NEXT" }).status).toBe("complete");
 expect(reduce(playing, { type: "TICK", deltaMs: 250 }).elapsedMs).toBe(250);
 ```
@@ -628,6 +668,7 @@ git commit -m "feat: replace fake playback with Career Mix [2.4.1]"
 ### Task 8 (3.1.1): Rebuild Home as the recruiter briefing
 
 **Files:**
+
 - Create: `src/components/RecruiterHero.tsx`
 - Create: `src/components/RecruiterHero.test.tsx`
 - Create: `src/pages/Home.test.tsx`
@@ -638,6 +679,7 @@ git commit -m "feat: replace fake playback with Career Mix [2.4.1]"
 - Create: `e2e/recruiter-home.spec.ts`
 
 **Interfaces:**
+
 - Consumes: candidate profile, selected proof points, three recruiter essentials, `ContactActions`, `ProofWaveform`, `EvidenceCover`, and `useCareerMix().open`.
 - Produces: first-viewport recruiter briefing and evidence-led Home shelves.
 
@@ -684,6 +726,7 @@ git commit -m "feat: make Home a recruiter briefing [3.1.1]"
 ### Task 9 (3.2.1): Rebuild Artist and release rows around sourced proof
 
 **Files:**
+
 - Create: `src/components/ProofTrackRow.tsx`
 - Create: `src/components/ProofTrackRow.test.tsx`
 - Create: `src/components/ReleaseCard.tsx`
@@ -702,6 +745,7 @@ git commit -m "feat: make Home a recruiter briefing [3.1.1]"
 - Remove: `src/player/useAmbient.ts`
 
 **Interfaces:**
+
 - Consumes: candidate, ordered proof tracks, collections, case-study routes, `ContactActions`, `ProofWaveform`, and evidence covers.
 - Produces: `ProofTrackRow` with visible outcome/source/action and `ReleaseCard` with professional and themed labels.
 
@@ -745,6 +789,7 @@ git commit -m "feat: turn releases into sourced career proof [3.2.1]"
 ### Task 10 (3.3.1): Build complete, shareable case-study pages
 
 **Files:**
+
 - Create: `src/components/CaseStudyHeader.tsx`
 - Create: `src/components/EvidencePanel.tsx`
 - Create: `src/pages/CaseStudyPage.tsx`
@@ -755,6 +800,7 @@ git commit -m "feat: turn releases into sourced career proof [3.2.1]"
 - Create: `e2e/case-studies.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `caseStudyBySlug`, `proofById`, artifact selector, related-case selector, and contact actions.
 - Produces: complete Situation → Action → Result → Evidence pages and a recoverable missing-slug state.
 
@@ -799,6 +845,7 @@ git commit -m "feat: publish evidence-rich case studies [3.3.1]"
 ### Task 11 (3.4.1): Rebuild Search and Library as professional discovery tools
 
 **Files:**
+
 - Create: `src/components/SearchField.tsx`
 - Create: `src/components/SearchResults.tsx`
 - Create: `src/pages/Search.test.tsx`
@@ -810,6 +857,7 @@ git commit -m "feat: publish evidence-rich case studies [3.3.1]"
 - Create: `e2e/discovery.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `searchPortfolio(query)`, collection selector, case-study map, professional categories.
 - Produces: labelled search, deterministic result groups, accessible filters, and release discovery without saved/ownership fiction.
 
@@ -856,6 +904,7 @@ git commit -m "feat: make portfolio discovery recruiter-friendly [3.4.1]"
 ### Task 12 (4.1.1): Add route metadata, structured data, and privacy-safe analytics
 
 **Files:**
+
 - Create: `src/seo/meta.ts`
 - Create: `src/seo/meta.test.ts`
 - Create: `src/seo/structuredData.ts`
@@ -873,6 +922,7 @@ git commit -m "feat: make portfolio discovery recruiter-friendly [3.4.1]"
 - Create: `public/sitemap.xml`
 
 **Interfaces:**
+
 - Consumes: candidate, route content, canonical site origin, and conversion controls.
 - Produces: `buildRouteMeta`, `buildPersonJsonLd`, `buildCreativeWorkJsonLd`, and `trackOutcome(name, properties)`.
 
@@ -924,6 +974,7 @@ git commit -m "feat: add searchable metadata and outcome analytics [4.1.1]"
 ### Task 13 (4.2.1): Enforce accessibility, responsive, coverage, link, and performance budgets
 
 **Files:**
+
 - Create: `e2e/recruiter-journey.spec.ts`
 - Create: `e2e/career-mix.spec.ts`
 - Create: `e2e/accessibility.spec.ts`
@@ -938,6 +989,7 @@ git commit -m "feat: add searchable metadata and outcome analytics [4.1.1]"
 - Modify: `.github/workflows/ci.yml`
 
 **Interfaces:**
+
 - Consumes: all completed routes/components, `validatePortfolio`, prerender output, and production server.
 - Produces: release-blocking WCAG, coverage, link, payload, Core Web Vitals proxy, and browser-flow gates.
 
@@ -997,6 +1049,7 @@ git commit -m "test: enforce Darshify release budgets [4.2.1]"
 ### Task 14 (4.3.1): Validate the private preview and prepare atomic cutover
 
 **Files:**
+
 - Create: `docs/release/2026-08-31-preview-audit.md`
 - Create: `docs/release/2026-08-31-manual-a11y.md`
 - Create: `docs/release/2026-08-31-content-sources.md`
@@ -1004,6 +1057,7 @@ git commit -m "test: enforce Darshify release budgets [4.2.1]"
 - Modify: `.Codex-protocol/state.json`
 
 **Interfaces:**
+
 - Consumes: green CI, Vercel preview URL, target-role reviewer feedback, and all automated artifacts.
 - Produces: signed preview audit, manual accessibility record, source register, release/rollback instructions, and cutover readiness decision.
 

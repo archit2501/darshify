@@ -18,7 +18,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       {children}
       <div className="fixed bottom-28 left-1/2 -translate-x-1/2 z-[60] flex flex-col items-center gap-2">
         {toasts.map((t) => (
-          <div key={t.id} className="bg-accent text-black font-bold text-sm rounded-md px-4 py-2 shadow-lg animate-[toastin_.2s_ease-out]">
+          <div
+            key={t.id}
+            className="bg-accent text-black font-bold text-sm rounded-md px-4 py-2 shadow-lg animate-[toastin_.2s_ease-out]"
+          >
             {t.text}
           </div>
         ))}

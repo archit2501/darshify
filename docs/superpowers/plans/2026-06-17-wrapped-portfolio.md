@@ -53,11 +53,16 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  test: { globals: true, environment: "jsdom", setupFiles: "./src/test/setup.ts" },
+  test: {
+    globals: true,
+    environment: "jsdom",
+    setupFiles: "./src/test/setup.ts",
+  },
 });
 ```
 
 Create `src/test/setup.ts`:
+
 ```ts
 import "@testing-library/jest-dom";
 ```
@@ -71,6 +76,7 @@ cp "/Users/architjain/Downloads/Darshil jain Resume.pdf" public/Darshil_Jain_Res
 mkdir -p public/fonts
 curl -sfL -o public/fonts/Display.ttf "https://github.com/google/fonts/raw/main/ofl/archivo/Archivo%5Bwdth,wght%5D.ttf"
 ```
+
 If the font download fails, the `system-ui` fallback in CSS applies — proceed.
 
 - [ ] **Step 4: tokens — replace `src/index.css`**
@@ -86,16 +92,30 @@ If the font download fails, the `system-ui` fallback in CSS applies — proceed.
 @font-face {
   font-family: "Display";
   src: url("/fonts/Display.ttf") format("truetype");
-  font-weight: 100 900; font-display: swap;
+  font-weight: 100 900;
+  font-display: swap;
 }
-html, body, #root { margin: 0; height: 100%; }
-body { background: var(--color-ink); color: #fff; font-family: var(--font-body); overflow: hidden; }
-#root { overflow: hidden; }
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+}
+body {
+  background: var(--color-ink);
+  color: #fff;
+  font-family: var(--font-body);
+  overflow: hidden;
+}
+#root {
+  overflow: hidden;
+}
 ```
 
 - [ ] **Step 5: Verify + commit**
 
 Run `npm test` (exit 0) and `npx tsc --noEmit` (clean).
+
 ```bash
 git add -A && git commit -m "chore: scaffold vite+tailwind+vitest for wrapped portfolio"
 ```
@@ -138,27 +158,85 @@ describe("wrapped data", () => {
 
 ```ts
 export type SlideId =
-  | "intro" | "skills" | "artists" | "statResumes" | "statConverge"
-  | "genre" | "album" | "platinum" | "community" | "summary";
+  | "intro"
+  | "skills"
+  | "artists"
+  | "statResumes"
+  | "statConverge"
+  | "genre"
+  | "album"
+  | "platinum"
+  | "community"
+  | "summary";
 
-export interface SlideDef { id: SlideId; gradient: string; durationMs: number; }
+export interface SlideDef {
+  id: SlideId;
+  gradient: string;
+  durationMs: number;
+}
 
 export const slides: SlideDef[] = [
-  { id: "intro",       gradient: "linear-gradient(160deg,#1db954,#0a7d43)", durationMs: 5000 },
-  { id: "skills",      gradient: "linear-gradient(160deg,#ff4d6d,#7b2ff7)", durationMs: 7000 },
-  { id: "artists",     gradient: "linear-gradient(160deg,#36c6ff,#2536ff)", durationMs: 6000 },
-  { id: "statResumes", gradient: "linear-gradient(160deg,#ffd23f,#ff7a00)", durationMs: 5000 },
-  { id: "statConverge",gradient: "linear-gradient(160deg,#f857a6,#ff5858)", durationMs: 5000 },
-  { id: "genre",       gradient: "linear-gradient(160deg,#00f5a0,#00d9f5)", durationMs: 6000 },
-  { id: "album",       gradient: "linear-gradient(160deg,#8e2de2,#4a00e0)", durationMs: 7000 },
-  { id: "platinum",    gradient: "linear-gradient(160deg,#c9d6ff,#8a9bff)", durationMs: 6000 },
-  { id: "community",   gradient: "linear-gradient(160deg,#f7971e,#ffd200)", durationMs: 6000 },
-  { id: "summary",     gradient: "linear-gradient(160deg,#1db954,#191414)", durationMs: 12000 },
+  {
+    id: "intro",
+    gradient: "linear-gradient(160deg,#1db954,#0a7d43)",
+    durationMs: 5000,
+  },
+  {
+    id: "skills",
+    gradient: "linear-gradient(160deg,#ff4d6d,#7b2ff7)",
+    durationMs: 7000,
+  },
+  {
+    id: "artists",
+    gradient: "linear-gradient(160deg,#36c6ff,#2536ff)",
+    durationMs: 6000,
+  },
+  {
+    id: "statResumes",
+    gradient: "linear-gradient(160deg,#ffd23f,#ff7a00)",
+    durationMs: 5000,
+  },
+  {
+    id: "statConverge",
+    gradient: "linear-gradient(160deg,#f857a6,#ff5858)",
+    durationMs: 5000,
+  },
+  {
+    id: "genre",
+    gradient: "linear-gradient(160deg,#00f5a0,#00d9f5)",
+    durationMs: 6000,
+  },
+  {
+    id: "album",
+    gradient: "linear-gradient(160deg,#8e2de2,#4a00e0)",
+    durationMs: 7000,
+  },
+  {
+    id: "platinum",
+    gradient: "linear-gradient(160deg,#c9d6ff,#8a9bff)",
+    durationMs: 6000,
+  },
+  {
+    id: "community",
+    gradient: "linear-gradient(160deg,#f7971e,#ffd200)",
+    durationMs: 6000,
+  },
+  {
+    id: "summary",
+    gradient: "linear-gradient(160deg,#1db954,#191414)",
+    durationMs: 12000,
+  },
 ];
 
 export const wrapped = {
-  driver: { name: "Darshil Jain", title: "Strategy & Operations", years: "2024–26",
-    degree: "BBA (B&I)", institute: "Maharaja Surajmal Institute, GGSIPU", cgpa: "9.39" },
+  driver: {
+    name: "Darshil Jain",
+    title: "Strategy & Operations",
+    years: "2024–26",
+    degree: "BBA (B&I)",
+    institute: "Maharaja Surajmal Institute, GGSIPU",
+    cgpa: "9.39",
+  },
   // top skills as a countdown (1 = most "played")
   topSkills: [
     { rank: 1, name: "Market Research", plays: 92 },
@@ -174,13 +252,19 @@ export const wrapped = {
     { name: "Igniters Club", note: "Founder & President" },
   ],
   stats: {
-    resumes: 500, resumesLine: "More than 98% of interns. You don't stop. 🔥",
-    converge: 1000, converseLine: "Converge 2026 — your biggest show yet. 🎤",
-    interviews: 100, sponsorship: "₹50K+",
+    resumes: 500,
+    resumesLine: "More than 98% of interns. You don't stop. 🔥",
+    converge: 1000,
+    converseLine: "Converge 2026 — your biggest show yet. 🎤",
+    interviews: 100,
+    sponsorship: "₹50K+",
   },
-  genre: { title: "Strategy & Operations",
+  genre: {
+    title: "Strategy & Operations",
     aura: ["Analytical", "Driven", "Builder", "Closer"],
-    blurb: "Your sound this year: research-led, execution-obsessed, community-powered." },
+    blurb:
+      "Your sound this year: research-led, execution-obsessed, community-powered.",
+  },
   projects: [
     { track: "ZautoAI Consulting", meta: "GTM · pricing · finalist" },
     { track: "IIT-G Capstone", meta: "telemedicine · Top 10%" },
@@ -193,10 +277,15 @@ export const wrapped = {
     "Winner — BPlan Showdown",
     "Top 10% — IIT Guwahati Consulting Program",
   ],
-  leadership: { line1: "You built a community from 0 → 80+ members.",
-    line2: "Led Converge 2026: 1,000+ people, ₹50K+ raised, 17-member team." },
-  contact: { email: "darshijain0809@gmail.com", phone: "+91 9268264843",
-    linkedin: "https://www.linkedin.com/in/darshil-jain08/" },
+  leadership: {
+    line1: "You built a community from 0 → 80+ members.",
+    line2: "Led Converge 2026: 1,000+ people, ₹50K+ raised, 17-member team.",
+  },
+  contact: {
+    email: "darshijain0809@gmail.com",
+    phone: "+91 9268264843",
+    linkedin: "https://www.linkedin.com/in/darshil-jain08/",
+  },
 };
 ```
 
@@ -229,9 +318,9 @@ describe("player index math", () => {
   });
   it("computes per-bar progress: past=100, future=0, current=elapsed", () => {
     expect(barProgress(2, 0, 40)).toBe(100); // bar before active
-    expect(barProgress(2, 5, 40)).toBe(0);   // bar after active
-    expect(barProgress(2, 2, 40)).toBe(40);  // active bar
-    expect(barProgress(2, 2, 150)).toBe(100);// clamps
+    expect(barProgress(2, 5, 40)).toBe(0); // bar after active
+    expect(barProgress(2, 2, 40)).toBe(40); // active bar
+    expect(barProgress(2, 2, 150)).toBe(100); // clamps
   });
 });
 ```
@@ -241,12 +330,17 @@ describe("player index math", () => {
 - [ ] **Step 3: Implement** — `src/lib/player.ts`:
 
 ```ts
-export const clampIndex = (i: number, n: number): number => Math.max(0, Math.min(n - 1, i));
+export const clampIndex = (i: number, n: number): number =>
+  Math.max(0, Math.min(n - 1, i));
 export const nextIndex = (i: number, n: number): number => clampIndex(i + 1, n);
 export const prevIndex = (i: number, n: number): number => clampIndex(i - 1, n);
 
 // progress (0–100) for the progress bar of `barIdx` given the `activeIdx` and current `elapsedPct`.
-export const barProgress = (activeIdx: number, barIdx: number, elapsedPct: number): number => {
+export const barProgress = (
+  activeIdx: number,
+  barIdx: number,
+  elapsedPct: number,
+): number => {
   if (barIdx < activeIdx) return 100;
   if (barIdx > activeIdx) return 0;
   return Math.max(0, Math.min(100, elapsedPct));
@@ -271,7 +365,10 @@ import { useReducedMotion } from "./useReducedMotion";
 describe("useReducedMotion", () => {
   it("returns true when reduce is preferred", () => {
     vi.stubGlobal("matchMedia", (q: string) => ({
-      matches: q.includes("reduce"), media: q, addEventListener: () => {}, removeEventListener: () => {},
+      matches: q.includes("reduce"),
+      media: q,
+      addEventListener: () => {},
+      removeEventListener: () => {},
     }));
     const { result } = renderHook(() => useReducedMotion());
     expect(result.current).toBe(true);
@@ -325,9 +422,21 @@ export function useStoryPlayer() {
   const startRef = useRef(0);
   const rafRef = useRef(0);
 
-  const goNext = useCallback(() => { setElapsedPct(0); setIndex((i) => nextIndex(i, n)); }, [n]);
-  const goPrev = useCallback(() => { setElapsedPct(0); setIndex((i) => prevIndex(i, n)); }, [n]);
-  const goto = useCallback((i: number) => { setElapsedPct(0); setIndex(clampIndex(i, n)); }, [n]);
+  const goNext = useCallback(() => {
+    setElapsedPct(0);
+    setIndex((i) => nextIndex(i, n));
+  }, [n]);
+  const goPrev = useCallback(() => {
+    setElapsedPct(0);
+    setIndex((i) => prevIndex(i, n));
+  }, [n]);
+  const goto = useCallback(
+    (i: number) => {
+      setElapsedPct(0);
+      setIndex(clampIndex(i, n));
+    },
+    [n],
+  );
 
   useEffect(() => {
     if (!started || paused || reduced) return;
@@ -335,7 +444,12 @@ export function useStoryPlayer() {
     startRef.current = performance.now();
     const tick = (t: number) => {
       const pct = ((t - startRef.current) / dur) * 100;
-      if (pct >= 100) { setElapsedPct(100); setIndex((i) => nextIndex(i, n)); setElapsedPct(0); return; }
+      if (pct >= 100) {
+        setElapsedPct(100);
+        setIndex((i) => nextIndex(i, n));
+        setElapsedPct(0);
+        return;
+      }
       setElapsedPct(pct);
       rafRef.current = requestAnimationFrame(tick);
     };
@@ -344,8 +458,15 @@ export function useStoryPlayer() {
   }, [index, paused, started, reduced, n]);
 
   return {
-    index, elapsedPct, paused, started, reduced, total: n,
-    goNext, goPrev, goto,
+    index,
+    elapsedPct,
+    paused,
+    started,
+    reduced,
+    total: n,
+    goNext,
+    goPrev,
+    goto,
     start: () => setStarted(true),
     setPaused,
     atEnd: index === n - 1,
@@ -371,7 +492,10 @@ import { CountUp } from "./CountUp";
 describe("CountUp", () => {
   it("shows the target immediately when reduced motion is on", () => {
     vi.stubGlobal("matchMedia", (q: string) => ({
-      matches: true, media: q, addEventListener: () => {}, removeEventListener: () => {},
+      matches: true,
+      media: q,
+      addEventListener: () => {},
+      removeEventListener: () => {},
     }));
     render(<CountUp to={500} />);
     expect(screen.getByText("500")).toBeInTheDocument();
@@ -387,12 +511,24 @@ describe("CountUp", () => {
 import { useEffect, useState } from "react";
 import { useReducedMotion } from "../lib/useReducedMotion";
 
-export function CountUp({ to, durationMs = 1400, suffix = "" }: { to: number; durationMs?: number; suffix?: string }) {
+export function CountUp({
+  to,
+  durationMs = 1400,
+  suffix = "",
+}: {
+  to: number;
+  durationMs?: number;
+  suffix?: string;
+}) {
   const reduced = useReducedMotion();
   const [val, setVal] = useState(reduced ? to : 0);
   useEffect(() => {
-    if (reduced) { setVal(to); return; }
-    let raf = 0; const start = performance.now();
+    if (reduced) {
+      setVal(to);
+      return;
+    }
+    let raf = 0;
+    const start = performance.now();
     const tick = (t: number) => {
       const p = Math.min(1, (t - start) / durationMs);
       setVal(Math.round(to * (1 - Math.pow(1 - p, 3))));
@@ -401,7 +537,12 @@ export function CountUp({ to, durationMs = 1400, suffix = "" }: { to: number; du
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [to, durationMs, reduced]);
-  return <span>{val.toLocaleString()}{suffix}</span>;
+  return (
+    <span>
+      {val.toLocaleString()}
+      {suffix}
+    </span>
+  );
 }
 ```
 
@@ -419,15 +560,32 @@ export function CountUp({ to, durationMs = 1400, suffix = "" }: { to: number; du
 import { motion } from "framer-motion";
 import type { ReactNode } from "react";
 
-export function Slide({ gradient, bg, children }: { gradient: string; bg?: string; children: ReactNode }) {
+export function Slide({
+  gradient,
+  bg,
+  children,
+}: {
+  gradient: string;
+  bg?: string;
+  children: ReactNode;
+}) {
   return (
     <motion.section
-      initial={{ opacity: 0, scale: 1.04 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
+      initial={{ opacity: 0, scale: 1.04 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
       className="absolute inset-0 flex flex-col justify-center px-7 md:px-16 overflow-hidden"
       style={{ background: gradient }}
     >
-      {bg && <img src={bg} aria-hidden alt="" className="absolute inset-0 w-full h-full object-cover opacity-25 mix-blend-overlay" />}
+      {bg && (
+        <img
+          src={bg}
+          aria-hidden
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover opacity-25 mix-blend-overlay"
+        />
+      )}
       <div className="relative z-10 max-w-3xl">{children}</div>
     </motion.section>
   );
@@ -440,12 +598,24 @@ export function Slide({ gradient, bg, children }: { gradient: string; bg?: strin
 import { slides } from "../data/wrapped";
 import { barProgress } from "../lib/player";
 
-export function ProgressBars({ index, elapsedPct }: { index: number; elapsedPct: number }) {
+export function ProgressBars({
+  index,
+  elapsedPct,
+}: {
+  index: number;
+  elapsedPct: number;
+}) {
   return (
     <div className="absolute top-0 left-0 right-0 z-30 flex gap-1.5 p-3">
       {slides.map((s, i) => (
-        <div key={s.id} className="flex-1 h-1 rounded-full bg-white/30 overflow-hidden">
-          <div className="h-full bg-white" style={{ width: `${barProgress(index, i, elapsedPct)}%` }} />
+        <div
+          key={s.id}
+          className="flex-1 h-1 rounded-full bg-white/30 overflow-hidden"
+        >
+          <div
+            className="h-full bg-white"
+            style={{ width: `${barProgress(index, i, elapsedPct)}%` }}
+          />
         </div>
       ))}
     </div>
@@ -464,7 +634,12 @@ export function Confetti() {
   const reduced = useReducedMotion();
   useEffect(() => {
     if (reduced) return;
-    confetti({ particleCount: 140, spread: 80, origin: { y: 0.6 }, disableForReducedMotion: true });
+    confetti({
+      particleCount: 140,
+      spread: 80,
+      origin: { y: 0.6 },
+      disableForReducedMotion: true,
+    });
   }, [reduced]);
   return null;
 }
@@ -488,13 +663,35 @@ export function Intro() {
   const d = wrapped.driver;
   return (
     <div className="text-[#04210f]">
-      <motion.div initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}
-        className="text-sm font-extrabold tracking-[0.3em] opacity-70">{d.years}</motion.div>
-      <motion.h1 initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.25 }}
-        className="font-display font-black leading-[0.9] text-6xl md:text-8xl mt-3">YOUR YEAR,<br />WRAPPED</motion.h1>
-      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}
-        className="mt-6 text-xl font-bold">{d.name} · {d.title}</motion.p>
-      <p className="opacity-70 text-sm mt-1">{d.degree} · {d.institute}</p>
+      <motion.div
+        initial={{ y: 30, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.1 }}
+        className="text-sm font-extrabold tracking-[0.3em] opacity-70"
+      >
+        {d.years}
+      </motion.div>
+      <motion.h1
+        initial={{ y: 40, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.25 }}
+        className="font-display font-black leading-[0.9] text-6xl md:text-8xl mt-3"
+      >
+        YOUR YEAR,
+        <br />
+        WRAPPED
+      </motion.h1>
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.6 }}
+        className="mt-6 text-xl font-bold"
+      >
+        {d.name} · {d.title}
+      </motion.p>
+      <p className="opacity-70 text-sm mt-1">
+        {d.degree} · {d.institute}
+      </p>
     </div>
   );
 }
@@ -509,13 +706,24 @@ import { wrapped } from "../data/wrapped";
 export function TopSkills() {
   return (
     <div className="text-white">
-      <div className="text-sm font-extrabold tracking-[0.2em] opacity-90">YOUR TOP SKILLS</div>
+      <div className="text-sm font-extrabold tracking-[0.2em] opacity-90">
+        YOUR TOP SKILLS
+      </div>
       <ol className="mt-6 space-y-3">
         {wrapped.topSkills.map((s, i) => (
-          <motion.li key={s.name} initial={{ x: -40, opacity: 0 }} animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.15 + i * 0.15 }} className="flex items-baseline gap-4">
-            <span className="font-display font-black text-3xl md:text-5xl opacity-50 w-12">{s.rank}</span>
-            <span className="font-display font-bold text-2xl md:text-4xl">{s.name}</span>
+          <motion.li
+            key={s.name}
+            initial={{ x: -40, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.15 + i * 0.15 }}
+            className="flex items-baseline gap-4"
+          >
+            <span className="font-display font-black text-3xl md:text-5xl opacity-50 w-12">
+              {s.rank}
+            </span>
+            <span className="font-display font-bold text-2xl md:text-4xl">
+              {s.name}
+            </span>
           </motion.li>
         ))}
       </ol>
@@ -534,12 +742,20 @@ import { wrapped } from "../data/wrapped";
 export function TopArtists() {
   return (
     <div className="text-white">
-      <div className="text-sm font-extrabold tracking-[0.2em] opacity-90">YOUR TOP ARTISTS</div>
+      <div className="text-sm font-extrabold tracking-[0.2em] opacity-90">
+        YOUR TOP ARTISTS
+      </div>
       <div className="mt-6 space-y-4">
         {wrapped.artists.map((a, i) => (
-          <motion.div key={a.name} initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.15 + i * 0.15 }}>
-            <div className="font-display font-bold text-2xl md:text-4xl">{a.name}</div>
+          <motion.div
+            key={a.name}
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.15 + i * 0.15 }}
+          >
+            <div className="font-display font-bold text-2xl md:text-4xl">
+              {a.name}
+            </div>
             <div className="opacity-80 text-sm">{a.note}</div>
           </motion.div>
         ))}
@@ -558,12 +774,18 @@ import { CountUp } from "../story/CountUp";
 export function BigStatI() {
   return (
     <div className="text-[#2a1500]">
-      <div className="text-sm font-extrabold tracking-[0.2em] opacity-80">YOU SCREENED</div>
+      <div className="text-sm font-extrabold tracking-[0.2em] opacity-80">
+        YOU SCREENED
+      </div>
       <div className="font-display font-black leading-[0.85] text-7xl md:text-9xl mt-2">
         <CountUp to={wrapped.stats.resumes} suffix="+" />
       </div>
-      <div className="font-display font-extrabold text-2xl mt-2">resumes this year</div>
-      <p className="mt-4 text-base font-semibold opacity-80 max-w-md">{wrapped.stats.resumesLine}</p>
+      <div className="font-display font-extrabold text-2xl mt-2">
+        resumes this year
+      </div>
+      <p className="mt-4 text-base font-semibold opacity-80 max-w-md">
+        {wrapped.stats.resumesLine}
+      </p>
     </div>
   );
 }
@@ -578,12 +800,18 @@ import { CountUp } from "../story/CountUp";
 export function BigStatII() {
   return (
     <div className="text-white">
-      <div className="text-sm font-extrabold tracking-[0.2em] opacity-90">YOUR BIGGEST SHOW</div>
+      <div className="text-sm font-extrabold tracking-[0.2em] opacity-90">
+        YOUR BIGGEST SHOW
+      </div>
       <div className="font-display font-black leading-[0.85] text-7xl md:text-9xl mt-2">
         <CountUp to={wrapped.stats.converge} suffix="+" />
       </div>
-      <div className="font-display font-extrabold text-2xl mt-2">people at Converge 2026</div>
-      <p className="mt-4 text-base font-semibold opacity-90 max-w-md">{wrapped.stats.converseLine}</p>
+      <div className="font-display font-extrabold text-2xl mt-2">
+        people at Converge 2026
+      </div>
+      <p className="mt-4 text-base font-semibold opacity-90 max-w-md">
+        {wrapped.stats.converseLine}
+      </p>
     </div>
   );
 }
@@ -599,16 +827,32 @@ export function Genre() {
   const g = wrapped.genre;
   return (
     <div className="text-[#062b22]">
-      <div className="text-sm font-extrabold tracking-[0.2em] opacity-80">YOUR GENRE</div>
-      <motion.h2 initial={{ scale: 0.85, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-        className="font-display font-black text-5xl md:text-7xl mt-3">{g.title}</motion.h2>
+      <div className="text-sm font-extrabold tracking-[0.2em] opacity-80">
+        YOUR GENRE
+      </div>
+      <motion.h2
+        initial={{ scale: 0.85, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className="font-display font-black text-5xl md:text-7xl mt-3"
+      >
+        {g.title}
+      </motion.h2>
       <div className="flex flex-wrap gap-2 mt-5">
         {g.aura.map((a, i) => (
-          <motion.span key={a} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 + i * 0.1 }}
-            className="px-4 py-1.5 rounded-full bg-black/20 font-bold text-sm">{a}</motion.span>
+          <motion.span
+            key={a}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 + i * 0.1 }}
+            className="px-4 py-1.5 rounded-full bg-black/20 font-bold text-sm"
+          >
+            {a}
+          </motion.span>
         ))}
       </div>
-      <p className="mt-5 text-base font-semibold opacity-80 max-w-lg">{g.blurb}</p>
+      <p className="mt-5 text-base font-semibold opacity-80 max-w-lg">
+        {g.blurb}
+      </p>
     </div>
   );
 }
@@ -623,14 +867,25 @@ import { wrapped } from "../data/wrapped";
 export function TopAlbum() {
   return (
     <div className="text-white">
-      <div className="text-sm font-extrabold tracking-[0.2em] opacity-90">YOUR TOP ALBUM · PROJECTS</div>
+      <div className="text-sm font-extrabold tracking-[0.2em] opacity-90">
+        YOUR TOP ALBUM · PROJECTS
+      </div>
       <div className="mt-6 space-y-3">
         {wrapped.projects.map((p, i) => (
-          <motion.div key={p.track} initial={{ x: -30, opacity: 0 }} animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.15 + i * 0.12 }} className="flex items-baseline gap-3">
-            <span className="opacity-60 font-display font-black w-8">{i + 1}</span>
+          <motion.div
+            key={p.track}
+            initial={{ x: -30, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.15 + i * 0.12 }}
+            className="flex items-baseline gap-3"
+          >
+            <span className="opacity-60 font-display font-black w-8">
+              {i + 1}
+            </span>
             <div>
-              <div className="font-display font-bold text-xl md:text-3xl">{p.track}</div>
+              <div className="font-display font-bold text-xl md:text-3xl">
+                {p.track}
+              </div>
               <div className="opacity-80 text-sm">{p.meta}</div>
             </div>
           </motion.div>
@@ -652,12 +907,23 @@ export function Platinum() {
   return (
     <div className="text-[#1a1a2e]">
       <Confetti />
-      <div className="text-sm font-extrabold tracking-[0.2em] opacity-80">YOU WENT PLATINUM</div>
-      <h2 className="font-display font-black text-4xl md:text-6xl mt-2">Award season 🏆</h2>
+      <div className="text-sm font-extrabold tracking-[0.2em] opacity-80">
+        YOU WENT PLATINUM
+      </div>
+      <h2 className="font-display font-black text-4xl md:text-6xl mt-2">
+        Award season 🏆
+      </h2>
       <ul className="mt-5 space-y-2">
         {wrapped.achievements.map((a, i) => (
-          <motion.li key={a} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 + i * 0.12 }}
-            className="font-bold text-lg md:text-2xl">★ {a}</motion.li>
+          <motion.li
+            key={a}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 + i * 0.12 }}
+            className="font-bold text-lg md:text-2xl"
+          >
+            ★ {a}
+          </motion.li>
         ))}
       </ul>
     </div>
@@ -674,12 +940,18 @@ import { CountUp } from "../story/CountUp";
 export function Community() {
   return (
     <div className="text-[#2a1500]">
-      <div className="text-sm font-extrabold tracking-[0.2em] opacity-80">COMMUNITY BUILDER</div>
+      <div className="text-sm font-extrabold tracking-[0.2em] opacity-80">
+        COMMUNITY BUILDER
+      </div>
       <div className="font-display font-black text-7xl md:text-9xl mt-2 leading-[0.85]">
         <CountUp to={80} suffix="+" />
       </div>
-      <div className="font-display font-extrabold text-2xl mt-1">members, from zero</div>
-      <p className="mt-4 text-base font-semibold opacity-80 max-w-md">{wrapped.leadership.line2}</p>
+      <div className="font-display font-extrabold text-2xl mt-1">
+        members, from zero
+      </div>
+      <p className="mt-4 text-base font-semibold opacity-80 max-w-md">
+        {wrapped.leadership.line2}
+      </p>
     </div>
   );
 }
@@ -698,11 +970,16 @@ export function Community() {
 ```ts
 import { toPng } from "html-to-image";
 
-export async function saveCard(node: HTMLElement, filename = "darshil-wrapped.png"): Promise<boolean> {
+export async function saveCard(
+  node: HTMLElement,
+  filename = "darshil-wrapped.png",
+): Promise<boolean> {
   try {
     const url = await toPng(node, { pixelRatio: 2, cacheBust: true });
     const a = document.createElement("a");
-    a.href = url; a.download = filename; a.click();
+    a.href = url;
+    a.download = filename;
+    a.click();
     return true;
   } catch {
     return false;
@@ -725,28 +1002,74 @@ export function Summary() {
   const onSave = async () => {
     if (!cardRef.current) return;
     const ok = await saveCard(cardRef.current);
-    setMsg(ok ? "Saved! Check your downloads." : "Couldn't export — screenshot this card instead.");
+    setMsg(
+      ok
+        ? "Saved! Check your downloads."
+        : "Couldn't export — screenshot this card instead.",
+    );
   };
 
   return (
     <div className="text-white w-full">
-      <div className="text-sm font-extrabold tracking-[0.2em] opacity-90 mb-3">THAT'S A WRAP ✦</div>
-      <div ref={cardRef} className="rounded-2xl p-6 max-w-md" style={{ background: "linear-gradient(160deg,#1db954,#191414)" }}>
+      <div className="text-sm font-extrabold tracking-[0.2em] opacity-90 mb-3">
+        THAT'S A WRAP ✦
+      </div>
+      <div
+        ref={cardRef}
+        className="rounded-2xl p-6 max-w-md"
+        style={{ background: "linear-gradient(160deg,#1db954,#191414)" }}
+      >
         <div className="font-display font-black text-3xl">{d.name}</div>
         <div className="opacity-80 text-sm">{d.years} · WRAPPED</div>
         <div className="grid grid-cols-2 gap-3 mt-5 text-sm">
-          <div><div className="opacity-60 text-xs">TOP SKILL</div><div className="font-bold">{wrapped.topSkills[0].name}</div></div>
-          <div><div className="opacity-60 text-xs">TOP ARTIST</div><div className="font-bold">{wrapped.artists[0].name}</div></div>
-          <div><div className="opacity-60 text-xs">GENRE</div><div className="font-bold">{wrapped.genre.title}</div></div>
-          <div><div className="opacity-60 text-xs">CGPA</div><div className="font-bold">{d.cgpa}</div></div>
-          <div><div className="opacity-60 text-xs">SCREENED</div><div className="font-bold">{wrapped.stats.resumes}+ resumes</div></div>
-          <div><div className="opacity-60 text-xs">BUILT</div><div className="font-bold">80+ community</div></div>
+          <div>
+            <div className="opacity-60 text-xs">TOP SKILL</div>
+            <div className="font-bold">{wrapped.topSkills[0].name}</div>
+          </div>
+          <div>
+            <div className="opacity-60 text-xs">TOP ARTIST</div>
+            <div className="font-bold">{wrapped.artists[0].name}</div>
+          </div>
+          <div>
+            <div className="opacity-60 text-xs">GENRE</div>
+            <div className="font-bold">{wrapped.genre.title}</div>
+          </div>
+          <div>
+            <div className="opacity-60 text-xs">CGPA</div>
+            <div className="font-bold">{d.cgpa}</div>
+          </div>
+          <div>
+            <div className="opacity-60 text-xs">SCREENED</div>
+            <div className="font-bold">{wrapped.stats.resumes}+ resumes</div>
+          </div>
+          <div>
+            <div className="opacity-60 text-xs">BUILT</div>
+            <div className="font-bold">80+ community</div>
+          </div>
         </div>
       </div>
       <div className="flex flex-wrap gap-3 mt-5">
-        <button onClick={onSave} className="bg-white text-black font-bold rounded-full px-5 py-2.5">↓ SAVE CARD (PNG)</button>
-        <a href="/Darshil_Jain_Resume.pdf" download className="border border-white/60 rounded-full px-5 py-2.5 font-bold">GET THE FULL TRACKLIST (CV)</a>
-        <a href={wrapped.contact.linkedin} target="_blank" rel="noreferrer" className="border border-white/60 rounded-full px-5 py-2.5 font-bold">LINKEDIN</a>
+        <button
+          onClick={onSave}
+          className="bg-white text-black font-bold rounded-full px-5 py-2.5"
+        >
+          ↓ SAVE CARD (PNG)
+        </button>
+        <a
+          href="/Darshil_Jain_Resume.pdf"
+          download
+          className="border border-white/60 rounded-full px-5 py-2.5 font-bold"
+        >
+          GET THE FULL TRACKLIST (CV)
+        </a>
+        <a
+          href={wrapped.contact.linkedin}
+          target="_blank"
+          rel="noreferrer"
+          className="border border-white/60 rounded-full px-5 py-2.5 font-bold"
+        >
+          LINKEDIN
+        </a>
       </div>
       {msg && <p className="text-sm mt-3 opacity-90">{msg}</p>}
     </div>
@@ -773,24 +1096,40 @@ export function useAmbient() {
   const [on, setOn] = useState(false);
 
   const start = () => {
-    const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const Ctx =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext })
+        .webkitAudioContext;
     const ctx = ctxRef.current ?? new Ctx();
     ctxRef.current = ctx;
     const master = ctx.createGain();
-    master.gain.value = 0.04; master.connect(ctx.destination);
+    master.gain.value = 0.04;
+    master.connect(ctx.destination);
     [220, 277.18, 329.63].forEach((f) => {
-      const osc = ctx.createOscillator(); const gain = ctx.createGain();
-      osc.type = "sine"; osc.frequency.value = f; gain.gain.value = 0.5;
-      osc.connect(gain); gain.connect(master); osc.start();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.value = f;
+      gain.gain.value = 0.5;
+      osc.connect(gain);
+      gain.connect(master);
+      osc.start();
       nodesRef.current.push({ osc, gain });
     });
     setOn(true);
   };
 
   const stop = () => {
-    nodesRef.current.forEach(({ osc }) => { try { osc.stop(); } catch { /* already stopped */ } });
+    nodesRef.current.forEach(({ osc }) => {
+      try {
+        osc.stop();
+      } catch {
+        /* already stopped */
+      }
+    });
     nodesRef.current = [];
-    ctxRef.current?.close(); ctxRef.current = null;
+    ctxRef.current?.close();
+    ctxRef.current = null;
     setOn(false);
   };
 
@@ -829,9 +1168,16 @@ import { Summary } from "../slides/Summary";
 import type { SlideId } from "../data/wrapped";
 
 const VIEWS: Record<SlideId, React.ComponentType> = {
-  intro: Intro, skills: TopSkills, artists: TopArtists, statResumes: BigStatI,
-  statConverge: BigStatII, genre: Genre, album: TopAlbum, platinum: Platinum,
-  community: Community, summary: Summary,
+  intro: Intro,
+  skills: TopSkills,
+  artists: TopArtists,
+  statResumes: BigStatI,
+  statConverge: BigStatII,
+  genre: Genre,
+  album: TopAlbum,
+  platinum: Platinum,
+  community: Community,
+  summary: Summary,
 };
 
 export function StoryPlayer() {
@@ -840,14 +1186,22 @@ export function StoryPlayer() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); p.goNext(); }
-      else if (e.key === "ArrowLeft") { e.preventDefault(); p.goPrev(); }
+      if (e.key === "ArrowRight" || e.key === " ") {
+        e.preventDefault();
+        p.goNext();
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        p.goPrev();
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [p]);
 
-  const begin = () => { p.start(); if (!audio.on) audio.toggle(); };
+  const begin = () => {
+    p.start();
+    if (!audio.on) audio.toggle();
+  };
 
   const current = slides[p.index];
   const View = VIEWS[current.id];
@@ -863,25 +1217,40 @@ export function StoryPlayer() {
       </AnimatePresence>
 
       {/* tap zones */}
-      <button aria-label="previous" className="absolute left-0 top-0 h-full w-1/3 z-20"
+      <button
+        aria-label="previous"
+        className="absolute left-0 top-0 h-full w-1/3 z-20"
         onClick={p.goPrev}
-        onPointerDown={() => p.setPaused(true)} onPointerUp={() => p.setPaused(false)} />
-      <button aria-label="next" className="absolute right-0 top-0 h-full w-1/3 z-20"
+        onPointerDown={() => p.setPaused(true)}
+        onPointerUp={() => p.setPaused(false)}
+      />
+      <button
+        aria-label="next"
+        className="absolute right-0 top-0 h-full w-1/3 z-20"
         onClick={p.goNext}
-        onPointerDown={() => p.setPaused(true)} onPointerUp={() => p.setPaused(false)} />
+        onPointerDown={() => p.setPaused(true)}
+        onPointerUp={() => p.setPaused(false)}
+      />
 
       {/* controls */}
       <div className="absolute top-4 right-4 z-30 flex gap-2 text-xs">
-        <button onClick={audio.toggle} className="rounded-full bg-black/30 text-white px-3 py-1.5 backdrop-blur">
+        <button
+          onClick={audio.toggle}
+          className="rounded-full bg-black/30 text-white px-3 py-1.5 backdrop-blur"
+        >
           {audio.on ? "♪ ON" : "♪ OFF"}
         </button>
       </div>
 
       {/* start gate */}
       {!p.started && (
-        <button onClick={begin}
-          className="absolute inset-0 z-40 flex items-center justify-center bg-black/45 backdrop-blur-sm text-white">
-          <span className="font-display font-black text-3xl md:text-5xl animate-pulse">▸ TAP TO BEGIN</span>
+        <button
+          onClick={begin}
+          className="absolute inset-0 z-40 flex items-center justify-center bg-black/45 backdrop-blur-sm text-white"
+        >
+          <span className="font-display font-black text-3xl md:text-5xl animate-pulse">
+            ▸ TAP TO BEGIN
+          </span>
         </button>
       )}
 
@@ -898,7 +1267,9 @@ export function StoryPlayer() {
 
 ```tsx
 import { StoryPlayer } from "./story/StoryPlayer";
-export default function App() { return <StoryPlayer />; }
+export default function App() {
+  return <StoryPlayer />;
+}
 ```
 
 - [ ] **Step 3: main.tsx** — ensure it imports `./index.css` and renders `<App />` (Vite default). No Router needed.
@@ -935,7 +1306,7 @@ Run `npm test && npm run build`. Then `npm run dev` and verify: tap to begin →
 
 - [ ] **Step 1:** `gh repo create darshil-wrapped --public --source=. --remote=origin --push`
 - [ ] **Step 2:** `npx vercel --prod` (Vite auto-detected). Requires GitHub + Vercel auth.
-- [ ] **Step 3:** Smoke-test the live URL (begin → all slides → save card → CV). 
+- [ ] **Step 3:** Smoke-test the live URL (begin → all slides → save card → CV).
 - [ ] **Step 4:** Add live URL to `README.md`; `git add -A && git commit -m "docs: add live URL" && git push`
 
 ---
@@ -945,4 +1316,7 @@ Run `npm test && npm run build`. Then `npm run dev` and verify: tap to begin →
 - **Spec coverage:** story format + controls → Tasks 5,11; full energy (confetti/count-up/emoji) → Tasks 6,7,8; all 10 slides → Tasks 8,9; share PNG → Task 9; résumé PDF → Tasks 1,9; sound toggle → Tasks 10,11; AI backdrops + fallback → Tasks 7(bg support),12; data single-source → Task 2; reduced-motion → Tasks 4,5,6,7,13; deploy → Task 14. All spec sections mapped.
 - **Placeholder scan:** none — every code step is complete and runnable.
 - **Type consistency:** `SlideId`/`SlideDef`/`slides` (Task 2) consumed by `player`/`useStoryPlayer` (Tasks 3,5), `ProgressBars` (Task 7), and `StoryPlayer` VIEWS map (Task 11). `wrapped` shape (Task 2) consumed by all slides (Tasks 8,9). `saveCard(node)` (Task 9) called by Summary. `useAmbient().toggle` (Task 10) used by StoryPlayer.
+
+```
+
 ```
