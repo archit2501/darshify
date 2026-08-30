@@ -1,0 +1,398 @@
+{
+  "version": "2.0",
+  "feature": "darshify-recruiter-first-redesign",
+  "scope": "large",
+  "decisions": {
+    "theme": "Spotify-themed throughout",
+    "v1": "Static typed recruiter-first portfolio with no CMS or recorded narration",
+    "architecture": "React Router 7 Framework Mode with static prerendering",
+    "motion": "Motion 13 with LazyMotion and original Darshify icons",
+    "informationArchitecture": "Artist profile to proof tracks to conversion",
+    "coverage": "90% on new and modified code",
+    "accessibility": "WCAG 2.2 AA",
+    "performance": "1.0 MiB total, 700 KiB images, 150 KiB gzip JavaScript",
+    "careerMix": "Silent 60-second guided recruiter tour",
+    "release": "Private preview followed by atomic production cutover"
+  },
+  "sprints": [
+    {
+      "id": "1",
+      "name": "Truth and delivery foundation",
+      "estimateDays": 2.5,
+      "phases": [
+        {
+          "id": "1.1",
+          "name": "Quality foundation",
+          "tasks": [
+            {
+              "id": "1.1.1",
+              "title": "Establish reproducible quality gates and CI",
+              "acceptance": [
+                "Node 24 and npm scripts are reproducible locally and in CI",
+                "CI runs quality, test, build, and browser jobs in dependency order",
+                "Baseline browser test covers Home, Artist, Search, and Library without console errors"
+              ],
+              "estimateHours": 5,
+              "timeComplexity": "n/a",
+              "spaceComplexity": "n/a",
+              "files": ["package.json", "vite.config.ts", "playwright.config.ts", ".github/workflows/ci.yml", "e2e/baseline.spec.ts"],
+              "dependencies": [],
+              "smokeTest": "npm run format && npm run check && npm run test:e2e",
+              "ciJobs": ["quality", "test", "build", "browser"],
+              "status": "todo",
+              "criticalPath": true
+            }
+          ]
+        },
+        {
+          "id": "1.2",
+          "name": "Evidence model",
+          "tasks": [
+            {
+              "id": "1.2.1",
+              "title": "Create the evidence-first content model",
+              "acceptance": [
+                "Typed portfolio data replaces simulated popularity and playback facts",
+                "Every quantitative claim contains source, period, and verification status",
+                "Validation reports no duplicate IDs, slugs, or unresolved references",
+                "Direct lookup is O(1) and normalized search is O(n)"
+              ],
+              "estimateHours": 8,
+              "timeComplexity": "O(1) lookup; O(n) validation/search",
+              "spaceComplexity": "O(n)",
+              "files": ["src/content/types.ts", "src/content/portfolio.ts", "src/content/selectors.ts", "src/content/validate.ts", "src/data/library.ts"],
+              "dependencies": ["1.1.1"],
+              "smokeTest": "npm test -- src/content src/data/library.test.ts && npm run lint && npm run type-check && npm run build",
+              "ciJobs": ["quality", "test", "build"],
+              "status": "todo",
+              "criticalPath": true
+            }
+          ]
+        },
+        {
+          "id": "1.3",
+          "name": "Prerendered routing",
+          "tasks": [
+            {
+              "id": "1.3.1",
+              "title": "Migrate to React Router Framework Mode and prerender routes",
+              "acceptance": [
+                "Primary and case-study routes render meaningful static HTML",
+                "Existing public URLs remain compatible",
+                "Unknown paths return a designed recoverable 404",
+                "Client navigation remains functional after prerender"
+              ],
+              "estimateHours": 8,
+              "timeComplexity": "O(n) route list generation",
+              "spaceComplexity": "O(n) generated route manifests",
+              "files": ["react-router.config.ts", "app/root.tsx", "app/routes.ts", "app/routes/*.tsx", "vercel.json"],
+              "dependencies": ["1.2.1"],
+              "smokeTest": "npm run type-check && npm run build && npm run test:e2e -- e2e/baseline.spec.ts e2e/prerender.spec.ts",
+              "ciJobs": ["quality", "test", "build", "browser"],
+              "status": "todo",
+              "criticalPath": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "name": "Distinctive Spotify-themed system",
+      "estimateDays": 3,
+      "phases": [
+        {
+          "id": "2.1",
+          "name": "Visual foundation",
+          "tasks": [
+            {
+              "id": "2.1.1",
+              "title": "Implement the editorial design system and Motion policy",
+              "acceptance": [
+                "Approved black, green, neutral, type, spacing, and focus tokens are implemented",
+                "Archivo and IBM Plex Mono replace the unproven display font",
+                "Motion 13 LazyMotion is the only JavaScript animation runtime",
+                "Reduced motion renders all content in its final state"
+              ],
+              "estimateHours": 6,
+              "timeComplexity": "n/a",
+              "spaceComplexity": "n/a",
+              "files": ["src/styles/tokens.css", "src/styles/base.css", "src/motion/MotionProvider.tsx", "src/index.css", "package.json"],
+              "dependencies": ["1.3.1"],
+              "smokeTest": "npm test -- src/motion src/lib/useReducedMotion.test.ts && npm run lint && npm run type-check && npm run build",
+              "ciJobs": ["quality", "test", "build"],
+              "status": "todo",
+              "criticalPath": true
+            }
+          ]
+        },
+        {
+          "id": "2.2",
+          "name": "Semantic shell",
+          "tasks": [
+            {
+              "id": "2.2.1",
+              "title": "Build the semantic responsive shell and conversion primitives",
+              "acceptance": [
+                "Skip link, named navigation landmarks, main landmark, and route focus work",
+                "CV, Email, and LinkedIn controls are semantic and never hidden on mobile",
+                "Desktop rail and mobile bottom navigation meet the locked layout contract",
+                "Global keyboard handlers no longer steal normal page interactions"
+              ],
+              "estimateHours": 6,
+              "timeComplexity": "n/a",
+              "spaceComplexity": "n/a",
+              "files": ["src/components/ContactActions.tsx", "src/shell/AppShell.tsx", "src/shell/Sidebar.tsx", "src/shell/TopBar.tsx", "src/shell/BottomNav.tsx"],
+              "dependencies": ["2.1.1"],
+              "smokeTest": "npm test -- src/components/ContactActions.test.tsx && npm run test:e2e -- e2e/shell-accessibility.spec.ts && npm run build",
+              "ciJobs": ["quality", "test", "build", "browser"],
+              "status": "todo",
+              "criticalPath": true
+            }
+          ]
+        },
+        {
+          "id": "2.3",
+          "name": "Evidence identity",
+          "tasks": [
+            {
+              "id": "2.3.1",
+              "title": "Build artifact-led covers and the Proof Waveform",
+              "acceptance": [
+                "Proof Waveform peaks map to labelled evidence and stable case-study links",
+                "Priority covers use real/redacted evidence or fact-led typography",
+                "Covers provide meaningful alt text, fixed aspect ratio, and responsive delivery",
+                "No generic AI art or full-card rainbow gradients remain"
+              ],
+              "estimateHours": 7,
+              "timeComplexity": "O(n) waveform normalization",
+              "spaceComplexity": "O(n)",
+              "files": ["src/components/EvidenceCover.tsx", "src/components/ProofWaveform.tsx", "src/content/waveform.ts", "public/artifacts/*.svg", "src/shell/Art.tsx"],
+              "dependencies": ["2.2.1"],
+              "smokeTest": "npm test -- src/components/ProofWaveform.test.tsx src/components/EvidenceCover.test.tsx && npm run lint && npm run type-check && npm run build",
+              "ciJobs": ["quality", "test", "build"],
+              "status": "todo",
+              "criticalPath": false
+            }
+          ]
+        },
+        {
+          "id": "2.4",
+          "name": "Truthful play interaction",
+          "tasks": [
+            {
+              "id": "2.4.1",
+              "title": "Replace simulated playback with the silent Career Mix",
+              "acceptance": [
+                "Global Play opens a silent 60-second guided tour",
+                "Pause, previous, next, progress, evidence link, and close are keyboard operable",
+                "Legacy ambient audio, seek, likes, queue, shuffle, repeat, and fake timing are removed",
+                "Timed state updates remain isolated to the Career Mix provider"
+              ],
+              "estimateHours": 8,
+              "timeComplexity": "O(1) per reducer action",
+              "spaceComplexity": "O(1) runtime state",
+              "files": ["src/career-mix/reducer.ts", "src/career-mix/CareerMixContext.tsx", "src/career-mix/CareerMixDock.tsx", "src/shell/AppShell.tsx"],
+              "dependencies": ["2.2.1", "1.2.1"],
+              "smokeTest": "npm test -- src/career-mix && npm run lint && npm run type-check && npm run build",
+              "ciJobs": ["quality", "test", "build"],
+              "status": "todo",
+              "criticalPath": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "name": "Recruiter-first product surfaces",
+      "estimateDays": 3.5,
+      "phases": [
+        {
+          "id": "3.1",
+          "name": "First impression",
+          "tasks": [
+            {
+              "id": "3.1.1",
+              "title": "Rebuild Home as the recruiter briefing",
+              "acceptance": [
+                "Name, target role, proposition, sourced proof, CV, Email, LinkedIn, and Career Mix are visible in the first viewport",
+                "Exactly three Recruiter Essentials lead deeper exploration",
+                "Generic greeting, fake quick picks, and simulated popularity rankings are removed",
+                "Home works at 390x844 and 1440x900 without hiding conversion"
+              ],
+              "estimateHours": 7,
+              "timeComplexity": "O(n) evidence shelf rendering",
+              "spaceComplexity": "O(n)",
+              "files": ["src/components/RecruiterHero.tsx", "src/pages/Home.tsx", "src/shell/MediaCard.tsx", "src/shell/Shelf.tsx", "app/routes/home.tsx"],
+              "dependencies": ["2.3.1", "2.4.1"],
+              "smokeTest": "npm test -- src/components/RecruiterHero.test.tsx src/pages/Home.test.tsx && npm run test:e2e -- e2e/recruiter-home.spec.ts && npm run build",
+              "ciJobs": ["quality", "test", "build", "browser"],
+              "status": "todo",
+              "criticalPath": true
+            }
+          ]
+        },
+        {
+          "id": "3.2",
+          "name": "Candidate profile and releases",
+          "tasks": [
+            {
+              "id": "3.2.1",
+              "title": "Rebuild Artist and release rows around sourced proof",
+              "acceptance": [
+                "Artist hierarchy is proposition, conversion, selected impact, releases, About, and contact",
+                "Every proof row exposes outcome, source/status, and a stable case-study action",
+                "Verified Candidate, monthly listeners, Follow, plays, and duration semantics are absent",
+                "Legacy playlist and liked URLs render truthful professional collections"
+              ],
+              "estimateHours": 8,
+              "timeComplexity": "O(n) ordered proof rendering",
+              "spaceComplexity": "O(n)",
+              "files": ["src/components/ProofTrackRow.tsx", "src/components/ReleaseCard.tsx", "src/pages/ArtistPage.tsx", "src/pages/PlaylistPage.tsx", "src/pages/LikedSongs.tsx"],
+              "dependencies": ["3.1.1"],
+              "smokeTest": "npm test -- src/pages/ArtistPage.test.tsx src/components/ProofTrackRow.test.tsx src/components/ReleaseCard.test.tsx && npm run lint && npm run type-check && npm run build",
+              "ciJobs": ["quality", "test", "build"],
+              "status": "todo",
+              "criticalPath": true
+            }
+          ]
+        },
+        {
+          "id": "3.3",
+          "name": "Case-study depth",
+          "tasks": [
+            {
+              "id": "3.3.1",
+              "title": "Build complete, shareable case-study pages",
+              "acceptance": [
+                "Every case study presents Situation, Action, Result, Evidence, source/status, and contact actions",
+                "All case-study slugs are prerendered with unique metadata",
+                "Real/redacted artifacts are placed beside the claims they support",
+                "Missing slugs produce a recoverable 404"
+              ],
+              "estimateHours": 8,
+              "timeComplexity": "O(1) slug lookup; O(n) related-item rendering",
+              "spaceComplexity": "O(n) prerender output",
+              "files": ["src/components/CaseStudyHeader.tsx", "src/components/EvidencePanel.tsx", "src/pages/CaseStudyPage.tsx", "app/routes/case-study.tsx", "react-router.config.ts"],
+              "dependencies": ["3.2.1"],
+              "smokeTest": "npm test -- src/pages/CaseStudyPage.test.tsx && npm run build && npm run test:e2e -- e2e/case-studies.spec.ts e2e/prerender.spec.ts",
+              "ciJobs": ["quality", "test", "build", "browser"],
+              "status": "todo",
+              "criticalPath": true
+            }
+          ]
+        },
+        {
+          "id": "3.4",
+          "name": "Discovery",
+          "tasks": [
+            {
+              "id": "3.4.1",
+              "title": "Rebuild Search and Library as professional discovery tools",
+              "acceptance": [
+                "Search is labelled, mobile-safe, deterministic, and links to stable routes",
+                "Search matches organization, skill, action, result, and recruiter takeaway",
+                "Library uses Career Library, releases, and professional category language",
+                "No raw search terms are persisted and interaction work stays below 50ms"
+              ],
+              "estimateHours": 7,
+              "timeComplexity": "O(n) search/filter; O(n log n) explicit A-Z sort",
+              "spaceComplexity": "O(n) normalized corpus",
+              "files": ["src/components/SearchField.tsx", "src/components/SearchResults.tsx", "src/pages/Search.tsx", "src/pages/Library.tsx", "app/routes/search.tsx", "app/routes/library.tsx"],
+              "dependencies": ["3.3.1"],
+              "smokeTest": "npm test -- src/pages/Search.test.tsx src/pages/Library.test.tsx src/content/selectors.test.ts && npm run test:e2e -- e2e/discovery.spec.ts && npm run build",
+              "ciJobs": ["quality", "test", "build", "browser"],
+              "status": "todo",
+              "criticalPath": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "4",
+      "name": "Discovery, hardening, and release",
+      "estimateDays": 2,
+      "phases": [
+        {
+          "id": "4.1",
+          "name": "Search visibility and outcomes",
+          "tasks": [
+            {
+              "id": "4.1.1",
+              "title": "Add route metadata, structured data, and privacy-safe analytics",
+              "acceptance": [
+                "Every prerendered route has unique title, description, canonical URL, and social metadata",
+                "Person and CreativeWork JSON-LD contain only supported claims",
+                "Analytics records only approved recruiter outcome events",
+                "No contact values, raw searches, or personal profiles enter analytics"
+              ],
+              "estimateHours": 6,
+              "timeComplexity": "O(n) sitemap and metadata generation",
+              "spaceComplexity": "O(n)",
+              "files": ["src/seo/meta.ts", "src/seo/structuredData.ts", "src/analytics/outcomes.ts", "src/components/OutcomeLink.tsx", "public/sitemap.xml", "public/robots.txt"],
+              "dependencies": ["3.3.1"],
+              "smokeTest": "npm test -- src/seo src/analytics src/components/ContactActions.test.tsx && npm run build && npm run test:e2e -- e2e/prerender.spec.ts",
+              "ciJobs": ["quality", "test", "build", "browser"],
+              "status": "todo",
+              "criticalPath": false
+            }
+          ]
+        },
+        {
+          "id": "4.2",
+          "name": "Release-blocking quality",
+          "tasks": [
+            {
+              "id": "4.2.1",
+              "title": "Enforce accessibility, responsive, coverage, link, and performance budgets",
+              "acceptance": [
+                "New and modified runtime code meets 90% statements, branches, functions, and lines",
+                "Axe reports zero serious or critical violations on all key states",
+                "Initial transfer stays within 1.0 MiB total, 700 KiB images, and 150 KiB gzip JavaScript",
+                "Lighthouse mobile scores are at least 95 in all four required categories",
+                "Recruiter, Career Mix, route, contact, responsive, link, and 404 browser flows pass"
+              ],
+              "estimateHours": 8,
+              "timeComplexity": "O(r + a) route and asset validation",
+              "spaceComplexity": "O(r + a) reports",
+              "files": ["e2e/*.spec.ts", "scripts/check-links.mjs", "scripts/check-content.mjs", "lighthouserc.json", "vite.config.ts", ".github/workflows/ci.yml"],
+              "dependencies": ["3.4.1", "4.1.1"],
+              "smokeTest": "npm run check && npm run test:e2e && npx lhci autorun",
+              "ciJobs": ["quality", "test", "build", "browser"],
+              "status": "todo",
+              "criticalPath": true
+            }
+          ]
+        },
+        {
+          "id": "4.3",
+          "name": "Preview and cutover",
+          "tasks": [
+            {
+              "id": "4.3.1",
+              "title": "Validate the private preview and prepare atomic cutover",
+              "acceptance": [
+                "Preview passes all automated gates against its immutable URL",
+                "Manual WCAG 2.2 AA, truth, link, source, and responsive audits are signed",
+                "At least 80% of five target-role reviewers pass both comprehension tasks",
+                "Production rollback deployment is recorded before cutover",
+                "Production changes only after explicit approval and post-cutover smoke passes"
+              ],
+              "estimateHours": 8,
+              "timeComplexity": "O(r + c) route and claim audit",
+              "spaceComplexity": "O(r + c) audit evidence",
+              "files": ["docs/release/2026-08-31-preview-audit.md", "docs/release/2026-08-31-manual-a11y.md", "docs/release/2026-08-31-content-sources.md", "README.md", ".Codex-protocol/state.json"],
+              "dependencies": ["4.2.1"],
+              "smokeTest": "PLAYWRIGHT_BASE_URL=$PREVIEW_URL npm run test:e2e && LHCI_BUILD_CONTEXT__CURRENT_HASH=$(git rev-parse HEAD) npx lhci autorun",
+              "ciJobs": ["quality", "test", "build", "browser"],
+              "status": "todo",
+              "criticalPath": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
