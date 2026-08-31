@@ -1,6 +1,5 @@
-import { portfolio } from "../content/portfolio";
+import { resolveFallbackEvidence } from "../content/artifactFallback";
 import type { Artifact } from "../content/types";
-import { formatProofValue } from "../content/waveform";
 
 export type EvidenceCoverAspect = "1:1" | "16:9" | "row";
 
@@ -14,29 +13,6 @@ const viewBox: Record<EvidenceCoverAspect, string> = {
   "1:1": "0 0 800 800",
   "16:9": "0 0 1280 720",
   row: "0 0 1000 200",
-};
-
-const capitalize = (value: string) =>
-  `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
-
-const fallbackEvidence = (artifact: Artifact) => {
-  const caseStudy = portfolio.caseStudies.find((candidate) =>
-    candidate.artifactIds.includes(artifact.id),
-  );
-  const proof = portfolio.proofPoints.find(
-    (candidate) => candidate.id === caseStudy?.proofIds[0],
-  );
-  if (!caseStudy || !proof) {
-    throw new Error(
-      `Artifact ${artifact.id} has no canonical fallback evidence`,
-    );
-  }
-
-  return {
-    label: caseStudy.organization,
-    value: formatProofValue(proof),
-    category: capitalize(caseStudy.kind),
-  };
 };
 
 export function EvidenceCover({
@@ -54,6 +30,15 @@ export function EvidenceCover({
     if (artifact.image.width <= 0 || artifact.image.height <= 0) {
       throw new Error(
         `Artifact ${artifact.id} must declare positive image dimensions`,
+      );
+    }
+    if (
+      artifact.image.variants?.some(
+        (variant) => !Number.isFinite(variant.width) || variant.width <= 0,
+      )
+    ) {
+      throw new Error(
+        `Artifact ${artifact.id} must declare finite positive responsive variant widths`,
       );
     }
 
@@ -78,8 +63,9 @@ export function EvidenceCover({
     );
   }
 
-  const evidence = fallbackEvidence(artifact);
+  const evidence = resolveFallbackEvidence(artifact);
   const isRow = aspect === "row";
+  const isWide = aspect === "16:9";
 
   return (
     <div className="overflow-hidden bg-elevated" style={wrapperStyle}>
@@ -98,7 +84,7 @@ export function EvidenceCover({
         />
         <text
           x={isRow ? "42" : "64"}
-          y={isRow ? "54" : "132"}
+          y={isRow ? "54" : isWide ? "80" : "132"}
           fill="var(--color-muted)"
           fontFamily="IBM Plex Mono, ui-monospace, monospace"
           fontSize={isRow ? "22" : "28"}
@@ -109,7 +95,7 @@ export function EvidenceCover({
         </text>
         <text
           x={isRow ? "42" : "64"}
-          y={isRow ? "112" : "300"}
+          y={isRow ? "112" : isWide ? "230" : "300"}
           fill="var(--color-text)"
           fontFamily="Archivo, system-ui, sans-serif"
           fontSize={isRow ? "42" : "64"}
@@ -119,7 +105,7 @@ export function EvidenceCover({
         </text>
         <text
           x={isRow ? "700" : "64"}
-          y={isRow ? "112" : "548"}
+          y={isRow ? "112" : isWide ? "400" : "548"}
           fill="var(--color-signal)"
           fontFamily="IBM Plex Mono, ui-monospace, monospace"
           fontSize={isRow ? "34" : "76"}
@@ -129,12 +115,39 @@ export function EvidenceCover({
         </text>
         <text
           x={isRow ? "700" : "64"}
-          y={isRow ? "152" : "608"}
+          y={isRow ? "152" : isWide ? "460" : "610"}
+          fill="var(--color-text)"
+          fontFamily="IBM Plex Mono, ui-monospace, monospace"
+          fontSize={isRow ? "15" : "22"}
+        >
+          {evidence.proofLabel}
+        </text>
+        <text
+          x={isRow ? "42" : "64"}
+          y={isRow ? "152" : isWide ? "520" : "662"}
           fill="var(--color-muted)"
           fontFamily="IBM Plex Mono, ui-monospace, monospace"
-          fontSize={isRow ? "15" : "20"}
+          fontSize={isRow ? "13" : "18"}
         >
-          {artifact.status} · sourced evidence
+          {evidence.period}
+        </text>
+        <text
+          x={isRow ? "420" : "64"}
+          y={isRow ? "152" : isWide ? "560" : "704"}
+          fill="var(--color-muted)"
+          fontFamily="IBM Plex Mono, ui-monospace, monospace"
+          fontSize={isRow ? "13" : "18"}
+        >
+          {evidence.sourceLabel}
+        </text>
+        <text
+          x={isRow ? "820" : "64"}
+          y={isRow ? "152" : isWide ? "600" : "746"}
+          fill="var(--color-muted)"
+          fontFamily="IBM Plex Mono, ui-monospace, monospace"
+          fontSize={isRow ? "13" : "18"}
+        >
+          {evidence.status}
         </text>
       </svg>
     </div>

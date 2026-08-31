@@ -8,6 +8,9 @@
     <text x="64" y="296" fill="#f7f7f5" font-size="72" font-weight="800">Darshil</text>
     <text x="64" y="376" fill="#f7f7f5" font-size="72" font-weight="800">Jain</text>
     <text x="64" y="590" fill="#1ed760" font-family="monospace" font-size="48" font-weight="700">500+ résumés</text>
-    <text x="64" y="642" fill="#b3b3b3" font-family="monospace" font-size="20">screened · self-reported</text>
+    <text x="64" y="638" fill="#f7f7f5" font-family="monospace" font-size="22">Résumés screened</text>
+    <text x="64" y="674" fill="#b3b3b3" font-family="monospace" font-size="17">Jan 2026 – Feb 2026</text>
+    <text x="64" y="708" fill="#b3b3b3" font-family="monospace" font-size="17">Darshil Jain résumé</text>
+    <text x="64" y="742" fill="#b3b3b3" font-family="monospace" font-size="17">self-reported</text>
   </g>
 </svg>
