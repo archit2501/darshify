@@ -1,5 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { playlists } from "../data/library";
+import { ContactActions } from "../components/ContactActions";
+import { portfolio } from "../content/portfolio";
 
 function accentFor(path: string): string | null {
   if (path.startsWith("/playlist/")) {
@@ -18,7 +20,7 @@ export function TopBar({ scrollY = 0 }: { scrollY?: number }) {
   const tint = Math.min(scrollY / 140, 1);
 
   return (
-    <div className="sticky top-0 z-20 flex items-center gap-2 px-4 md:px-6 py-3">
+    <header className="sticky top-0 z-20 flex items-center gap-2 px-4 py-3 md:px-6">
       {/* scroll tint layer (accent gradient on detail pages, dark elsewhere) */}
       <div
         aria-hidden
@@ -39,20 +41,15 @@ export function TopBar({ scrollY = 0 }: { scrollY?: number }) {
       >
         ›
       </button>
-      <a
-        href="/Darshil_Jain_Resume.pdf"
-        download
-        data-motion-transform
-        className="interactive-target ml-auto hidden sm:inline-flex items-center justify-center bg-white text-black text-sm font-bold rounded-full px-4 motion-safe:hover:scale-105 transition-transform"
-      >
-        Download CV
-      </a>
-      <span className="bg-black/60 rounded-full pl-1 pr-3 py-1 text-sm font-bold flex items-center gap-2">
+      <div className="ml-auto md:hidden">
+        <ContactActions candidate={portfolio.candidate} placement="topbar" />
+      </div>
+      <span className="ml-auto hidden min-h-11 items-center gap-2 rounded-full bg-black/60 py-1 pr-3 pl-1 text-sm font-bold lg:flex">
         <span className="grid place-items-center w-6 h-6 rounded-full bg-accent text-black">
           D
         </span>
         Darshil
       </span>
-    </div>
+    </header>
   );
 }

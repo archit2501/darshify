@@ -63,6 +63,13 @@ textarea {
     var(--focus-ring-offset-color);
 }
 
+[data-route-heading]:focus {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  box-shadow: 0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width))
+    var(--focus-ring-offset-color);
+}
+
 .evidence-metadata {
   font-family: "IBM Plex Mono", ui-monospace, monospace;
   font-size: var(--type-metadata);

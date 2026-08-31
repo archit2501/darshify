@@ -2,13 +2,18 @@ import { NavLink } from "react-router-dom";
 import { playlists, AVATAR, LIKED_COVER } from "../data/library";
 import { HomeIcon, SearchIcon, LibraryIcon } from "../icons/icons";
 import { Art } from "./Art";
+import { ContactActions } from "../components/ContactActions";
+import { portfolio } from "../content/portfolio";
 
 const navCls = ({ isActive }: { isActive: boolean }) =>
-  `flex items-center gap-4 font-bold ${isActive ? "text-white" : "text-sub hover:text-white"}`;
+  `interactive-target flex items-center gap-4 font-bold ${isActive ? "text-white" : "text-sub hover:text-white"}`;
 
 export function Sidebar() {
   return (
-    <nav className="hidden md:flex flex-col gap-2 w-[260px] p-2 text-sm">
+    <nav
+      aria-label="Primary navigation"
+      className="hidden w-56 shrink-0 flex-col gap-2 p-2 text-sm md:flex"
+    >
       {/* brand + top nav */}
       <div className="bg-panel rounded-lg p-4">
         <div className="flex items-center gap-2 font-black text-xl mb-5">
@@ -21,7 +26,7 @@ export function Sidebar() {
         </div>
         <div className="flex flex-col gap-4">
           <NavLink to="/" end className={navCls}>
-            <HomeIcon size={22} /> Home
+            <HomeIcon size={22} /> Overview
           </NavLink>
           <NavLink to="/search" className={navCls}>
             <SearchIcon size={22} /> Search
@@ -32,7 +37,7 @@ export function Sidebar() {
       {/* library */}
       <div className="bg-panel rounded-lg p-4 flex-1 min-h-0 overflow-y-auto">
         <div className="flex items-center gap-3 text-sub font-bold mb-4">
-          <LibraryIcon size={22} /> Your Library
+          <LibraryIcon size={22} /> Portfolio
         </div>
         <div className="flex flex-col gap-1">
           <NavLink
@@ -48,9 +53,9 @@ export function Sidebar() {
             />
             <span>
               <span className="block font-semibold text-white">
-                This Is Darshil
+                Candidate profile
               </span>
-              <span className="text-sub text-xs">Artist</span>
+              <span className="text-sub text-xs">Profile</span>
             </span>
           </NavLink>
           <NavLink
@@ -66,9 +71,9 @@ export function Sidebar() {
             />
             <span>
               <span className="block font-semibold text-white">
-                Liked Songs
+                Achievements
               </span>
-              <span className="text-sub text-xs">Playlist · Achievements</span>
+              <span className="text-sub text-xs">Recognition</span>
             </span>
           </NavLink>
           {playlists.map((pl) => (
@@ -88,21 +93,14 @@ export function Sidebar() {
                 <span className="block font-semibold text-white truncate">
                   {pl.title}
                 </span>
-                <span className="text-sub text-xs">
-                  {pl.kind} · Darshil Jain
-                </span>
+                <span className="text-sub text-xs">Portfolio collection</span>
               </span>
             </NavLink>
           ))}
         </div>
-        <a
-          href="/Darshil_Jain_Resume.pdf"
-          download
-          data-motion-transform
-          className="interactive-target mt-4 flex items-center justify-center text-center border border-sub/40 rounded-full font-bold text-white hover:border-white motion-safe:hover:scale-[1.02] transition-transform"
-        >
-          ↓ Download CV
-        </a>
+        <div className="mt-4 border-t border-line pt-4">
+          <ContactActions candidate={portfolio.candidate} placement="rail" />
+        </div>
       </div>
     </nav>
   );
