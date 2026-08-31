@@ -18,11 +18,14 @@ const semanticShellRuntime = [
   "src/icons/icons.tsx",
   "src/pages/ArtistPage.tsx",
   "src/pages/Home.tsx",
+  "src/pages/LikedSongs.tsx",
+  "src/pages/PlaylistPage.tsx",
   "src/shell/BottomNav.tsx",
   "src/shell/RouteFocus.tsx",
   "src/shell/SkipLink.tsx",
 ];
 const cumulativeRedesignRuntime = [
+  "app/root.tsx",
   ...designSystemRuntime,
   ...semanticShellRuntime,
   "src/career-mix/CareerMixContext.tsx",
@@ -35,6 +38,7 @@ const cumulativeRedesignRuntime = [
   "src/content/waveform.ts",
   "src/data/library.ts",
   "src/shell/Art.tsx",
+  "src/shell/TrackRow.tsx",
 ];
 const coverageRuntime =
   coverageScope === "redesign"

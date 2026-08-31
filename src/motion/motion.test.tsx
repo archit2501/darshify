@@ -30,7 +30,6 @@ import {
   CareerMixProvider,
   useCareerMix,
 } from "../career-mix/CareerMixContext";
-import { PlayerProvider } from "../player/PlayerContext";
 import { AppShell } from "../shell/AppShell";
 import { MediaCard } from "../shell/MediaCard";
 import { PlayButton } from "../shell/PlayButton";
@@ -132,11 +131,9 @@ const renderShell = async (reduced: boolean) => {
   );
 
   const view = render(
-    <PlayerProvider>
-      <CareerMixProvider>
-        <RouterProvider router={router} />
-      </CareerMixProvider>
-    </PlayerProvider>,
+    <CareerMixProvider>
+      <RouterProvider router={router} />
+    </CareerMixProvider>,
   );
   await act(async () => {
     await Promise.resolve();
@@ -328,9 +325,8 @@ describe("editorial motion foundation", () => {
     );
   });
 
-  // Regression: MediaCard can lose optional content or call navigation instead of its supplied play action.
-  it("renders both MediaCard variants and invokes the real play action", () => {
-    const onPlay = vi.fn();
+  // Regression: a MediaCard can regain a nested fake-play control instead of remaining truthful navigation.
+  it("renders both MediaCard variants as navigation without nested actions", () => {
     const { rerender } = render(
       <MemoryRouter>
         <MediaCard
@@ -339,17 +335,16 @@ describe("editorial motion foundation", () => {
           subtitle="Sourced result"
           gradient="linear-gradient(#000,#111)"
           cover="/cover.png"
-          onPlay={onPlay}
           round
         />
       </MemoryRouter>,
     );
 
     expect(screen.getByText("Sourced result")).toBeVisible();
-    fireEvent.click(
-      screen.getByRole("button", { name: "Play Evidence release" }),
-    );
-    expect(onPlay).toHaveBeenCalledOnce();
+    expect(
+      screen.getByRole("link", { name: /Evidence release/ }),
+    ).toHaveAttribute("href", "/artist");
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
 
     rerender(
       <MemoryRouter>

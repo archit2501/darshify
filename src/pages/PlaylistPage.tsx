@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { playlists, trackById } from "../data/library";
-import { usePlayer } from "../player/PlayerContext";
+import { useCareerMix } from "../career-mix/CareerMixContext";
 import { TrackRow } from "../shell/TrackRow";
 import { PlayButton } from "../shell/PlayButton";
 import { Art } from "../shell/Art";
@@ -9,7 +9,7 @@ import { NotFound } from "./NotFound";
 
 export function PlaylistPage() {
   const { id } = useParams();
-  const p = usePlayer();
+  const { open } = useCareerMix();
   const pl = playlists.find((x) => x.id === id);
   if (!pl) return <NotFound />;
 
@@ -17,7 +17,6 @@ export function PlaylistPage() {
     ReturnType<typeof trackById>
   >[];
   const total = tracks.reduce((s, t) => s + t.durationSec, 0);
-  const playing = p.isPlaying && tracks.some((t) => t.id === p.current?.id);
 
   return (
     <div>
@@ -49,10 +48,8 @@ export function PlaylistPage() {
       <div className="flex items-center gap-6 py-4">
         <PlayButton
           size={56}
-          playing={playing}
-          onClick={() =>
-            playing ? p.toggle() : p.play(tracks[0], pl.trackIds)
-          }
+          label="Start Career Mix"
+          onClick={(event) => open(event.currentTarget)}
         />
       </div>
 
@@ -64,7 +61,7 @@ export function PlaylistPage() {
         <span className="text-right">⏱</span>
       </div>
       {tracks.map((t, i) => (
-        <TrackRow key={t.id} track={t} index={i} context={pl.trackIds} />
+        <TrackRow key={t.id} track={t} index={i} />
       ))}
     </div>
   );

@@ -1,14 +1,14 @@
 import { useSyncExternalStore } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   playlists,
   tracks,
-  trackById,
   coverFor,
   AVATAR,
   LIKED_COVER,
 } from "../data/library";
-import { usePlayer } from "../player/PlayerContext";
+import { useCareerMix } from "../career-mix/CareerMixContext";
+import { PlayIcon } from "../icons/icons";
 import { Shelf } from "../shell/Shelf";
 import { MediaCard } from "../shell/MediaCard";
 import { Art } from "../shell/Art";
@@ -17,8 +17,7 @@ import { currentGreeting } from "../lib/greeting";
 const subscribeToClock = () => () => {};
 
 export function Home({ initialGreeting }: { initialGreeting: string }) {
-  const p = usePlayer();
-  const nav = useNavigate();
+  const { open } = useCareerMix();
   const greeting = useSyncExternalStore(
     subscribeToClock,
     currentGreeting,
@@ -31,42 +30,36 @@ export function Home({ initialGreeting }: { initialGreeting: string }) {
       title: "This Is Darshil",
       gradient: "linear-gradient(135deg,#1ed760,#0a5)",
       cover: AVATAR,
-      ctx: tracks.map((t) => t.id),
     },
     {
       to: "/playlist/skills",
       title: "Top Skills",
       gradient: "linear-gradient(135deg,#ff4d6d,#7b2ff7)",
       cover: playlists[2].cover,
-      ctx: playlists[2].trackIds,
     },
     {
       to: "/playlist/experience",
       title: "Experience",
       gradient: "linear-gradient(135deg,#36c6ff,#2536ff)",
       cover: playlists[0].cover,
-      ctx: playlists[0].trackIds,
     },
     {
       to: "/liked",
       title: "Liked Songs",
       gradient: "linear-gradient(135deg,#4a00e0,#b3b3ff)",
       cover: LIKED_COVER,
-      ctx: ["a1", "a2", "a3", "a4"],
     },
     {
       to: "/playlist/projects",
       title: "Projects",
       gradient: "linear-gradient(135deg,#8e2de2,#4a00e0)",
       cover: playlists[1].cover,
-      ctx: playlists[1].trackIds,
     },
     {
       to: "/playlist/certs",
       title: "Certifications",
       gradient: "linear-gradient(135deg,#1ed760,#0a5)",
       cover: playlists[3].cover,
-      ctx: playlists[3].trackIds,
     },
   ];
 
@@ -74,15 +67,26 @@ export function Home({ initialGreeting }: { initialGreeting: string }) {
 
   return (
     <div className="pt-2">
-      <h1 className="mb-5 text-3xl font-black">{greeting}</h1>
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-3xl font-black">{greeting}</h1>
+        <button
+          type="button"
+          onClick={(event) => open(event.currentTarget)}
+          data-motion-transform
+          className="interactive-target inline-flex items-center justify-center gap-2 rounded-full bg-signal px-4 font-bold text-black motion-safe:hover:scale-[1.02]"
+        >
+          <PlayIcon />
+          Start Career Mix
+        </button>
+      </div>
 
       {/* quick picks */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-8">
         {quick.map((q) => (
-          <div
+          <Link
             key={q.to}
-            onClick={() => nav(q.to)}
-            className="group relative flex items-center gap-4 bg-white/10 hover:bg-white/20 rounded-md overflow-hidden cursor-pointer transition-colors"
+            to={q.to}
+            className="group relative flex items-center gap-4 overflow-hidden rounded-md bg-white/10 transition-colors hover:bg-white/20"
           >
             <Art
               src={q.cover}
@@ -91,25 +95,7 @@ export function Home({ initialGreeting }: { initialGreeting: string }) {
               className="w-16 h-16 shrink-0"
             />
             <span className="font-bold">{q.title}</span>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                const t = trackById(q.ctx[0]);
-                if (t) p.play(t, q.ctx);
-              }}
-              aria-label={`Play ${q.title}`}
-              className="ml-auto mr-4 opacity-0 group-hover:opacity-100 grid place-items-center w-11 h-11 rounded-full bg-accent text-black shadow-lg transition-opacity"
-            >
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path d="M7 4.5v15l13-7.5z" />
-              </svg>
-            </button>
-          </div>
+          </Link>
         ))}
       </div>
 
@@ -122,10 +108,6 @@ export function Home({ initialGreeting }: { initialGreeting: string }) {
             subtitle={pl.description}
             gradient={pl.gradient}
             cover={pl.cover}
-            onPlay={() => {
-              const t = trackById(pl.trackIds[0]);
-              if (t) p.play(t, pl.trackIds);
-            }}
           />
         ))}
       </Shelf>
@@ -139,12 +121,6 @@ export function Home({ initialGreeting }: { initialGreeting: string }) {
             subtitle={t.subtitle}
             gradient={t.gradient}
             cover={coverFor(t.kind)}
-            onPlay={() =>
-              p.play(
-                t,
-                topHits.map((x) => x.id),
-              )
-            }
           />
         ))}
       </Shelf>
@@ -157,12 +133,6 @@ export function Home({ initialGreeting }: { initialGreeting: string }) {
           round
           gradient="linear-gradient(135deg,#1ed760,#0a5)"
           cover={AVATAR}
-          onPlay={() =>
-            p.play(
-              tracks[0],
-              tracks.map((t) => t.id),
-            )
-          }
         />
         {playlists.slice(0, 2).map((pl) => (
           <MediaCard
@@ -172,10 +142,6 @@ export function Home({ initialGreeting }: { initialGreeting: string }) {
             subtitle={pl.kind}
             gradient={pl.gradient}
             cover={pl.cover}
-            onPlay={() => {
-              const t = trackById(pl.trackIds[0]);
-              if (t) p.play(t, pl.trackIds);
-            }}
           />
         ))}
       </Shelf>

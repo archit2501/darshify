@@ -1,17 +1,15 @@
-import { usePlayer } from "../player/PlayerContext";
+import { useCareerMix } from "../career-mix/CareerMixContext";
 import { trackById, likedTrackIds, LIKED_COVER } from "../data/library";
 import { TrackRow } from "../shell/TrackRow";
 import { PlayButton } from "../shell/PlayButton";
 import { Art } from "../shell/Art";
 
 export function LikedSongs() {
-  const p = usePlayer();
-  // union of seeded achievements + anything the user liked, preserving order
-  const ids = Array.from(new Set([...likedTrackIds, ...p.likes]));
+  const { open } = useCareerMix();
+  const ids = likedTrackIds;
   const tracks = ids.map(trackById).filter(Boolean) as NonNullable<
     ReturnType<typeof trackById>
   >[];
-  const playing = p.isPlaying && tracks.some((t) => t.id === p.current?.id);
 
   return (
     <div>
@@ -43,15 +41,13 @@ export function LikedSongs() {
       <div className="flex items-center gap-6 py-4">
         <PlayButton
           size={56}
-          playing={playing}
-          onClick={() =>
-            playing ? p.toggle() : tracks[0] && p.play(tracks[0], ids)
-          }
+          label="Start Career Mix"
+          onClick={(event) => open(event.currentTarget)}
         />
       </div>
 
       {tracks.map((t, i) => (
-        <TrackRow key={t.id} track={t} index={i} context={ids} />
+        <TrackRow key={t.id} track={t} index={i} />
       ))}
     </div>
   );

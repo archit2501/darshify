@@ -9,7 +9,6 @@ import {
 } from "react-router";
 import "../src/index.css";
 import { CareerMixProvider } from "../src/career-mix/CareerMixContext";
-import { PlayerProvider } from "../src/player/PlayerContext";
 import { AppShell } from "../src/shell/AppShell";
 import { ToastProvider } from "../src/shell/Toast";
 
@@ -49,13 +48,11 @@ export function Layout({ children }: { children: ReactNode }) {
 export default function Root() {
   return (
     <>
-      <PlayerProvider>
-        <CareerMixProvider>
-          <ToastProvider>
-            <AppShell />
-          </ToastProvider>
-        </CareerMixProvider>
-      </PlayerProvider>
+      <CareerMixProvider>
+        <ToastProvider>
+          <AppShell />
+        </ToastProvider>
+      </CareerMixProvider>
       <HydrationMarker />
     </>
   );
