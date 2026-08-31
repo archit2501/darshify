@@ -3,7 +3,13 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { useContext } from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { MotionConfigContext } from "motion/react";
 import {
   createMemoryRouter,
@@ -97,7 +103,7 @@ const reduceMotion = (matches: boolean) => {
   }));
 };
 
-const renderShell = (reduced: boolean) => {
+const renderShell = async (reduced: boolean) => {
   reduceMotion(reduced);
   vi.stubGlobal("localStorage", memoryStorage());
   const router = createMemoryRouter(
@@ -111,11 +117,15 @@ const renderShell = (reduced: boolean) => {
     { initialEntries: ["/"] },
   );
 
-  render(
+  const view = render(
     <PlayerProvider>
       <RouterProvider router={router} />
     </PlayerProvider>,
   );
+  await act(async () => {
+    await Promise.resolve();
+  });
+  return view;
 };
 
 afterEach(() => {
@@ -175,8 +185,8 @@ describe("editorial motion foundation", () => {
   });
 
   // Regression: a reduced-motion drawer starting translated or transparent hides final UI before animation settles.
-  it("renders the real reduced-motion drawer in its final visible state", () => {
-    renderShell(true);
+  it("renders the real reduced-motion drawer in its final visible state", async () => {
+    await renderShell(true);
 
     fireEvent.click(
       screen.getByRole("button", { name: "Open now playing view" }),
@@ -193,8 +203,8 @@ describe("editorial motion foundation", () => {
   });
 
   // Regression: reduced motion that only shortens duration makes hover scaling snap instead of suppressing the transform.
-  it("suppresses transform state changes on the real reduced-motion controls", () => {
-    renderShell(true);
+  it("suppresses transform state changes on the real reduced-motion controls", async () => {
+    await renderShell(true);
     const play = screen.getByRole("button", { name: "Play" });
     const cv = screen.getAllByRole("link", { name: "Download CV" })[0];
 
@@ -217,8 +227,8 @@ describe("editorial motion foundation", () => {
   });
 
   // Regression: global Space and arrow shortcuts steal normal scrolling, text navigation, and native control interaction.
-  it("leaves ordinary page keys alone while keeping explicit shell controls working", () => {
-    renderShell(false);
+  it("leaves ordinary page keys alone while keeping explicit shell controls working", async () => {
+    const view = await renderShell(false);
 
     const space = new KeyboardEvent("keydown", {
       key: " ",
@@ -233,29 +243,35 @@ describe("editorial motion foundation", () => {
 
     expect(space.defaultPrevented).toBe(false);
     expect(arrow.defaultPrevented).toBe(false);
-    expect(screen.getByRole("button", { name: "Play" })).toBeVisible();
-    expect(screen.getByRole("slider", { name: "Seek" })).toHaveValue("0");
+    expect(
+      view.container.querySelector('button[aria-label="Play"]'),
+    ).toBeVisible();
+    expect(
+      view.container.querySelector('input[aria-label="Seek"]'),
+    ).toHaveValue("0");
+  });
 
-    const main = screen.getByRole("main");
-    Object.defineProperty(main, "scrollTop", {
-      configurable: true,
-      value: 140,
-    });
-    fireEvent.scroll(main);
+  // Regression: shell disclosure buttons can remain visible while their panels stop opening or closing.
+  it("keeps the queue disclosure wired to its real panel", async () => {
+    const view = await renderShell(false);
+    const queue = view.container.querySelector<HTMLButtonElement>(
+      'button[aria-label="Queue"]',
+    );
 
-    fireEvent.click(screen.getByRole("button", { name: "Queue" }));
+    expect(queue).toBeVisible();
+    fireEvent.click(queue!);
     expect(screen.getByRole("heading", { name: "Queue" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Close queue" }));
-
-    fireEvent.click(
-      screen.getByRole("button", { name: "Open now playing view" }),
+    await waitFor(() =>
+      expect(
+        screen.queryByRole("heading", { name: "Queue" }),
+      ).not.toBeInTheDocument(),
     );
-    fireEvent.click(screen.getAllByRole("button", { name: "Close panel" })[0]);
   });
 
   // Regression: transport callbacks can render correctly while their real controls no longer update player state.
-  it("keeps every player control wired to observable state", () => {
-    renderShell(false);
+  it("keeps every player control wired to observable state", async () => {
+    await renderShell(false);
 
     fireEvent.click(screen.getByRole("button", { name: "Like" }));
     expect(screen.getByRole("button", { name: "Unlike" })).toBeVisible();

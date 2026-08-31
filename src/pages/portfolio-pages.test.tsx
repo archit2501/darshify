@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter, useLocation } from "react-router-dom";
 import { PlayerProvider, usePlayer } from "../player/PlayerContext";
@@ -20,8 +20,8 @@ function RuntimeProbe() {
   );
 }
 
-function renderPage(page: React.ReactNode) {
-  return render(
+async function renderPage(page: React.ReactNode) {
+  const view = render(
     <MemoryRouter>
       <PlayerProvider>
         <ToastProvider>
@@ -31,6 +31,10 @@ function renderPage(page: React.ReactNode) {
       </PlayerProvider>
     </MemoryRouter>,
   );
+  await act(async () => {
+    await Promise.resolve();
+  });
+  return view;
 }
 
 const memoryStorage = (): Storage => {
@@ -47,13 +51,17 @@ const memoryStorage = (): Storage => {
   };
 };
 
-beforeEach(() => vi.stubGlobal("localStorage", memoryStorage()));
-afterEach(() => vi.unstubAllGlobals());
+beforeEach(() => {
+  vi.stubGlobal("localStorage", memoryStorage());
+});
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 describe("legacy portfolio pages inside the semantic shell", () => {
   // Regression: making a quick-pick play control bubble into its card sends the recruiter away instead of starting the represented track in place.
-  it("keeps Home quick-pick navigation separate from its nested play action", () => {
-    renderPage(<Home initialGreeting="Good morning" />);
+  it("keeps Home quick-pick navigation separate from its nested play action", async () => {
+    await renderPage(<Home initialGreeting="Good morning" />);
 
     fireEvent.click(screen.getAllByText("Top Skills", { exact: true })[0]);
     expect(screen.getByLabelText("Current route")).toHaveTextContent(
@@ -72,8 +80,8 @@ describe("legacy portfolio pages inside the semantic shell", () => {
   });
 
   // Regression: any Home shelf can retain its cards while its distinct play callback stops selecting the evidence represented by that shelf.
-  it("starts the hand-checked track represented by every Home shelf family", () => {
-    renderPage(<Home initialGreeting="Good morning" />);
+  it("starts the hand-checked track represented by every Home shelf family", async () => {
+    await renderPage(<Home initialGreeting="Good morning" />);
 
     fireEvent.click(
       screen.getAllByRole("button", { name: "Play Experience" })[1],
@@ -104,9 +112,9 @@ describe("legacy portfolio pages inside the semantic shell", () => {
     );
   });
 
-  // Regression: the candidate page can render its proof rows while profile state, transport state, collection playback, or recruiter links stop working.
-  it("keeps Artist profile, playback, and conversion interactions operable", () => {
-    renderPage(<ArtistPage />);
+  // Regression: the candidate page can render its proof rows while profile state or recruiter links stop working.
+  it("keeps Artist profile and conversion interactions operable", async () => {
+    await renderPage(<ArtistPage />);
 
     expect(
       screen.getByRole("heading", { level: 1, name: "Darshil Jain" }),
@@ -120,7 +128,11 @@ describe("legacy portfolio pages inside the semantic shell", () => {
     expect(screen.getByRole("button", { name: "Following" })).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: "Following" }));
     expect(screen.getByRole("button", { name: "Follow" })).toBeVisible();
+  });
 
+  // Regression: the prominent Artist transport can stop selecting and toggling its represented evidence.
+  it("keeps the Artist primary transport wired to player state", async () => {
+    await renderPage(<ArtistPage />);
     fireEvent.click(screen.getByRole("button", { name: /^Play$/ }));
     expect(screen.getByRole("button", { name: /^Pause$/ })).toBeVisible();
     expect(screen.getByLabelText("Player state")).toHaveTextContent(
@@ -130,10 +142,18 @@ describe("legacy portfolio pages inside the semantic shell", () => {
     expect(screen.getByLabelText("Player state")).toHaveTextContent(
       "Market Research · paused",
     );
+  });
 
+  // Regression: the Artist collection can remain visible while its play control no longer selects the represented role evidence.
+  it("starts Artist collection playback with its represented evidence", async () => {
+    await renderPage(<ArtistPage />);
     fireEvent.click(screen.getByRole("button", { name: "Play Experience" }));
     expect(screen.getByLabelText("Player state")).toHaveTextContent(
       "Operations Internship at Figmenta · playing",
+    );
+    fireEvent.click(screen.getByRole("button", { name: /^Pause$/ }));
+    expect(screen.getByLabelText("Player state")).toHaveTextContent(
+      "Operations Internship at Figmenta · paused",
     );
   });
 });
