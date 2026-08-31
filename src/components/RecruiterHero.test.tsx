@@ -2,6 +2,7 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import { portfolio } from "../content/portfolio";
+import { artifactById } from "../content/selectors";
 import { RecruiterHero } from "./RecruiterHero";
 
 beforeEach(() => {
@@ -78,9 +79,14 @@ describe("RecruiterHero", () => {
       </MemoryRouter>,
     );
 
-    expect(
-      screen.getByRole("img", { name: /Darshil Jain profile evidence cover/i }),
-    ).toBeVisible();
+    const artwork = portfolio.candidate.profileArtwork;
+    const artifact = artifactById(artwork.artifactId);
+    expect(artifact).toBeDefined();
+    if (!artifact?.image) return;
+    expect(screen.getByRole("img", { name: artifact.alt })).toHaveAttribute(
+      "src",
+      artifact.image.src,
+    );
     expect(
       screen.getByRole("img", {
         name: /Darshil Jain's résumé containing education/i,
@@ -93,5 +99,14 @@ describe("RecruiterHero", () => {
       screen.getByRole("region", { name: "Career proof waveform" }),
     ).toBeVisible();
     expect(waveform.querySelectorAll("[data-proof-id]")).toHaveLength(3);
+    const evidence = within(waveform).getByRole("list", {
+      name: "Evidence behind the waveform",
+    });
+    expect(within(evidence).getAllByRole("link")).toHaveLength(3);
+    expect(
+      within(evidence).getByRole("link", {
+        name: /Projects tracked.*35\+ projects.*Jan 2026.*Darshil Jain résumé.*self-reported/i,
+      }),
+    ).toBeInTheDocument();
   });
 });

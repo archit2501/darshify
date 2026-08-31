@@ -4,6 +4,10 @@ export interface CandidateProfile {
   name: string;
   headline: string;
   summary: string;
+  profileArtwork: {
+    artifactId: string;
+    proofId: string;
+  };
   email: string;
   phone: string;
   linkedInUrl: string;

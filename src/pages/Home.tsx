@@ -1,38 +1,29 @@
-import type { CaseStudy } from "../content/types";
 import { useCareerMix } from "../career-mix/CareerMixContext";
 import { RecruiterHero } from "../components/RecruiterHero";
 import { Shelf } from "../shell/Shelf";
 import { MediaCard } from "../shell/MediaCard";
-import { portfolio } from "../content/portfolio";
+import {
+  caseStudyById,
+  collectionById,
+  collections,
+} from "../content/selectors";
 
-const essentialIds = ["r1", "p2", "a2"] as const;
+const essentialReferences = [
+  { caseStudyId: "r1", collectionId: "experience" },
+  { caseStudyId: "p2", collectionId: "projects" },
+  { caseStudyId: "a2", collectionId: "achievements" },
+] as const;
 
-const essentialCaseStudies = essentialIds.map((id) => {
-  const caseStudy = portfolio.caseStudies.find((item) => item.id === id);
-  if (!caseStudy) throw new Error(`Missing recruiter essential: ${id}`);
-  return caseStudy;
-});
-
-const collectionByKind: Record<
-  Extract<CaseStudy["kind"], "experience" | "project" | "achievement">,
-  string
-> = {
-  experience: "experience",
-  project: "projects",
-  achievement: "achievements",
-};
-
-const coverForCaseStudy = (caseStudy: CaseStudy) => {
-  const collectionId =
-    collectionByKind[caseStudy.kind as keyof typeof collectionByKind];
-  const collection = portfolio.collections.find(
-    (item) => item.id === collectionId,
-  );
-  if (!collection) {
-    throw new Error(`Missing evidence collection for ${caseStudy.id}`);
-  }
-  return collection;
-};
+const recruiterEssentials = essentialReferences.map(
+  ({ caseStudyId, collectionId }) => {
+    const caseStudy = caseStudyById(caseStudyId);
+    const collection = collectionById(collectionId);
+    if (!caseStudy || !collection) {
+      throw new Error(`Missing recruiter essential: ${caseStudyId}`);
+    }
+    return { caseStudy, collection };
+  },
+);
 
 export function Home({ initialGreeting }: { initialGreeting: string }) {
   const { open } = useCareerMix();
@@ -45,8 +36,7 @@ export function Home({ initialGreeting }: { initialGreeting: string }) {
         title="Recruiter Essentials"
         description="One experience, one project, and one achievement selected for a fast evidence review."
       >
-        {essentialCaseStudies.map((caseStudy) => {
-          const collection = coverForCaseStudy(caseStudy);
+        {recruiterEssentials.map(({ caseStudy, collection }) => {
           return (
             <MediaCard
               key={caseStudy.id}
@@ -68,7 +58,7 @@ export function Home({ initialGreeting }: { initialGreeting: string }) {
         description="Browse the work by professional category."
         to="/library"
       >
-        {portfolio.collections.map((collection) => (
+        {collections.map((collection) => (
           <MediaCard
             key={collection.id}
             to={

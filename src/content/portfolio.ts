@@ -2,6 +2,7 @@ import type { CaseStudy, Portfolio, ProofPoint } from "./types";
 
 const RESUME_SOURCE_ID = "darshil-resume";
 const RESUME_ARTIFACT_ID = "darshil-resume-pdf";
+const PROFILE_ARTIFACT_ID = "darshil-profile-square";
 
 const resumeProof = (
   id: string,
@@ -390,6 +391,10 @@ export const portfolio: Portfolio = {
     headline: "Business, strategy, and operations undergraduate",
     summary:
       "BBA Business and Industry student with résumé-listed experience across operations, recruitment, consulting, analytics, and student leadership.",
+    profileArtwork: {
+      artifactId: PROFILE_ARTIFACT_ID,
+      proofId: "figmenta-resumes",
+    },
     email: "darshijain0809@gmail.com",
     phone: "+91 9268264843",
     linkedInUrl: "https://www.linkedin.com/in/darshil-jain-611a3332b",
@@ -601,6 +606,21 @@ export const portfolio: Portfolio = {
       provenance: "Candidate-provided PDF stored in the public repository.",
       sourceIds: [RESUME_SOURCE_ID],
       status: "self-reported",
+    },
+    {
+      id: PROFILE_ARTIFACT_ID,
+      title: "Darshil Jain profile evidence cover",
+      kind: "presentation",
+      alt: "Darshil Jain profile evidence cover showing 500 plus résumés screened, self-reported in his résumé.",
+      provenance:
+        "Fact-led profile cover derived from the candidate résumé. It reproduces the canonical 500+ résumés screened proof.",
+      sourceIds: [RESUME_SOURCE_ID],
+      status: "self-reported",
+      image: {
+        src: "/artifacts/profile-square.svg",
+        width: 800,
+        height: 800,
+      },
     },
   ],
   caseStudies,

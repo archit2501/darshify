@@ -1,9 +1,13 @@
 import { Link } from "react-router-dom";
 import { portfolio } from "../content/portfolio";
+import {
+  artifactById,
+  caseStudyById,
+  proofById,
+  sourceById,
+} from "../content/selectors";
 import { formatProofValue } from "../content/waveform";
-import { AVATAR } from "../data/library";
 import { PlayIcon } from "../icons/icons";
-import { Art } from "../shell/Art";
 import { ContactActions } from "./ContactActions";
 import { EvidenceCover } from "./EvidenceCover";
 import { ProofWaveform } from "./ProofWaveform";
@@ -13,31 +17,28 @@ const {
   source: featuredSource,
   caseStudy: featuredCaseStudy,
   artifact: resumeArtifact,
+  profileArtwork,
   waveformProofs,
 } = (() => {
-  const proof = portfolio.proofPoints.find(
-    (point) => point.id === "figmenta-resumes",
-  );
-  const source = portfolio.sources.find(
-    (candidate) => candidate.id === proof?.sourceIds[0],
-  );
-  const caseStudy = portfolio.caseStudies.find(
-    (candidate) => candidate.id === proof?.caseStudyIds[0],
-  );
-  const artifact = portfolio.artifacts.find(
-    (candidate) => candidate.id === "darshil-resume-pdf",
+  const proof = proofById(portfolio.candidate.profileArtwork.proofId);
+  const source = sourceById(proof?.sourceIds[0] ?? "");
+  const caseStudy = caseStudyById(proof?.caseStudyIds[0] ?? "");
+  const artifact = artifactById("darshil-resume-pdf");
+  const profileArtwork = artifactById(
+    portfolio.candidate.profileArtwork.artifactId,
   );
   const waveformProofs = [
     "figmenta-projects",
     "figmenta-resumes",
     "figmenta-hires",
-  ].map((id) => portfolio.proofPoints.find((candidate) => candidate.id === id));
+  ].map(proofById);
 
   if (
     !proof ||
     !source ||
     !caseStudy ||
     !artifact ||
+    !profileArtwork ||
     waveformProofs.some((candidate) => candidate === undefined)
   ) {
     throw new Error("Recruiter hero evidence must resolve from typed content");
@@ -47,6 +48,7 @@ const {
     source,
     caseStudy,
     artifact,
+    profileArtwork,
     waveformProofs: waveformProofs.filter(
       (candidate) => candidate !== undefined,
     ),
@@ -109,10 +111,6 @@ export function RecruiterHero({
             </Link>
           </div>
 
-          <div className="mt-3 max-w-xl [&_ol]:hidden">
-            <ProofWaveform points={waveformProofs} compact />
-          </div>
-
           <div className="mt-4 flex flex-wrap items-start gap-3">
             <ContactActions candidate={portfolio.candidate} placement="hero" />
             <button
@@ -125,16 +123,14 @@ export function RecruiterHero({
               Start Career Mix
             </button>
           </div>
+
+          <div className="mt-3 max-w-xl">
+            <ProofWaveform points={waveformProofs} compact />
+          </div>
         </div>
 
         <div className="absolute right-0 top-0 w-20 overflow-hidden rounded-lg border border-line shadow-xl sm:w-24 lg:static lg:w-full">
-          <Art
-            src={AVATAR}
-            gradient="linear-gradient(135deg,#1ed760,#0a5)"
-            alt="Darshil Jain profile evidence cover"
-            className="aspect-square w-full"
-            priority
-          />
+          <EvidenceCover artifact={profileArtwork} aspect="1:1" priority />
           <div className="hidden border-t border-line lg:block">
             <EvidenceCover artifact={resumeArtifact} aspect="row" priority />
           </div>

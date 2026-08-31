@@ -41,6 +41,20 @@ for (const viewport of viewports) {
 
     for (const item of firstView) await expectEntirelyInViewport(page, item);
 
+    const evidenceList = page.getByRole("list", {
+      name: "Evidence behind the waveform",
+    });
+    const evidenceLinks = evidenceList.getByRole("link");
+    await expect(evidenceLinks).toHaveCount(3);
+    for (const evidenceLink of await evidenceLinks.all()) {
+      await expectEntirelyInViewport(page, evidenceLink);
+    }
+    await expect(
+      evidenceList.getByRole("link", {
+        name: /Projects tracked.*35\+ projects.*Jan 2026.*Darshil Jain résumé.*self-reported/i,
+      }),
+    ).toBeVisible();
+
     const contact = page.getByRole("group", {
       name: `Contact ${portfolio.candidate.name}`,
     });
