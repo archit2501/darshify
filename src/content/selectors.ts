@@ -1,5 +1,5 @@
 import { portfolio } from "./portfolio";
-import type { CaseStudyEvidence } from "./types";
+import type { CaseStudy, CaseStudyEvidence } from "./types";
 
 const normalize = (value: string) =>
   value.normalize("NFKD").toLowerCase().trim();
@@ -65,6 +65,11 @@ export const artifactById = (id: string) => artifactIdMap.get(id);
 export const collectionById = (id: string) => collectionIdMap.get(id);
 export const caseStudyEvidenceById = (id: string) =>
   caseStudyEvidenceIdMap.get(id);
+export const relatedCaseStudies = (caseStudy: CaseStudy) =>
+  caseStudy.relatedIds.flatMap((id) => {
+    const related = caseStudyIdMap.get(id);
+    return related ? [related] : [];
+  });
 
 export const searchPortfolio = (query: string) => {
   const needle = normalize(query);
