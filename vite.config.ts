@@ -40,6 +40,8 @@ const cumulativeRedesignRuntime = [
   "src/components/RecruiterHero.tsx",
   "src/content/artifactFallback.ts",
   "src/content/portfolio.ts",
+  "src/content/selectors.ts",
+  "src/content/validate.ts",
   "src/content/waveform.ts",
   "src/data/library.ts",
   "src/shell/Art.tsx",
