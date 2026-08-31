@@ -83,7 +83,7 @@ const canonicalUrl = (path: string) =>
   `${CANONICAL_SITE_ORIGIN}${path === "/" ? "" : path}`;
 
 export const socialCardPathForRouteId = (routeId: RouteId) =>
-  `/social-cards/${routeId.replace(":", "-")}.svg`;
+  `/social-cards/${routeId.replace(":", "-")}.png`;
 
 const resolveRoute = (input: RouteMetaInput) => {
   if (input.kind === "collection") {
@@ -125,7 +125,7 @@ export function buildRouteMeta(input: RouteMetaInput): MetaDescriptor[] {
     { property: "og:url", content: canonical },
     { property: "og:type", content: route.type },
     { property: "og:image", content: socialImage },
-    { property: "og:image:type", content: "image/svg+xml" },
+    { property: "og:image:type", content: "image/png" },
     { property: "og:image:width", content: "1200" },
     { property: "og:image:height", content: "630" },
     { property: "og:image:alt", content: `${route.title} social card` },
@@ -144,6 +144,7 @@ export const buildNotFoundMeta = (description: string): MetaDescriptor[] => [
 ];
 
 export function routeIdForPathname(pathname: string): RouteId | undefined {
+  if (/\/\/|\\|%2f|%5c/i.test(pathname)) return undefined;
   const normalized =
     pathname.length > 1 && pathname.endsWith("/")
       ? pathname.slice(0, -1)

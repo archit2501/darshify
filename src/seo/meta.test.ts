@@ -1,8 +1,9 @@
 // @vitest-environment node
 
-import { readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { join } from "node:path";
+import sharp from "sharp";
 import { describe, expect, it } from "vitest";
 import { prerenderPaths } from "../../react-router.config";
 import {
@@ -57,7 +58,7 @@ describe("canonical route metadata", () => {
     });
   });
 
-  it("serves genuinely distinct 1200 by 630 social cards containing each route title", () => {
+  it("serves distinct optimized 1200 by 630 PNG cards containing each route identity", async () => {
     const fixedCategory = {
       home: "Recruiter briefing",
       artist: "Professional profile",
@@ -65,6 +66,8 @@ describe("canonical route metadata", () => {
       library: "Career library",
       liked: "Selected achievements",
     } as const;
+    let totalBytes = 0;
+    const pixelHashes: Array<Promise<string>> = [];
     const hashes = canonicalRouteInventory.map(({ id, meta }) => {
       const descriptors = buildRouteMeta(meta);
       const title = String(
@@ -78,7 +81,6 @@ describe("canonical route metadata", () => {
       );
       const asset = readFileSync(
         join("public", decodeURIComponent(imageUrl.pathname)),
-        "utf8",
       );
       const category =
         meta.kind === "collection"
@@ -86,23 +88,59 @@ describe("canonical route metadata", () => {
           : meta.kind === "case-study"
             ? `${meta.caseStudy.kind[0].toUpperCase()}${meta.caseStudy.kind.slice(1)} case study`
             : fixedCategory[meta.kind];
-      const decodedAsset = asset
-        .replaceAll("&apos;", "'")
-        .replaceAll("&amp;", "&");
+      const embeddedIdentity = asset.toString("utf8");
 
       expect(imageUrl.search).toBe("");
       expect(imageUrl.hash).toBe("");
-      expect(asset).toContain('viewBox="0 0 1200 630"');
-      expect(decodedAsset).toContain(`aria-label="${title}"`);
-      expect(decodedAsset).toContain(`>${category}<`);
-      expect(asset).toContain(`data-route-id="${id}"`);
-      expect(asset).toContain("Darshify");
-      expect(asset).not.toMatch(/darshijain0809|9268264843/i);
+      expect(imageUrl.pathname).toMatch(/\.png$/);
+      expect(asset.subarray(0, 8).toString("hex")).toBe("89504e470d0a1a0a");
+      expect(asset.subarray(12, 16).toString("ascii")).toBe("IHDR");
+      expect(asset.readUInt32BE(16)).toBe(1200);
+      expect(asset.readUInt32BE(20)).toBe(630);
+      expect(embeddedIdentity).toContain(`"routeId":"${id}"`);
+      expect(embeddedIdentity).toContain(title);
+      expect(embeddedIdentity).toContain(category);
+      expect(embeddedIdentity).not.toMatch(/darshijain0809|9268264843/i);
+      totalBytes += asset.byteLength;
+      pixelHashes.push(
+        sharp(asset)
+          .raw()
+          .toBuffer()
+          .then((pixels) => createHash("sha256").update(pixels).digest("hex")),
+      );
       return createHash("sha256").update(asset).digest("hex");
     });
 
     expect(new Set(hashes)).toHaveLength(28);
-    expect(readdirSync("public/social-cards").sort()).toHaveLength(28);
+    expect(new Set(await Promise.all(pixelHashes))).toHaveLength(28);
+    expect(
+      readdirSync("public/social-cards").filter((file) =>
+        file.endsWith(".png"),
+      ),
+    ).toHaveLength(28);
+    expect(totalBytes).toBeLessThan(2_500_000);
+  });
+
+  it("uses an original proof-wave motif without a green circular streaming-mark facsimile", () => {
+    const sourceDirectories = [
+      "scripts/generated-social-card-sources",
+      "public/social-cards",
+    ];
+    const sourceDirectory = sourceDirectories.find((directory) =>
+      existsSync(directory),
+    );
+    expect(sourceDirectory).toBeDefined();
+    const sources = readdirSync(sourceDirectory!)
+      .filter((file) => file.endsWith(".svg"))
+      .map((file) => readFileSync(join(sourceDirectory!, file), "utf8"));
+
+    expect(sources).toHaveLength(28);
+    sources.forEach((source) => {
+      expect(source).toContain('data-motif="proof-wave"');
+      const hasGreenCircle = /<circle[^>]+fill="#1ed760"/i.test(source);
+      const hasThreeCurveMark = /<path[^>]+d="[^"]*M[^"]*M[^"]*M/i.test(source);
+      expect(hasGreenCircle && hasThreeCurveMark).toBe(false);
+    });
   });
 
   it("returns complete Open Graph and Twitter descriptors from every discriminated input", () => {
@@ -125,7 +163,7 @@ describe("canonical route metadata", () => {
       ).toBeDefined();
       expect(
         descriptor(descriptors, (item) => item.property === "og:image:type"),
-      ).toMatchObject({ content: "image/svg+xml" });
+      ).toMatchObject({ content: "image/png" });
       expect(
         descriptor(descriptors, (item) => item.property === "og:image:width"),
       ).toMatchObject({ content: "1200" });

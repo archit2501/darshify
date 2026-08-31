@@ -55,6 +55,14 @@ const extractMetadata = (html: string) => ({
   canonical: html.match(/<link rel="canonical" href="([^"]+)"/)?.[1] ?? "",
   socialImage:
     html.match(/<meta property="og:image" content="([^"]+)"/)?.[1] ?? "",
+  socialImageType:
+    html.match(/<meta property="og:image:type" content="([^"]+)"/)?.[1] ?? "",
+  socialImageWidth:
+    html.match(/<meta property="og:image:width" content="([^"]+)"/)?.[1] ?? "",
+  socialImageHeight:
+    html.match(/<meta property="og:image:height" content="([^"]+)"/)?.[1] ?? "",
+  socialImageAlt:
+    html.match(/<meta property="og:image:alt" content="([^"]+)"/)?.[1] ?? "",
 });
 
 const decodeMarkupText = (value: string) =>
@@ -119,23 +127,46 @@ test("artifact regression: the build contains the complete independent route inv
     metadata.length,
   );
 
-  const socialCardHashes = metadata.map(({ title, socialImage }, index) => {
-    const url = new URL(socialImage);
-    expect(url.search).toBe("");
-    const assetPath = join(buildClientDirectory, url.pathname);
-    expect(existsSync(assetPath), `missing social card ${url.pathname}`).toBe(
-      true,
-    );
-    const asset = readFileSync(assetPath, "utf8");
-    const decodedTitle = decodeMarkupText(title);
-    expect(asset).toContain('viewBox="0 0 1200 630"');
-    expect(decodeMarkupText(asset)).toContain(`aria-label="${decodedTitle}"`);
-    expect(asset).toContain(
-      `data-route-id="${canonicalRouteInventory[index].id}"`,
-    );
-    return createHash("sha256").update(asset).digest("hex");
-  });
+  let socialCardBytes = 0;
+  const socialCardHashes = metadata.map(
+    (
+      {
+        title,
+        socialImage,
+        socialImageType,
+        socialImageWidth,
+        socialImageHeight,
+        socialImageAlt,
+      },
+      index,
+    ) => {
+      const url = new URL(socialImage);
+      expect(url.search).toBe("");
+      const assetPath = join(buildClientDirectory, url.pathname);
+      expect(existsSync(assetPath), `missing social card ${url.pathname}`).toBe(
+        true,
+      );
+      const asset = readFileSync(assetPath);
+      const decodedTitle = decodeMarkupText(title);
+      const embeddedIdentity = asset.toString("utf8");
+      expect(url.pathname).toMatch(/\.png$/);
+      expect(asset.subarray(0, 8).toString("hex")).toBe("89504e470d0a1a0a");
+      expect(asset.readUInt32BE(16)).toBe(1200);
+      expect(asset.readUInt32BE(20)).toBe(630);
+      expect(socialImageType).toBe("image/png");
+      expect(socialImageWidth).toBe("1200");
+      expect(socialImageHeight).toBe("630");
+      expect(decodeMarkupText(socialImageAlt)).toContain(decodedTitle);
+      expect(embeddedIdentity).toContain(decodedTitle);
+      expect(embeddedIdentity).toContain(
+        `"routeId":"${canonicalRouteInventory[index].id}"`,
+      );
+      socialCardBytes += asset.byteLength;
+      return createHash("sha256").update(asset).digest("hex");
+    },
+  );
   expect(new Set(socialCardHashes).size).toBe(28);
+  expect(socialCardBytes).toBeLessThan(2_500_000);
 
   expect(readFileSync(join(buildClientDirectory, "robots.txt"), "utf8")).toBe(
     `User-agent: *\nAllow: /\n\nSitemap: ${CANONICAL_SITE_ORIGIN}/sitemap.xml\n`,

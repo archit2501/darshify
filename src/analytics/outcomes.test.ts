@@ -8,7 +8,11 @@ import {
   trackOutcome,
   type OutcomeEvent,
 } from "./outcomes";
-import { CANONICAL_SITE_ORIGIN, canonicalRouteInventory } from "../seo/meta";
+import {
+  CANONICAL_SITE_ORIGIN,
+  canonicalRouteInventory,
+  routeIdForPathname,
+} from "../seo/meta";
 
 const allEvents: OutcomeEvent[] = [
   "cv_download",
@@ -113,6 +117,37 @@ describe("privacy-safe outcome analytics", () => {
         url: "not a valid URL",
       }),
     ).toBeNull();
+  });
+
+  it.each(["//", "///", "////", "/artist//"])(
+    "never resolves a repeated-slash path as a canonical route: %s",
+    (pathname) => {
+      expect(routeIdForPathname(pathname)).toBeUndefined();
+    },
+  );
+
+  it.each([
+    `${CANONICAL_SITE_ORIGIN}//`,
+    `${CANONICAL_SITE_ORIGIN}///`,
+    `${CANONICAL_SITE_ORIGIN}////`,
+    `${CANONICAL_SITE_ORIGIN}/artist//`,
+    `${CANONICAL_SITE_ORIGIN}/%2F`,
+    `${CANONICAL_SITE_ORIGIN}/%5C`,
+    `${CANONICAL_SITE_ORIGIN}/artist/%2F`,
+    `${CANONICAL_SITE_ORIGIN}/artist/%5C`,
+    `${CANONICAL_SITE_ORIGIN}/\\`,
+    `${CANONICAL_SITE_ORIGIN}/artist/\\`,
+  ])("drops a slash or backslash bypass before transport: %s", (url) => {
+    const vendor = vi.fn();
+    const consoleLog = vi.spyOn(console, "log").mockImplementation(() => {});
+    const candidate = redactAnalyticsEvent({ type: "pageview", url });
+
+    if (candidate) vendor(candidate);
+
+    expect(candidate).toBeNull();
+    expect(vendor).not.toHaveBeenCalled();
+    expect(consoleLog).not.toHaveBeenCalled();
+    consoleLog.mockRestore();
   });
 
   it.each([
