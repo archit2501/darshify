@@ -2,7 +2,7 @@ import { portfolio } from "./portfolio";
 import type { CaseStudy, CaseStudyEvidence } from "./types";
 
 const normalize = (value: string) =>
-  value.normalize("NFKD").toLowerCase().trim();
+  value.normalize("NFKD").replace(/\p{M}/gu, "").toLowerCase().trim();
 
 const caseStudyIdMap = new Map(
   portfolio.caseStudies.map((item) => [item.id, item]),
@@ -41,22 +41,67 @@ const caseStudyEvidenceIdMap = new Map<string, CaseStudyEvidence>(
   }),
 );
 
-const searchableCaseStudies = portfolio.caseStudies.map((item) => ({
-  item,
-  searchText: normalize(
-    [
-      item.title,
-      item.organization,
-      item.role,
-      item.period,
-      item.kind,
-      item.recruiterTakeaway,
-      item.situation,
-      ...item.actions,
-      item.result,
-      ...item.skills,
-    ].join(" "),
-  ),
+const searchableCaseStudies = portfolio.caseStudies.map((item) => {
+  const proofs = item.proofIds.flatMap((id) => {
+    const proof = proofIdMap.get(id);
+    return proof ? [proof] : [];
+  });
+  const artifacts = item.artifactIds.flatMap((id) => {
+    const artifact = artifactIdMap.get(id);
+    return artifact ? [artifact] : [];
+  });
+  const sources = new Set([
+    ...proofs.flatMap((proof) => proof.sourceIds),
+    ...artifacts.flatMap((artifact) => artifact.sourceIds),
+  ]);
+  const sourceEvidence = [...sources].flatMap((id) => {
+    const source = sourceIdMap.get(id);
+    return source ? [source.title, source.kind, source.note] : [];
+  });
+
+  return {
+    item,
+    searchText: normalize(
+      [
+        item.title,
+        item.organization,
+        item.role,
+        item.period,
+        item.kind,
+        item.recruiterTakeaway,
+        item.situation,
+        ...item.actions,
+        item.result,
+        ...item.skills,
+        ...proofs.flatMap((proof) => [
+          proof.label,
+          proof.summary,
+          proof.period,
+        ]),
+        ...artifacts.flatMap((artifact) => [
+          artifact.title,
+          artifact.alt,
+          artifact.provenance,
+        ]),
+        ...sourceEvidence,
+      ].join(" "),
+    ),
+  };
+});
+
+export interface SkillSearchResult {
+  label: string;
+  caseStudyIds: string[];
+}
+
+const searchableSkills: Array<SkillSearchResult & { searchText: string }> = [
+  ...new Set(portfolio.caseStudies.flatMap((item) => item.skills)),
+].map((label) => ({
+  label,
+  caseStudyIds: portfolio.caseStudies
+    .filter((item) => item.skills.includes(label))
+    .map((item) => item.id),
+  searchText: normalize(label),
 }));
 
 export const caseStudyById = (id: string) => caseStudyIdMap.get(id);
@@ -79,6 +124,15 @@ export const searchPortfolio = (query: string) => {
     ? searchableCaseStudies
         .filter(({ searchText }) => searchText.includes(needle))
         .map(({ item }) => item)
+    : [];
+};
+
+export const searchSkills = (query: string): SkillSearchResult[] => {
+  const needle = normalize(query);
+  return needle
+    ? searchableSkills
+        .filter(({ searchText }) => searchText.includes(needle))
+        .map(({ label, caseStudyIds }) => ({ label, caseStudyIds }))
     : [];
 };
 

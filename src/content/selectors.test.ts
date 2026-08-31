@@ -35,6 +35,39 @@ describe("portfolio selectors", () => {
     ).toEqual(["p1", "p3"]);
   });
 
+  it("searches source provenance prepared with the canonical corpus", () => {
+    expect(
+      searchPortfolio("candidate-provided pdf").map((item) => item.id),
+    ).toEqual(portfolio.caseStudies.map((item) => item.id));
+  });
+
+  it("keeps the median cost of 1,000 searches below the local 50ms guardrail", () => {
+    const queries = [
+      "Figmenta",
+      "Strategic Analysis",
+      "behavioral nudges",
+      "publication-ready",
+      "candidate-provided pdf",
+      "not present",
+    ];
+    const batches: number[] = [];
+
+    for (let batch = 0; batch < 20; batch += 1) {
+      const started = performance.now();
+      for (let index = 0; index < 50; index += 1) {
+        searchPortfolio(queries[(batch * 50 + index) % queries.length]);
+      }
+      batches.push((performance.now() - started) / 50);
+    }
+
+    batches.sort((a, b) => a - b);
+    const medianMilliseconds = batches[Math.floor(batches.length / 2)];
+    console.info(
+      `Search benchmark: 1,000 searches, median ${medianMilliseconds.toFixed(4)}ms per search`,
+    );
+    expect(medianMilliseconds).toBeLessThan(50);
+  });
+
   it("returns no results for an empty query", () => {
     expect(searchPortfolio("   ")).toEqual([]);
   });

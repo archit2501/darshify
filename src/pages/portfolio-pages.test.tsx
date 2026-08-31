@@ -150,50 +150,41 @@ describe("routed portfolio pages without the legacy player runtime", () => {
     const view = renderPage(<Library />, "/library");
 
     expect(
-      screen.getByRole("heading", { name: "Evidence library" }),
+      screen.getByRole("heading", { name: "Career Library" }),
     ).toBeVisible();
-    expect(screen.getByRole("link", { name: /Experience/ })).toHaveAttribute(
-      "href",
-      "/playlist/experience",
-    );
+    expect(
+      screen.getByRole("link", { name: "Explore Experience" }),
+    ).toHaveAttribute("href", "/playlist/experience");
     expect(
       screen.getByText("Operations and recruitment internships."),
     ).toBeVisible();
     expectNoSimulatedMetadata(view.container, routedPlaybackFictions);
 
-    fireEvent.click(screen.getByRole("button", { name: "Collections" }));
-    expect(
-      screen.queryByRole("link", { name: /Candidate profile/ }),
-    ).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Experience/ })).toBeVisible();
-
     fireEvent.click(screen.getByRole("button", { name: "Achievements" }));
-    expect(screen.getByRole("link", { name: /Achievements/ })).toHaveAttribute(
-      "href",
-      "/liked",
-    );
     expect(
-      screen.queryByRole("link", { name: /Experience/ }),
+      screen.getByRole("link", { name: "Explore Achievements" }),
+    ).toHaveAttribute("href", "/liked");
+    expect(
+      screen.queryByRole("link", { name: "Explore Experience" }),
     ).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "All" }));
-    const search = screen.getByRole("textbox", {
-      name: "Search evidence library",
+    fireEvent.click(screen.getByRole("button", { name: "All categories" }));
+    const search = screen.getByRole("searchbox", {
+      name: "Search Career Library",
     });
     fireEvent.change(search, { target: { value: "Projects" } });
-    expect(screen.getByRole("link", { name: /Projects/ })).toBeVisible();
     expect(
-      screen.queryByRole("link", { name: /Experience/ }),
+      screen.getByRole("link", { name: "Explore Projects" }),
+    ).toBeVisible();
+    expect(
+      screen.queryByRole("link", { name: "Explore Experience" }),
     ).not.toBeInTheDocument();
 
     fireEvent.change(search, { target: { value: "" } });
-    fireEvent.click(screen.getByRole("button", { name: /Recents/ }));
-    fireEvent.click(screen.getByRole("button", { name: "A–Z" }));
-    expect(screen.getByRole("button", { name: /A–Z/ })).toBeVisible();
-
-    fireEvent.click(screen.getByRole("button", { name: /A–Z/ }));
-    fireEvent.click(window);
-    expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+    fireEvent.change(screen.getByRole("combobox", { name: "Sort releases" }), {
+      target: { value: "az" },
+    });
+    expect(screen.getByText("Sorted A–Z")).toBeVisible();
   });
 
   it("renders Artist without PlayerProvider and rewires its primary action", () => {
@@ -258,12 +249,12 @@ describe("routed portfolio pages without the legacy player runtime", () => {
 
     fireEvent.change(
       screen.getByRole("searchbox", {
-        name: "Search experience, skills, and proof",
+        name: "Search experience, skills, and evidence",
       }),
       { target: { value: "Market Research" } },
     );
 
-    expect(screen.getByRole("heading", { name: "Evidence" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Projects" })).toBeVisible();
     const strategyCase = screen
       .getByRole("heading", {
         name: "ZautoAI Strategy Consulting Engagement",
@@ -271,27 +262,22 @@ describe("routed portfolio pages without the legacy player runtime", () => {
       .closest("article");
     expect(strategyCase).not.toBeNull();
     expect(
-      within(strategyCase!).getByRole("link", { name: "Read case study" }),
+      within(strategyCase!).getByRole("link", {
+        name: "Read ZautoAI Strategy Consulting Engagement",
+      }),
     ).toHaveAttribute("href", "/case-studies/zautoai-strategy-consulting");
     expectNoSimulatedMetadata(view.container, ["920,000", "3:52"]);
   });
 
-  it("supports recent and empty Search states without presenting collection playback types", () => {
+  it("supports non-persistent and empty Search states without presenting collection playback types", () => {
     renderPage(<Search />, "/search");
     const input = screen.getByRole("searchbox", {
-      name: "Search experience, skills, and proof",
+      name: "Search experience, skills, and evidence",
     });
 
     fireEvent.change(input, { target: { value: "Market Research" } });
-    fireEvent.keyDown(input, { key: "Enter" });
-    fireEvent.change(input, { target: { value: "" } });
-    expect(
-      screen.getByRole("heading", { name: "Recent searches" }),
-    ).toBeVisible();
-    fireEvent.click(screen.getByRole("button", { name: "Market Research" }));
-    expect(screen.getByRole("heading", { name: "Evidence" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Projects" })).toBeVisible();
 
-    fireEvent.change(input, { target: { value: "" } });
     fireEvent.click(screen.getByRole("button", { name: "Clear" }));
     expect(
       screen.queryByRole("heading", { name: "Recent searches" }),
@@ -303,11 +289,7 @@ describe("routed portfolio pages without the legacy player runtime", () => {
     ).toBeVisible();
 
     fireEvent.change(input, { target: { value: "Experience" } });
-    expect(screen.getByRole("link", { name: /Experience/ })).toHaveAttribute(
-      "href",
-      "/playlist/experience",
-    );
-    expect(screen.getByText("Career EP")).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Experience" })).toBeVisible();
   });
 
   it("renders the liked alias as truthful selected evidence without playback framing", () => {

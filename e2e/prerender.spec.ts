@@ -9,7 +9,7 @@ const fixedRoutes = [
   { path: "/", heading: portfolio.candidate.name },
   { path: "/artist", heading: portfolio.candidate.name },
   { path: "/search", heading: "Search portfolio" },
-  { path: "/library", heading: "Evidence library" },
+  { path: "/library", heading: "Career Library" },
   { path: "/liked", heading: "Selected achievements" },
 ] as const;
 
@@ -203,8 +203,9 @@ test("hydration regression: timezone, local storage, and reduced motion do not a
   await expect(page.getByLabel("Toggle ambient audio")).toHaveCount(0);
 
   await page.goto("/search", { waitUntil: "networkidle" });
-  await expect(page.getByText("Recent searches")).toBeVisible();
-  await expect(page.getByRole("button", { name: "operations" })).toBeVisible();
+  await expect(page.getByText("Recent searches")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "operations" })).toHaveCount(0);
+  await expect(page.getByRole("searchbox")).toHaveValue("");
   expect(consoleErrors).toEqual([]);
   expect(pageErrors).toEqual([]);
   await context.close();
