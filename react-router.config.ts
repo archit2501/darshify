@@ -1,14 +1,8 @@
 import type { Config } from "@react-router/dev/config";
 import { vercelPreset } from "@vercel/react-router/vite";
-import { portfolio } from "./src/content/portfolio";
+import { canonicalRouteInventory } from "./src/seo/meta";
 
-const fixedPaths = ["/", "/artist", "/search", "/library", "/liked"];
-
-export const prerenderPaths = [
-  ...fixedPaths,
-  ...portfolio.collections.map(({ id }) => `/playlist/${id}`),
-  ...portfolio.caseStudies.map(({ slug }) => `/case-studies/${slug}`),
-];
+export const prerenderPaths = canonicalRouteInventory.map(({ path }) => path);
 
 export default {
   ssr: true,

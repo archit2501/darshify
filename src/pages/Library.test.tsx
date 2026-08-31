@@ -21,7 +21,9 @@ const releaseTitles = () =>
 describe("Career Library", () => {
   it("publishes Career Library route metadata", () => {
     expect(meta({} as Parameters<typeof meta>[0])).toEqual(
-      expect.arrayContaining([{ title: "Career Library | Darshify" }]),
+      expect.arrayContaining([
+        { title: "Browse professional evidence | Darshify" },
+      ]),
     );
   });
 

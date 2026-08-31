@@ -43,6 +43,7 @@ const cumulativeRedesignRuntime = [
   "src/components/EvidenceCover.tsx",
   "src/components/CaseStudyHeader.tsx",
   "src/components/EvidencePanel.tsx",
+  "src/components/OutcomeLink.tsx",
   "src/components/ProofTrackRow.tsx",
   "src/components/ProofWaveform.tsx",
   "src/components/RecruiterHero.tsx",
@@ -58,6 +59,9 @@ const cumulativeRedesignRuntime = [
   "src/shell/Shelf.tsx",
   "src/pages/CaseStudyPage.tsx",
   "src/pages/NotFound.tsx",
+  "src/analytics/outcomes.ts",
+  "src/seo/meta.ts",
+  "src/seo/structuredData.ts",
 ];
 const coverageRuntime =
   coverageScope === "redesign"

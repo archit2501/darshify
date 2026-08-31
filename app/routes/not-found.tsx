@@ -1,13 +1,11 @@
 import { data, type MetaFunction } from "react-router";
 import { NotFound } from "../../src/pages/NotFound";
+import { buildNotFoundMeta } from "../../src/seo/meta";
 
-export const meta: MetaFunction = () => [
-  { title: "Page not found | Darshify" },
-  {
-    name: "description",
-    content: "The requested Darshify portfolio page could not be found.",
-  },
-];
+export const meta: MetaFunction = () =>
+  buildNotFoundMeta(
+    "The requested Darshify portfolio page could not be found.",
+  );
 
 export function loader() {
   return data(null, { status: 404 });

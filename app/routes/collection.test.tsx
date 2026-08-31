@@ -12,6 +12,8 @@ import {
   Routes as DomRoutes,
 } from "react-router-dom";
 import { CareerMixProvider } from "../../src/career-mix/CareerMixContext";
+import { collectionById } from "../../src/content/selectors";
+import { buildNotFoundMeta, buildRouteMeta } from "../../src/seo/meta";
 import { ToastProvider } from "../../src/shell/Toast";
 import CollectionRoute, { loader, meta } from "./collection";
 
@@ -63,15 +65,9 @@ describe("collection route", () => {
       title: "Selected achievements",
       description: expect.stringContaining("achievements"),
     });
-    expect(meta({ data: result } as Parameters<typeof meta>[0])).toEqual([
-      { title: "Selected achievements | Darshify" },
-      {
-        name: "description",
-        content:
-          "Darshil Jain's selected achievements and competition recognition.",
-      },
-      { tagName: "link", rel: "canonical", href: "/liked" },
-    ]);
+    expect(meta({ data: result } as Parameters<typeof meta>[0])).toEqual(
+      buildRouteMeta({ kind: "liked" }),
+    );
   });
 
   it("loads canonical collections and rejects unknown identifiers", () => {
@@ -81,24 +77,21 @@ describe("collection route", () => {
       id: "achievements",
       title: "Achievements",
     });
-    expect(
-      meta({ data: achievements } as Parameters<typeof meta>[0]),
-    ).toContainEqual({
-      tagName: "link",
-      rel: "canonical",
-      href: "/liked",
-    });
+    expect(meta({ data: achievements } as Parameters<typeof meta>[0])).toEqual(
+      buildRouteMeta({
+        kind: "collection",
+        collection: collectionById("achievements")!,
+      }),
+    );
     expect(loader(loaderArgs({ id: "missing" }))).toMatchObject({
       data: null,
       init: { status: 404 },
     });
-    expect(meta({ data: null } as Parameters<typeof meta>[0])).toEqual([
-      { title: "Page not found | Darshify" },
-      {
-        name: "description",
-        content: "The requested portfolio collection could not be found.",
-      },
-    ]);
+    expect(meta({ data: null } as Parameters<typeof meta>[0])).toEqual(
+      buildNotFoundMeta(
+        "The requested portfolio collection could not be found.",
+      ),
+    );
   });
 
   it("renders the liked alias through the real route and providers", async () => {

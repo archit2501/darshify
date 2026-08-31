@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="Operations Internship at PSR Compliance | Darshify" data-route-id="case-study:r2">
+  <title>Operations Internship at PSR Compliance | Darshify</title>
+  <desc>Darshify social card. Experience case study: Operations Internship at PSR Compliance | Darshify.</desc>
+  <defs>
+    <linearGradient id="surface" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#191919"/>
+      <stop offset="1" stop-color="#070707"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="translate(1030 86) rotate(135) scale(420)">
+      <stop stop-color="#1ed760" stop-opacity=".38"/>
+      <stop offset="1" stop-color="#1ed760" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" rx="36" fill="url(#surface)"/>
+  <rect width="1200" height="630" rx="36" fill="url(#glow)"/>
+  <g data-motif="proof-wave" aria-label="Evidence signal">
+    <rect x="1016" y="70" width="10" height="24" rx="5" fill="#1ed760"/>
+    <rect x="1036" y="56" width="10" height="52" rx="5" fill="#1ed760"/>
+    <rect x="1056" y="64" width="10" height="36" rx="5" fill="#1ed760"/>
+    <rect x="1076" y="44" width="10" height="76" rx="5" fill="#1ed760"/>
+    <rect x="1096" y="61" width="10" height="42" rx="5" fill="#1ed760"/>
+    <rect x="1116" y="51" width="10" height="62" rx="5" fill="#1ed760"/>
+    <rect x="1136" y="73" width="10" height="18" rx="5" fill="#1ed760"/>
+  </g>
+  <text x="76" y="82" fill="#1ed760" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" letter-spacing="4">DARSHIFY</text>
+  <text x="76" y="144" fill="#b3b3b3" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="600" letter-spacing="1">Experience case study</text>
+  <text fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="55" font-weight="800" letter-spacing="-1.5"><tspan x="76" y="238">Operations Internship at PSR</tspan><tspan x="76" y="310">Compliance | Darshify</tspan></text>
+  <rect x="76" y="548" width="1048" height="2" fill="#2a2a2a"/>
+  <text x="76" y="588" fill="#b3b3b3" font-family="Arial, Helvetica, sans-serif" font-size="20">Darshify</text>
+</svg>

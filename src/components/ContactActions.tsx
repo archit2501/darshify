@@ -1,5 +1,6 @@
 import type { CandidateProfile } from "../content/types";
 import { DownloadIcon, LinkedInIcon, MailIcon } from "../icons/icons";
+import { OutcomeLink } from "./OutcomeLink";
 
 export type ContactAction = "cv" | "email" | "linkedin";
 export type ContactActionsPlacement = "hero" | "rail" | "topbar";
@@ -37,27 +38,33 @@ export function ContactActions({
       data-placement={placement}
       className={layoutByPlacement[placement]}
     >
-      <a
+      <OutcomeLink
         href={candidate.resumeUrl}
         download
+        outcome="cv_download"
+        properties={{ placement }}
         onClick={track("cv")}
         data-motion-transform
         className={`${baseActionClass} bg-signal text-black`}
       >
         <DownloadIcon size={18} />
         <span className={labelClass}>Download CV</span>
-      </a>
-      <a
+      </OutcomeLink>
+      <OutcomeLink
         href={`mailto:${candidate.email}`}
+        outcome="email_open"
+        properties={{ placement }}
         onClick={track("email")}
         data-motion-transform
         className={`${baseActionClass} border border-line text-white hover:border-white`}
       >
         <MailIcon size={18} />
         <span className={labelClass}>Email</span>
-      </a>
-      <a
+      </OutcomeLink>
+      <OutcomeLink
         href={candidate.linkedInUrl}
+        outcome="linkedin_open"
+        properties={{ placement }}
         target="_blank"
         rel="noreferrer noopener"
         onClick={track("linkedin")}
@@ -66,7 +73,7 @@ export function ContactActions({
       >
         <LinkedInIcon size={18} />
         <span className={labelClass}>LinkedIn</span>
-      </a>
+      </OutcomeLink>
     </div>
   );
 }

@@ -1,14 +1,8 @@
 import type { MetaFunction } from "react-router";
 import { Library } from "../../src/pages/Library";
+import { buildRouteMeta } from "../../src/seo/meta";
 
-export const meta: MetaFunction = () => [
-  { title: "Career Library | Darshify" },
-  {
-    name: "description",
-    content:
-      "Browse Darshil Jain's professional evidence categories and career releases.",
-  },
-];
+export const meta: MetaFunction = () => buildRouteMeta({ kind: "library" });
 
 export default function LibraryRoute() {
   return <Library />;

@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { portfolio } from "../content/portfolio";
+import { trackOutcome } from "../analytics/outcomes";
 import { caseStudyById, proofById } from "../content/selectors";
 import type { CareerMixChapter } from "../content/types";
 import {
@@ -83,6 +84,7 @@ export function useCareerMix(): CareerMixValue {
 export function CareerMixProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(careerMixReducer, initialCareerMixState);
   const triggerRef = useRef<HTMLElement | null>(null);
+  const completionTrackedRef = useRef(false);
 
   useEffect(() => {
     if (state.status !== "playing") return;
@@ -91,6 +93,16 @@ export function CareerMixProvider({ children }: { children: ReactNode }) {
       250,
     );
     return () => window.clearInterval(interval);
+  }, [state.status]);
+
+  useEffect(() => {
+    if (state.status !== "complete") {
+      completionTrackedRef.current = false;
+      return;
+    }
+    if (completionTrackedRef.current) return;
+    completionTrackedRef.current = true;
+    trackOutcome("career_mix_complete", { placement: "career-mix" });
   }, [state.status]);
 
   const open = useCallback((trigger?: HTMLElement | null) => {

@@ -1,6 +1,7 @@
 import type { Artifact, EvidenceSource, ProofPoint } from "../content/types";
 import { formatProofValue } from "../content/waveform";
 import { EvidenceCover } from "./EvidenceCover";
+import { OutcomeLink } from "./OutcomeLink";
 
 function EvidenceStatusLabel({ artifact }: { artifact: Artifact }) {
   if (artifact.status === "redacted") {
@@ -126,13 +127,18 @@ export function EvidencePanel({
               </p>
               {sourceForProof(proof).map((source) =>
                 source.url ? (
-                  <a
+                  <OutcomeLink
                     key={source.id}
                     href={source.url}
+                    outcome="evidence_open"
+                    properties={{
+                      evidenceId: proof.id,
+                      placement: "evidence-panel",
+                    }}
                     className="mt-2 inline-flex min-h-11 items-center text-metadata font-bold text-text underline decoration-line underline-offset-4 hover:decoration-signal"
                   >
                     {source.title}
-                  </a>
+                  </OutcomeLink>
                 ) : (
                   <p key={source.id} className="mt-2 text-metadata text-text">
                     {source.title}
@@ -159,12 +165,17 @@ export function EvidencePanel({
               <EvidenceStatusLabel artifact={artifact} />
               <div className="mt-3 flex flex-wrap items-center gap-3">
                 {artifact.url && (
-                  <a
+                  <OutcomeLink
                     href={artifact.url}
+                    outcome="evidence_open"
+                    properties={{
+                      evidenceId: artifact.id,
+                      placement: "evidence-panel",
+                    }}
                     className="inline-flex min-h-11 items-center font-bold text-text underline decoration-line underline-offset-4 hover:decoration-signal"
                   >
                     Open source artifact
-                  </a>
+                  </OutcomeLink>
                 )}
                 {sourceForArtifact(artifact).map((source) => (
                   <span

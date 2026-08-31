@@ -1,4 +1,6 @@
+import { useEffect } from "react";
 import { Link } from "react-router";
+import { trackOutcome } from "../analytics/outcomes";
 import { CaseStudyHeader } from "../components/CaseStudyHeader";
 import { ContactActions } from "../components/ContactActions";
 import { EvidencePanel } from "../components/EvidencePanel";
@@ -31,6 +33,12 @@ const sourcesFor = (sourceIds: string[], owner: string): EvidenceSource[] =>
   resolveAll(sourceIds, sourceById, owner);
 
 export function CaseStudyPage({ caseStudy }: { caseStudy: CaseStudy }) {
+  useEffect(() => {
+    trackOutcome("case_study_open", {
+      caseStudyId: caseStudy.id,
+      placement: "case-study",
+    });
+  }, [caseStudy.id]);
   const proofs = resolveAll(caseStudy.proofIds, proofById, caseStudy.id);
   const artifacts = resolveAll(
     caseStudy.artifactIds,

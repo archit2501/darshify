@@ -7,6 +7,7 @@ import {
 import { collectionById } from "../../src/content/selectors";
 import { LikedSongs } from "../../src/pages/LikedSongs";
 import { PlaylistPage } from "../../src/pages/PlaylistPage";
+import { buildNotFoundMeta, buildRouteMeta } from "../../src/seo/meta";
 import { NotFoundView } from "./not-found";
 
 type CollectionRouteData =
@@ -41,24 +42,18 @@ export function loader({ params }: LoaderFunctionArgs) {
 
 export const meta: MetaFunction<typeof loader> = ({ data: routeData }) => {
   if (!routeData) {
-    return [
-      { title: "Page not found | Darshify" },
-      {
-        name: "description",
-        content: "The requested portfolio collection could not be found.",
-      },
-    ];
+    return buildNotFoundMeta(
+      "The requested portfolio collection could not be found.",
+    );
   }
 
-  const canonicalHref =
-    routeData.kind === "liked" || routeData.id === "achievements"
-      ? "/liked"
-      : `/playlist/${routeData.id}`;
-  return [
-    { title: `${routeData.title} | Darshify` },
-    { name: "description", content: routeData.description },
-    { tagName: "link", rel: "canonical", href: canonicalHref },
-  ];
+  if (routeData.kind === "liked") return buildRouteMeta({ kind: "liked" });
+  const collection = collectionById(routeData.id);
+  return collection
+    ? buildRouteMeta({ kind: "collection", collection })
+    : buildNotFoundMeta(
+        "The requested portfolio collection could not be found.",
+      );
 };
 
 export default function CollectionRoute() {

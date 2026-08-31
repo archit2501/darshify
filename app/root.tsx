@@ -1,4 +1,5 @@
 import { useEffect, type ReactNode } from "react";
+import { Analytics } from "@vercel/analytics/react";
 import {
   Links,
   Meta,
@@ -11,6 +12,10 @@ import "../src/index.css";
 import { CareerMixProvider } from "../src/career-mix/CareerMixContext";
 import { AppShell } from "../src/shell/AppShell";
 import { ToastProvider } from "../src/shell/Toast";
+import {
+  redactAnalyticsEvent,
+  shouldEnableAnalytics,
+} from "../src/analytics/outcomes";
 
 export const links: LinksFunction = () => [
   { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
@@ -24,6 +29,22 @@ function HydrationMarker() {
     };
   }, []);
   return null;
+}
+
+function ProductionAnalytics() {
+  if (
+    typeof window === "undefined" ||
+    !shouldEnableAnalytics(window.location.hostname)
+  ) {
+    return null;
+  }
+  return (
+    <Analytics
+      mode="production"
+      debug={false}
+      beforeSend={redactAnalyticsEvent}
+    />
+  );
 }
 
 export function Layout({ children }: { children: ReactNode }) {
@@ -48,6 +69,7 @@ export function Layout({ children }: { children: ReactNode }) {
 export default function Root() {
   return (
     <>
+      <ProductionAnalytics />
       <CareerMixProvider>
         <ToastProvider>
           <AppShell />
