@@ -369,7 +369,7 @@
               "dependencies": ["3.3.1"],
               "smokeTest": "npm test -- src/pages/Search.test.tsx src/pages/Library.test.tsx src/content/selectors.test.ts && npm run test:e2e -- e2e/discovery.spec.ts && npm run build",
               "ciJobs": ["quality", "test", "build", "browser"],
-              "status": "in_progress",
+              "status": "done",
               "criticalPath": false
             }
           ]
@@ -408,7 +408,7 @@
               "dependencies": ["3.3.1"],
               "smokeTest": "npm test -- src/seo src/analytics src/components/ContactActions.test.tsx && npm run build && npm run test:e2e -- e2e/prerender.spec.ts",
               "ciJobs": ["quality", "test", "build", "browser"],
-              "status": "todo",
+              "status": "in_progress",
               "criticalPath": false
             }
           ]
