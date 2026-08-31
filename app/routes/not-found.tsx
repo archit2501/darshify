@@ -1,4 +1,5 @@
-import { data, Link, type MetaFunction } from "react-router";
+import { data, type MetaFunction } from "react-router";
+import { NotFound } from "../../src/pages/NotFound";
 
 export const meta: MetaFunction = () => [
   { title: "Page not found | Darshify" },
@@ -13,25 +14,7 @@ export function loader() {
 }
 
 export function NotFoundView() {
-  return (
-    <div className="grid min-h-[60vh] place-items-center text-center">
-      <div>
-        <p className="mb-2 text-sm font-bold uppercase tracking-wide text-sub">
-          404
-        </p>
-        <h1 className="mb-3 text-4xl font-black">Page not found</h1>
-        <p className="mb-6 text-sub">
-          We couldn't find that page. The track may have been moved.
-        </p>
-        <Link
-          to="/"
-          className="rounded-full bg-accent px-6 py-3 font-bold text-black"
-        >
-          Back to Home
-        </Link>
-      </div>
-    </div>
-  );
+  return <NotFound />;
 }
 
 export default function NotFoundRoute() {

@@ -54,6 +54,7 @@ const caseStudies: CaseStudy[] = [
     ],
     result:
       "The résumé reports improved workflow visibility, timely task execution, and reusable hiring workflows.",
+    featuredProofId: "figmenta-resumes",
     proofIds: [
       "figmenta-projects",
       "figmenta-team-members",
@@ -61,6 +62,7 @@ const caseStudies: CaseStudy[] = [
       "figmenta-shortlisted",
       "figmenta-hires",
     ],
+    relatedIds: ["r2", "r3"],
     skills: [
       "Project Management",
       "Process Optimization",
@@ -86,7 +88,9 @@ const caseStudies: CaseStudy[] = [
     ],
     result:
       "The résumé reports continuity in client work and support for retention and monetization.",
+    featuredProofId: "psr-clients",
     proofIds: ["psr-clients"],
+    relatedIds: ["r1", "r3"],
     skills: [
       "Stakeholder Management",
       "Business Development",
@@ -111,7 +115,9 @@ const caseStudies: CaseStudy[] = [
     ],
     result:
       "The résumé reports improved pipeline visibility and support for informed shortlisting and workforce planning.",
+    featuredProofId: "mj-profiles",
     proofIds: ["mj-profiles", "mj-interviews", "mj-assessments"],
+    relatedIds: ["r1", "r2"],
     skills: ["Stakeholder Management", "Process Optimization", "Google Sheets"],
   }),
   resumeCase({
@@ -132,7 +138,9 @@ const caseStudies: CaseStudy[] = [
     ],
     result:
       "The résumé says the work contributed to the startup team's selection as a competition finalist.",
+    featuredProofId: null,
     proofIds: [],
+    relatedIds: ["p2", "p3"],
     skills: [
       "Market Research",
       "Competitive Analysis",
@@ -158,6 +166,7 @@ const caseStudies: CaseStudy[] = [
     ],
     result:
       "The résumé reports recognition in the program's upper participant cohort.",
+    featuredProofId: "iitg-participant-percentile",
     proofIds: ["iitg-participant-percentile"],
     skills: ["Strategic Analysis", "Product Analysis", "Process Optimization"],
     relatedIds: ["a4", "c2"],
@@ -180,7 +189,9 @@ const caseStudies: CaseStudy[] = [
     ],
     result:
       "The team produced a publication-ready business case, as described in the résumé.",
+    featuredProofId: null,
     proofIds: [],
+    relatedIds: ["p1", "p4"],
     skills: ["Market Research", "Competitive Analysis", "Strategic Analysis"],
   }),
   resumeCase({
@@ -201,7 +212,9 @@ const caseStudies: CaseStudy[] = [
     ],
     result:
       "The individual project enabled data-driven trend identification, according to the résumé.",
+    featuredProofId: "zomato-metrics",
     proofIds: ["zomato-metrics"],
+    relatedIds: ["p2", "p3"],
     skills: ["Product Analysis", "Google Sheets"],
   }),
   resumeCase({
@@ -222,6 +235,7 @@ const caseStudies: CaseStudy[] = [
     ],
     result:
       "The résumé reports chapter growth and a management fest with substantial participation and partnership value.",
+    featuredProofId: "converge-participants",
     proofIds: [
       "igniters-members",
       "igniters-leaders",
@@ -229,6 +243,7 @@ const caseStudies: CaseStudy[] = [
       "converge-participants",
       "converge-sponsorship",
     ],
+    relatedIds: ["r1", "p1"],
     skills: [
       "Stakeholder Management",
       "Project Management",
@@ -249,7 +264,9 @@ const caseStudies: CaseStudy[] = [
       "The résumé lists participation in a national business-plan championship.",
     actions: ["Advanced to the finalist stage."],
     result: "Listed as a finalist in the résumé.",
+    featuredProofId: null,
     proofIds: [],
+    relatedIds: ["a2", "a3"],
     skills: ["Strategic Analysis", "Business Development"],
   }),
   resumeCase({
@@ -265,7 +282,9 @@ const caseStudies: CaseStudy[] = [
     situation: "The résumé lists participation in Product Decode.",
     actions: ["Completed the competition entry."],
     result: "The résumé reports a national placement.",
+    featuredProofId: "product-decode-rank",
     proofIds: ["product-decode-rank"],
+    relatedIds: ["a1", "a3"],
     skills: ["Product Analysis", "Strategic Analysis"],
   }),
   resumeCase({
@@ -281,7 +300,9 @@ const caseStudies: CaseStudy[] = [
       "The résumé lists participation in the BPlan Showdown Business Plan Competition.",
     actions: ["Completed the competition entry."],
     result: "Listed as the winner in the résumé.",
+    featuredProofId: null,
     proofIds: [],
+    relatedIds: ["a1", "a2"],
     skills: ["Strategic Analysis", "Business Development"],
   }),
   resumeCase({
@@ -299,6 +320,7 @@ const caseStudies: CaseStudy[] = [
     actions: ["Completed the consulting and analytics capstone."],
     result:
       "The résumé reports recognition in the program's upper participant cohort.",
+    featuredProofId: "iitg-participant-percentile",
     proofIds: ["iitg-participant-percentile"],
     skills: ["Strategic Analysis", "Product Analysis"],
     relatedIds: ["p2", "c2"],
@@ -315,7 +337,9 @@ const caseStudies: CaseStudy[] = [
     situation: "Undergraduate education listed in the résumé.",
     actions: ["Pursuing the BBA Business and Industry program."],
     result: "The résumé reports the current cumulative grade-point average.",
+    featuredProofId: "bba-cgpa",
     proofIds: ["bba-cgpa"],
+    relatedIds: ["e2", "c3"],
     skills: ["Strategic Analysis", "Market Research"],
   }),
   resumeCase({
@@ -330,7 +354,9 @@ const caseStudies: CaseStudy[] = [
     situation: "Senior secondary education listed in the résumé.",
     actions: ["Completed senior secondary education."],
     result: "The résumé reports the final percentage.",
+    featuredProofId: "class-xii-percentage",
     proofIds: ["class-xii-percentage"],
+    relatedIds: ["e1"],
     skills: [],
   }),
   resumeCase({
@@ -346,7 +372,9 @@ const caseStudies: CaseStudy[] = [
     actions: ["Completed the listed bootcamp."],
     result:
       "Completion is self-reported through the résumé; no separate certificate is stored in the repository.",
+    featuredProofId: null,
     proofIds: [],
+    relatedIds: ["c2", "c3"],
     skills: ["Business Development"],
   }),
   resumeCase({
@@ -362,6 +390,7 @@ const caseStudies: CaseStudy[] = [
     actions: ["Completed the listed program."],
     result:
       "Completion is self-reported through the résumé; no separate certificate is stored in the repository.",
+    featuredProofId: "iitg-participant-percentile",
     proofIds: ["iitg-participant-percentile"],
     skills: ["Strategic Analysis", "Product Analysis"],
     relatedIds: ["p2", "a4"],
@@ -380,7 +409,9 @@ const caseStudies: CaseStudy[] = [
     actions: ["Completed the listed program."],
     result:
       "Completion is self-reported through the résumé; no separate certificate is stored in the repository.",
+    featuredProofId: null,
     proofIds: [],
+    relatedIds: ["c1", "e1"],
     skills: ["Product Analysis", "Microsoft Excel"],
   }),
 ];

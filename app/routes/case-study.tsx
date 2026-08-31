@@ -1,11 +1,12 @@
 import {
   data,
-  Link,
   useLoaderData,
   type LoaderFunctionArgs,
   type MetaFunction,
 } from "react-router";
+import { portfolio } from "../../src/content/portfolio";
 import { caseStudyBySlug } from "../../src/content/selectors";
+import { CaseStudyPage } from "../../src/pages/CaseStudyPage";
 import { NotFoundView } from "./not-found";
 
 export function loader({ params }: LoaderFunctionArgs) {
@@ -21,47 +22,46 @@ export const meta: MetaFunction<typeof loader> = ({ data: caseStudy }) => {
         name: "description",
         content: "The requested Darshify case study could not be found.",
       },
+      { name: "robots", content: "noindex" },
     ];
   }
+
+  const canonical = `/case-studies/${caseStudy.slug}`;
 
   return [
     { title: `${caseStudy.title} | Darshify` },
     { name: "description", content: caseStudy.recruiterTakeaway },
+    { tagName: "link", rel: "canonical", href: canonical },
+    { property: "og:title", content: caseStudy.title },
+    { property: "og:description", content: caseStudy.recruiterTakeaway },
+    { property: "og:url", content: canonical },
+    { property: "og:type", content: "article" },
+    { property: "og:image", content: "/og.png" },
+    { name: "twitter:card", content: "summary_large_image" },
+    { name: "twitter:title", content: caseStudy.title },
+    { name: "twitter:description", content: caseStudy.recruiterTakeaway },
+    { name: "twitter:image", content: "/og.png" },
+    {
+      "script:ld+json": {
+        "@context": "https://schema.org",
+        "@type": "CreativeWork",
+        name: caseStudy.title,
+        description: caseStudy.recruiterTakeaway,
+        url: canonical,
+        genre: caseStudy.kind,
+        temporalCoverage: caseStudy.period,
+        keywords: caseStudy.skills,
+        creator: {
+          "@type": "Person",
+          name: portfolio.candidate.name,
+        },
+      },
+    },
   ];
 };
 
 export default function CaseStudyRoute() {
   const caseStudy = useLoaderData<typeof loader>();
   if (!caseStudy) return <NotFoundView />;
-
-  return (
-    <article className="mx-auto max-w-3xl py-8">
-      <header className="mb-8">
-        <p className="mb-2 text-sm font-bold uppercase tracking-wide text-sub">
-          Case study
-        </p>
-        <h1 className="text-4xl font-black md:text-6xl">{caseStudy.title}</h1>
-        <p className="mt-4 text-sub">
-          <span className="text-white">{caseStudy.organization}</span> ·{" "}
-          {caseStudy.role} · <span>{caseStudy.period}</span>
-        </p>
-      </header>
-
-      <section aria-labelledby="recruiter-takeaway">
-        <h2 id="recruiter-takeaway" className="mb-2 text-2xl font-bold">
-          Recruiter takeaway
-        </h2>
-        <p className="text-lg leading-relaxed text-sub">
-          {caseStudy.recruiterTakeaway}
-        </p>
-      </section>
-
-      <Link
-        to="/playlist/projects"
-        className="mt-8 inline-block rounded-full border border-sub/50 px-5 py-2 font-bold hover:border-white"
-      >
-        Back to Projects
-      </Link>
-    </article>
-  );
+  return <CaseStudyPage caseStudy={caseStudy} />;
 }

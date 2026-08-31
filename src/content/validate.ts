@@ -161,6 +161,39 @@ export const validatePortfolio = (value: Portfolio): string[] => {
   }
 
   for (const caseStudy of value.caseStudies) {
+    const featuredProof = caseStudy.featuredProofId
+      ? proofById.get(caseStudy.featuredProofId)
+      : undefined;
+    if (caseStudy.proofIds.length > 0 && !caseStudy.featuredProofId) {
+      errors.push(`Case study ${caseStudy.id} is missing a featured proof`);
+    } else if (caseStudy.featuredProofId && !featuredProof) {
+      errors.push(
+        `Case study ${caseStudy.id} references unknown featured proof ${caseStudy.featuredProofId}`,
+      );
+    } else if (
+      caseStudy.featuredProofId &&
+      !caseStudy.proofIds.includes(caseStudy.featuredProofId)
+    ) {
+      errors.push(
+        `Case study ${caseStudy.id} featured proof ${caseStudy.featuredProofId} is not a member of its proof IDs`,
+      );
+    } else if (featuredProof) {
+      const artifactSourceIds = new Set(
+        caseStudy.artifactIds.flatMap(
+          (artifactId) => artifactById.get(artifactId)?.sourceIds ?? [],
+        ),
+      );
+      if (
+        !featuredProof.sourceIds.some((sourceId) =>
+          artifactSourceIds.has(sourceId),
+        )
+      ) {
+        errors.push(
+          `Case study ${caseStudy.id} featured proof ${featuredProof.id} does not share provenance with its artifacts`,
+        );
+      }
+    }
+
     for (const proofId of caseStudy.proofIds) {
       const proof = proofById.get(proofId);
       if (!proof) {
@@ -180,7 +213,13 @@ export const validatePortfolio = (value: Portfolio): string[] => {
         );
       }
     }
+    if (caseStudy.relatedIds.length === 0) {
+      errors.push(`Case study ${caseStudy.id} is missing a related case study`);
+    }
     for (const relatedId of caseStudy.relatedIds) {
+      if (relatedId === caseStudy.id) {
+        errors.push(`Case study ${caseStudy.id} cannot relate to itself`);
+      }
       if (!caseStudyIds.has(relatedId)) {
         errors.push(
           `Case study ${caseStudy.id} references unknown related case study ${relatedId}`,

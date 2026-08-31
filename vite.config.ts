@@ -30,13 +30,17 @@ const cumulativeRedesignRuntime = [
   "app/root.tsx",
   "app/routes/artist.tsx",
   "app/routes/collection.tsx",
+  "app/routes/case-study.tsx",
   "app/routes/home.tsx",
+  "app/routes/not-found.tsx",
   ...designSystemRuntime,
   ...semanticShellRuntime,
   "src/career-mix/CareerMixContext.tsx",
   "src/career-mix/CareerMixDock.tsx",
   "src/career-mix/reducer.ts",
   "src/components/EvidenceCover.tsx",
+  "src/components/CaseStudyHeader.tsx",
+  "src/components/EvidencePanel.tsx",
   "src/components/ProofTrackRow.tsx",
   "src/components/ProofWaveform.tsx",
   "src/components/RecruiterHero.tsx",
@@ -48,6 +52,8 @@ const cumulativeRedesignRuntime = [
   "src/content/waveform.ts",
   "src/shell/Art.tsx",
   "src/shell/Shelf.tsx",
+  "src/pages/CaseStudyPage.tsx",
+  "src/pages/NotFound.tsx",
 ];
 const coverageRuntime =
   coverageScope === "redesign"

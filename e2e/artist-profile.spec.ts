@@ -23,11 +23,11 @@ test("mobile Artist prioritizes proposition and sourced impact before releases",
   ).toBeVisible();
 
   const featuredProof = proposition.getByRole("article", {
-    name: "Featured proof: Projects tracked",
+    name: "Featured proof: Résumés screened",
   });
-  await expect(featuredProof).toContainText("35+ projects");
+  await expect(featuredProof).toContainText("500+ résumés");
   await expect(featuredProof).toContainText(
-    "Projects covered by the centralized dashboard.",
+    "Résumés screened during hiring support.",
   );
   await expect(featuredProof).toContainText("Darshil Jain résumé");
   await expect(featuredProof).toContainText("self-reported");
