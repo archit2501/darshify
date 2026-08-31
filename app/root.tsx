@@ -69,13 +69,13 @@ export function Layout({ children }: { children: ReactNode }) {
 export default function Root() {
   return (
     <>
+      <ProductionAnalytics />
       <CareerMixProvider>
         <ToastProvider>
           <AppShell />
         </ToastProvider>
       </CareerMixProvider>
       <HydrationMarker />
-      <ProductionAnalytics />
     </>
   );
 }

@@ -3,6 +3,7 @@ import type { BeforeSendEvent } from "@vercel/analytics/react";
 import { portfolio } from "../content/portfolio";
 import {
   CANONICAL_SITE_ORIGIN,
+  canonicalPathForPathname,
   canonicalRouteInventory,
   type RouteId,
 } from "../seo/meta";
@@ -143,7 +144,15 @@ export function redactAnalyticsEvent(
 ): BeforeSendEvent | null {
   try {
     const url = new URL(event.url);
-    return { ...event, url: `${url.origin}${url.pathname}` };
+    const canonicalPath = canonicalPathForPathname(url.pathname);
+    if (!shouldEnableAnalytics(url.hostname) || canonicalPath === undefined) {
+      return null;
+    }
+    const safeOrigin =
+      url.hostname === canonicalHostname
+        ? CANONICAL_SITE_ORIGIN
+        : `https://${url.hostname}`;
+    return { ...event, url: `${safeOrigin}${canonicalPath}` };
   } catch {
     return null;
   }

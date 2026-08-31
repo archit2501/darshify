@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { join, relative } from "node:path";
 import { portfolio } from "../src/content/portfolio";
 import {
@@ -56,6 +57,13 @@ const extractMetadata = (html: string) => ({
     html.match(/<meta property="og:image" content="([^"]+)"/)?.[1] ?? "",
 });
 
+const decodeMarkupText = (value: string) =>
+  value
+    .replaceAll("&amp;", "&")
+    .replaceAll("&#x27;", "'")
+    .replaceAll("&apos;", "'")
+    .replaceAll("&quot;", '"');
+
 test("artifact regression: the build contains the complete independent route inventory with unique metadata and favicon", () => {
   const expectedDocuments = prerenderRoutes
     .map(({ path }) => relative(buildClientDirectory, htmlPathForRoute(path)))
@@ -110,6 +118,24 @@ test("artifact regression: the build contains the complete independent route inv
   expect(new Set(metadata.map(({ socialImage }) => socialImage)).size).toBe(
     metadata.length,
   );
+
+  const socialCardHashes = metadata.map(({ title, socialImage }, index) => {
+    const url = new URL(socialImage);
+    expect(url.search).toBe("");
+    const assetPath = join(buildClientDirectory, url.pathname);
+    expect(existsSync(assetPath), `missing social card ${url.pathname}`).toBe(
+      true,
+    );
+    const asset = readFileSync(assetPath, "utf8");
+    const decodedTitle = decodeMarkupText(title);
+    expect(asset).toContain('viewBox="0 0 1200 630"');
+    expect(decodeMarkupText(asset)).toContain(`aria-label="${decodedTitle}"`);
+    expect(asset).toContain(
+      `data-route-id="${canonicalRouteInventory[index].id}"`,
+    );
+    return createHash("sha256").update(asset).digest("hex");
+  });
+  expect(new Set(socialCardHashes).size).toBe(28);
 
   expect(readFileSync(join(buildClientDirectory, "robots.txt"), "utf8")).toBe(
     `User-agent: *\nAllow: /\n\nSitemap: ${CANONICAL_SITE_ORIGIN}/sitemap.xml\n`,

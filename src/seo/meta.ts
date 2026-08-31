@@ -82,6 +82,9 @@ const fixedCopy: Record<
 const canonicalUrl = (path: string) =>
   `${CANONICAL_SITE_ORIGIN}${path === "/" ? "" : path}`;
 
+export const socialCardPathForRouteId = (routeId: RouteId) =>
+  `/social-cards/${routeId.replace(":", "-")}.svg`;
+
 const resolveRoute = (input: RouteMetaInput) => {
   if (input.kind === "collection") {
     return {
@@ -111,7 +114,7 @@ const resolveRoute = (input: RouteMetaInput) => {
 export function buildRouteMeta(input: RouteMetaInput): MetaDescriptor[] {
   const route = resolveRoute(input);
   const canonical = canonicalUrl(route.path);
-  const socialImage = `${CANONICAL_SITE_ORIGIN}/og.png?route=${encodeURIComponent(route.id)}`;
+  const socialImage = `${CANONICAL_SITE_ORIGIN}${socialCardPathForRouteId(route.id)}`;
 
   return [
     { title: route.title },
@@ -122,11 +125,15 @@ export function buildRouteMeta(input: RouteMetaInput): MetaDescriptor[] {
     { property: "og:url", content: canonical },
     { property: "og:type", content: route.type },
     { property: "og:image", content: socialImage },
+    { property: "og:image:type", content: "image/svg+xml" },
+    { property: "og:image:width", content: "1200" },
+    { property: "og:image:height", content: "630" },
     { property: "og:image:alt", content: `${route.title} social card` },
     { name: "twitter:card", content: "summary_large_image" },
     { name: "twitter:title", content: route.title },
     { name: "twitter:description", content: route.description },
     { name: "twitter:image", content: socialImage },
+    { name: "twitter:image:alt", content: `${route.title} social card` },
   ];
 }
 
@@ -137,6 +144,16 @@ export const buildNotFoundMeta = (description: string): MetaDescriptor[] => [
 ];
 
 export function routeIdForPathname(pathname: string): RouteId | undefined {
-  const normalized = pathname.length > 1 ? pathname.replace(/\/$/, "") : "/";
+  const normalized =
+    pathname.length > 1 && pathname.endsWith("/")
+      ? pathname.slice(0, -1)
+      : pathname;
   return canonicalRouteInventory.find(({ path }) => path === normalized)?.id;
+}
+
+export function canonicalPathForPathname(pathname: string): string | undefined {
+  const routeId = routeIdForPathname(pathname);
+  return routeId === undefined
+    ? undefined
+    : canonicalRouteInventory.find(({ id }) => id === routeId)?.path;
 }

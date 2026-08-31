@@ -8,6 +8,7 @@ import {
   trackOutcome,
   type OutcomeEvent,
 } from "./outcomes";
+import { CANONICAL_SITE_ORIGIN, canonicalRouteInventory } from "../seo/meta";
 
 const allEvents: OutcomeEvent[] = [
   "cv_download",
@@ -90,17 +91,77 @@ describe("privacy-safe outcome analytics", () => {
     expect(transport).not.toHaveBeenCalled();
   });
 
-  it("removes query strings and fragments from Vercel page-view URLs", () => {
-    expect(
-      redactAnalyticsEvent({
+  it("allows only canonical routes and normalizes their trailing slash", () => {
+    canonicalRouteInventory.forEach(({ path }) => {
+      const canonicalPath = path === "/" ? "/" : path;
+      const withOptionalSlash = path === "/" ? "/" : `${path}/`;
+
+      expect(
+        redactAnalyticsEvent({
+          type: "pageview",
+          url: `${CANONICAL_SITE_ORIGIN}${withOptionalSlash}?utm_source=private#result`,
+        }),
+      ).toEqual({
         type: "pageview",
-        url: "https://preview.test/search?q=private#result",
-      }),
-    ).toEqual({ type: "pageview", url: "https://preview.test/search" });
+        url: `${CANONICAL_SITE_ORIGIN}${canonicalPath}`,
+      });
+    });
+
     expect(
       redactAnalyticsEvent({
         type: "event",
         url: "not a valid URL",
+      }),
+    ).toBeNull();
+  });
+
+  it.each([
+    "/case-studies/darshil.jain@example.com",
+    "/playlist/+91-9268264843",
+    "/search/operations-recruiter",
+    "/artist/darshil-jain-611a3332b",
+    "/private/arbitrary-sensitive-string",
+    "/case-studies/figmenta-operations-intern/private",
+    "/artist//",
+  ])("drops an unknown path before the vendor boundary: %s", (path) => {
+    const vendor = vi.fn();
+    const consoleLog = vi.spyOn(console, "log").mockImplementation(() => {});
+    const candidate = redactAnalyticsEvent({
+      type: "pageview",
+      url: `${CANONICAL_SITE_ORIGIN}${path}?email=darshil.jain@example.com&phone=919268264843&search=operations-recruiter&profile=darshil-jain-611a3332b#arbitrary-sensitive-string`,
+    });
+
+    if (candidate) vendor(candidate);
+
+    expect(candidate).toBeNull();
+    expect(vendor).not.toHaveBeenCalled();
+    expect(consoleLog).not.toHaveBeenCalled();
+    consoleLog.mockRestore();
+  });
+
+  it("strips sensitive query and fragment values from an allowed route before transport", () => {
+    const vendor = vi.fn();
+    const candidate = redactAnalyticsEvent({
+      type: "pageview",
+      url: `${CANONICAL_SITE_ORIGIN}/search?email=darshil.jain@example.com&phone=919268264843&search=operations-recruiter&profile=darshil-jain-611a3332b&url=https%3A%2F%2Fexample.test%2Fcase%3Fcandidate%3Ddarshil#email=darshil.jain@example.com&phone=919268264843&arbitrary-sensitive-string`,
+    });
+
+    if (candidate) vendor(candidate);
+
+    expect(vendor).toHaveBeenCalledExactlyOnceWith({
+      type: "pageview",
+      url: `${CANONICAL_SITE_ORIGIN}/search`,
+    });
+    expect(JSON.stringify(vendor.mock.calls)).not.toMatch(
+      /darshil|9268264843|operations-recruiter|arbitrary-sensitive-string/i,
+    );
+  });
+
+  it("drops an allowlisted path received from an unapproved host", () => {
+    expect(
+      redactAnalyticsEvent({
+        type: "pageview",
+        url: "https://profiles.example.test/artist?email=private#phone",
       }),
     ).toBeNull();
   });
