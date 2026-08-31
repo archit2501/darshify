@@ -13,7 +13,7 @@
     "type-check": "tsc -b --pretty false",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test:coverage": "COVERAGE_SCOPE=design-system vitest run --coverage",
+    "test:coverage": "COVERAGE_SCOPE=redesign vitest run --coverage",
     "test:coverage:design-system": "COVERAGE_SCOPE=design-system vitest run --coverage src/motion/motion.test.tsx src/lib/useReducedMotion.test.ts",
     "pretest:e2e": "npm run build",
     "test:e2e": "playwright test",
