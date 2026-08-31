@@ -10,6 +10,7 @@ test("primary routes render one visible heading without console errors", async (
 
   for (const path of ["/", "/artist", "/search", "/library"]) {
     await page.goto(path, { waitUntil: "domcontentloaded" });
+    await expect(page.locator("html")).toHaveAttribute("data-hydrated", "true");
     await expect(page.locator("h1")).toBeVisible();
   }
   expect(errors).toEqual([]);

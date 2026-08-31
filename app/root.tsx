@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import {
   Links,
   Meta,
@@ -15,6 +15,16 @@ import { ToastProvider } from "../src/shell/Toast";
 export const links: LinksFunction = () => [
   { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
 ];
+
+function HydrationMarker() {
+  useEffect(() => {
+    document.documentElement.dataset.hydrated = "true";
+    return () => {
+      delete document.documentElement.dataset.hydrated;
+    };
+  }, []);
+  return null;
+}
 
 export function Layout({ children }: { children: ReactNode }) {
   return (
@@ -37,11 +47,14 @@ export function Layout({ children }: { children: ReactNode }) {
 
 export default function Root() {
   return (
-    <PlayerProvider>
-      <ToastProvider>
-        <AppShell />
-      </ToastProvider>
-    </PlayerProvider>
+    <>
+      <PlayerProvider>
+        <ToastProvider>
+          <AppShell />
+        </ToastProvider>
+      </PlayerProvider>
+      <HydrationMarker />
+    </>
   );
 }
 

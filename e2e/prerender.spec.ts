@@ -81,6 +81,9 @@ test("artifact regression: the build contains the complete independent route inv
     );
     const html = readFileSync(documentPath, "utf8");
     expect(html, `missing h1 in ${path}`).toMatch(/<h1\b[^>]*>.+<\/h1>/s);
+    expect(html, `SSR leaked hydration marker in ${path}`).not.toContain(
+      "data-hydrated",
+    );
     expect(html, `missing favicon in ${path}`).toContain(
       '<link rel="icon" href="/favicon.svg"',
     );
@@ -127,7 +130,9 @@ test.describe("production HTML without JavaScript", () => {
       waitUntil: "domcontentloaded",
     });
     await expect(page.getByText("Figmenta", { exact: true })).toBeVisible();
-    await expect(page.getByText("Jan 2026 – Feb 2026")).toBeVisible();
+    await expect(
+      page.getByText("Jan 2026 – Feb 2026", { exact: true }),
+    ).toBeVisible();
     await expect(
       page.getByText(
         "Built operating visibility and reusable hiring workflows for an Asia team.",

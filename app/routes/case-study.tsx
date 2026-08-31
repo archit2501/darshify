@@ -43,7 +43,7 @@ export default function CaseStudyRoute() {
         <h1 className="text-4xl font-black md:text-6xl">{caseStudy.title}</h1>
         <p className="mt-4 text-sub">
           <span className="text-white">{caseStudy.organization}</span> ·{" "}
-          {caseStudy.role} · {caseStudy.period}
+          {caseStudy.role} · <span>{caseStudy.period}</span>
         </p>
       </header>
 
