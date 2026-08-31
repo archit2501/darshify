@@ -41,9 +41,11 @@ export function TopBar({ scrollY = 0 }: { scrollY?: number }) {
       >
         ›
       </button>
-      <div className="ml-auto md:hidden">
-        <ContactActions candidate={portfolio.candidate} placement="topbar" />
-      </div>
+      {pathname !== "/" && (
+        <div className="ml-auto md:hidden">
+          <ContactActions candidate={portfolio.candidate} placement="topbar" />
+        </div>
+      )}
       <span className="ml-auto hidden min-h-11 items-center gap-2 rounded-full bg-black/60 py-1 pr-3 pl-1 text-sm font-bold lg:flex">
         <span className="grid place-items-center w-6 h-6 rounded-full bg-accent text-black">
           D

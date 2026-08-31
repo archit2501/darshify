@@ -29,6 +29,7 @@ const semanticShellRuntime = [
 const cumulativeRedesignRuntime = [
   "app/root.tsx",
   "app/routes/collection.tsx",
+  "app/routes/home.tsx",
   ...designSystemRuntime,
   ...semanticShellRuntime,
   "src/career-mix/CareerMixContext.tsx",
@@ -36,11 +37,13 @@ const cumulativeRedesignRuntime = [
   "src/career-mix/reducer.ts",
   "src/components/EvidenceCover.tsx",
   "src/components/ProofWaveform.tsx",
+  "src/components/RecruiterHero.tsx",
   "src/content/artifactFallback.ts",
   "src/content/portfolio.ts",
   "src/content/waveform.ts",
   "src/data/library.ts",
   "src/shell/Art.tsx",
+  "src/shell/Shelf.tsx",
   "src/shell/TrackRow.tsx",
 ];
 const coverageRuntime =

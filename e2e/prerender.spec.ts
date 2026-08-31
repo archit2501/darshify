@@ -6,7 +6,7 @@ import { portfolio } from "../src/content/portfolio";
 const buildClientDirectory = join(process.cwd(), "build/client");
 
 const fixedRoutes = [
-  { path: "/", heading: /^Good (morning|afternoon|evening)$/ },
+  { path: "/", heading: portfolio.candidate.name },
   { path: "/artist", heading: portfolio.candidate.name },
   { path: "/search", heading: "Search portfolio" },
   { path: "/library", heading: "Evidence library" },
@@ -48,20 +48,6 @@ const extractMetadata = (html: string) => ({
   description:
     html.match(/<meta name="description" content="([^"]+)"/)?.[1] ?? "",
 });
-
-const greetingForHour = (hour: number) =>
-  hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
-
-const greetingInTimezone = (timezoneId: string) => {
-  const hour = Number(
-    new Intl.DateTimeFormat("en-US", {
-      hour: "2-digit",
-      hourCycle: "h23",
-      timeZone: timezoneId,
-    }).format(new Date()),
-  );
-  return greetingForHour(hour);
-};
 
 test("artifact regression: the build contains the complete independent route inventory with unique metadata and favicon", () => {
   const expectedDocuments = prerenderRoutes
@@ -182,23 +168,13 @@ test.describe("production HTML without JavaScript", () => {
   });
 });
 
-test("hydration regression: timezone, local storage, and reduced motion do not alter the first client tree", async ({
+test("hydration regression: timezone, local storage, and reduced motion do not alter the recruiter-first client tree", async ({
   browser,
 }) => {
-  const builtHome = readFileSync(htmlPathForRoute("/"), "utf8");
-  const builtGreeting = builtHome.match(/<h1\b[^>]*>([^<]+)<\/h1>/)?.[1] ?? "";
-  const timezoneId = [
-    "Pacific/Honolulu",
-    "America/Los_Angeles",
-    "Europe/London",
-    "Asia/Tokyo",
-  ].find((timezone) => greetingInTimezone(timezone) !== builtGreeting);
-  expect(timezoneId).toBeDefined();
-
   const context = await browser.newContext({
     baseURL: test.info().project.use.baseURL as string,
     reducedMotion: "reduce",
-    timezoneId,
+    timezoneId: "Pacific/Honolulu",
   });
   await context.addInitScript(() => {
     localStorage.setItem("dx_audio", JSON.stringify(true));
@@ -218,7 +194,7 @@ test("hydration regression: timezone, local storage, and reduced motion do not a
   await expect(
     page.getByRole("heading", {
       level: 1,
-      name: greetingInTimezone(timezoneId!),
+      name: portfolio.candidate.name,
     }),
   ).toBeVisible();
   await expect(page.locator('[data-reduced-motion="true"]')).toBeVisible();
