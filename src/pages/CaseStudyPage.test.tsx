@@ -1,6 +1,6 @@
 import { createElement } from "react";
-import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { fireEvent, render, screen, within } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createMemoryRouter,
   RouterProvider,
@@ -10,6 +10,14 @@ import { portfolio } from "../content/portfolio";
 import { artifactById, proofById, sourceById } from "../content/selectors";
 import { formatProofValue } from "../content/waveform";
 import CaseStudyRoute, { loader, meta } from "../../app/routes/case-study";
+import { buildRouteMeta } from "../seo/meta";
+import { buildCreativeWorkJsonLd } from "../seo/structuredData";
+
+const { trackOutcome } = vi.hoisted(() => ({ trackOutcome: vi.fn() }));
+vi.mock("../analytics/outcomes", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../analytics/outcomes")>()),
+  trackOutcome,
+}));
 
 const expectedFeaturedProofByCaseId: Record<string, string | undefined> = {
   r1: "figmenta-resumes",
@@ -74,6 +82,32 @@ function renderCaseStudy(slug: string) {
 }
 
 describe("case-study pages", () => {
+  beforeEach(() => trackOutcome.mockClear());
+
+  it("reports a case open and a source-evidence open using typed IDs only", async () => {
+    const caseStudy = portfolio.caseStudies.find(({ id }) => id === "r1")!;
+    renderCaseStudy(caseStudy.slug);
+
+    await screen.findByRole("heading", { level: 1, name: caseStudy.title });
+    expect(trackOutcome).toHaveBeenCalledWith("case_study_open", {
+      caseStudyId: "r1",
+      placement: "case-study",
+    });
+
+    const sourceLinks = screen.getAllByRole("link", {
+      name: "Darshil Jain résumé",
+    });
+    sourceLinks.forEach((link) =>
+      link.addEventListener("click", (event) => event.preventDefault()),
+    );
+    fireEvent.click(sourceLinks[0]);
+    expect(trackOutcome).toHaveBeenCalledWith("evidence_open", {
+      routeId: "home",
+      evidenceId: "figmenta-projects",
+      placement: "evidence-panel",
+    });
+  });
+
   it.each(portfolio.caseStudies)(
     "renders complete, sourced evidence for $slug",
     async (caseStudy) => {
@@ -182,48 +216,15 @@ describe("case-study pages", () => {
       const descriptors = meta({
         data: loader(loaderArgs(caseStudy.slug)),
       } as Parameters<typeof meta>[0]);
-      const canonical = `/case-studies/${caseStudy.slug}`;
-
-      expect(descriptors).toContainEqual({
-        title: `${caseStudy.title} | Darshify`,
-      });
-      expect(descriptors).toContainEqual({
-        name: "description",
-        content: caseStudy.recruiterTakeaway,
-      });
-      expect(descriptors).toContainEqual({
-        tagName: "link",
-        rel: "canonical",
-        href: canonical,
-      });
-      expect(descriptors).toContainEqual({
-        property: "og:title",
-        content: caseStudy.title,
-      });
-      expect(descriptors).toContainEqual({
-        property: "og:description",
-        content: caseStudy.recruiterTakeaway,
-      });
-      expect(descriptors).toContainEqual({
-        property: "og:url",
-        content: canonical,
-      });
-      expect(descriptors).toContainEqual({
-        property: "og:type",
-        content: "article",
-      });
-      expect(descriptors).toContainEqual({
-        "script:ld+json": expect.objectContaining({
-          "@context": "https://schema.org",
-          "@type": "CreativeWork",
-          name: caseStudy.title,
-          description: caseStudy.recruiterTakeaway,
-          creator: expect.objectContaining({
-            "@type": "Person",
-            name: portfolio.candidate.name,
-          }),
-        }),
-      });
+      expect(descriptors).toEqual([
+        ...buildRouteMeta({ kind: "case-study", caseStudy }),
+        {
+          "script:ld+json": buildCreativeWorkJsonLd(
+            caseStudy,
+            portfolio.candidate,
+          ),
+        },
+      ]);
     },
   );
 

@@ -2,6 +2,10 @@ import { expect, test } from "@playwright/test";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, relative } from "node:path";
 import { portfolio } from "../src/content/portfolio";
+import {
+  CANONICAL_SITE_ORIGIN,
+  canonicalRouteInventory,
+} from "../src/seo/meta";
 
 const buildClientDirectory = join(process.cwd(), "build/client");
 
@@ -47,6 +51,9 @@ const extractMetadata = (html: string) => ({
   title: html.match(/<title>([^<]+)<\/title>/)?.[1] ?? "",
   description:
     html.match(/<meta name="description" content="([^"]+)"/)?.[1] ?? "",
+  canonical: html.match(/<link rel="canonical" href="([^"]+)"/)?.[1] ?? "",
+  socialImage:
+    html.match(/<meta property="og:image" content="([^"]+)"/)?.[1] ?? "",
 });
 
 test("artifact regression: the build contains the complete independent route inventory with unique metadata and favicon", () => {
@@ -58,6 +65,9 @@ test("artifact regression: the build contains the complete independent route inv
     .sort();
 
   expect(new Set(expectedDocuments).size).toBe(28);
+  expect(prerenderRoutes.map(({ path }) => path)).toEqual(
+    canonicalRouteInventory.map(({ path }) => path),
+  );
   expect(actualDocuments).toEqual(expectedDocuments);
 
   const metadata = prerenderRoutes.map(({ path }) => {
@@ -81,6 +91,12 @@ test("artifact regression: the build contains the complete independent route inv
     expect(item.description, `missing description in ${item.path}`).not.toBe(
       "",
     );
+    expect(item.canonical, `wrong canonical in ${item.path}`).toBe(
+      item.path === "/"
+        ? CANONICAL_SITE_ORIGIN
+        : `${CANONICAL_SITE_ORIGIN}${item.path}`,
+    );
+    expect(new URL(item.socialImage).origin).toBe(CANONICAL_SITE_ORIGIN);
   }
   expect(new Set(metadata.map(({ title }) => title)).size).toBe(
     metadata.length,
@@ -88,6 +104,23 @@ test("artifact regression: the build contains the complete independent route inv
   expect(new Set(metadata.map(({ description }) => description)).size).toBe(
     metadata.length,
   );
+  expect(new Set(metadata.map(({ canonical }) => canonical)).size).toBe(
+    metadata.length,
+  );
+  expect(new Set(metadata.map(({ socialImage }) => socialImage)).size).toBe(
+    metadata.length,
+  );
+
+  expect(readFileSync(join(buildClientDirectory, "robots.txt"), "utf8")).toBe(
+    `User-agent: *\nAllow: /\n\nSitemap: ${CANONICAL_SITE_ORIGIN}/sitemap.xml\n`,
+  );
+  const sitemap = readFileSync(
+    join(buildClientDirectory, "sitemap.xml"),
+    "utf8",
+  );
+  expect(
+    [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(([, url]) => url),
+  ).toEqual(metadata.map(({ canonical }) => canonical));
 });
 
 test.describe("production HTML without JavaScript", () => {

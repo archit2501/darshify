@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { portfolio } from "../src/content/portfolio";
+import { CANONICAL_SITE_ORIGIN } from "../src/seo/meta";
 
 const caseStudyPath = (slug: string) => `/case-studies/${slug}`;
 
@@ -85,11 +86,11 @@ test.describe("shareable evidence-rich case studies", () => {
         ).toHaveAttribute("href", portfolio.candidate.resumeUrl);
         await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
           "href",
-          caseStudyPath(caseStudy.slug),
+          `${CANONICAL_SITE_ORIGIN}${caseStudyPath(caseStudy.slug)}`,
         );
         await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
           "content",
-          caseStudy.title,
+          `${caseStudy.title} | Darshify`,
         );
         const structuredData = await page
           .locator('script[type="application/ld+json"]')
