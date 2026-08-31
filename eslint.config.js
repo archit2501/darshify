@@ -6,7 +6,15 @@ import tseslint from "typescript-eslint";
 import { defineConfig, globalIgnores } from "eslint/config";
 
 export default defineConfig([
-  globalIgnores(["dist", "coverage", "playwright-report", "test-results"]),
+  globalIgnores([
+    ".react-router",
+    ".vercel",
+    "build",
+    "dist",
+    "coverage",
+    "playwright-report",
+    "test-results",
+  ]),
   {
     files: ["**/*.{ts,tsx}"],
     extends: [
@@ -17,6 +25,15 @@ export default defineConfig([
     ],
     languageOptions: {
       globals: globals.browser,
+    },
+  },
+  {
+    files: ["app/**/*.{ts,tsx}"],
+    rules: {
+      "react-refresh/only-export-components": [
+        "error",
+        { allowExportNames: ["action", "headers", "links", "loader", "meta"] },
+      ],
     },
   },
 ]);

@@ -76,7 +76,7 @@
               "dependencies": ["1.1.1"],
               "smokeTest": "npm test -- src/content src/data/library.test.ts && npm run lint && npm run type-check && npm run build",
               "ciJobs": ["quality", "test", "build"],
-              "status": "in_progress",
+              "status": "done",
               "criticalPath": true
             }
           ]
@@ -107,7 +107,7 @@
               "dependencies": ["1.2.1"],
               "smokeTest": "npm run type-check && npm run build && npm run test:e2e -- e2e/baseline.spec.ts e2e/prerender.spec.ts",
               "ciJobs": ["quality", "test", "build", "browser"],
-              "status": "todo",
+              "status": "in_progress",
               "criticalPath": true
             }
           ]

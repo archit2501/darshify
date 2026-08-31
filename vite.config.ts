@@ -1,9 +1,15 @@
 import { configDefaults, defineConfig } from "vitest/config";
+import { reactRouter } from "@react-router/dev/vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [tailwindcss(), ...(process.env.VITEST ? [react()] : reactRouter())],
+  server: {
+    watch: {
+      ignored: ["**/.react-router/**", "**/.vercel/**", "**/build/**"],
+    },
+  },
   test: {
     globals: true,
     environment: "jsdom",

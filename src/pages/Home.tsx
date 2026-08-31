@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   playlists,
@@ -12,16 +12,19 @@ import { usePlayer } from "../player/PlayerContext";
 import { Shelf } from "../shell/Shelf";
 import { MediaCard } from "../shell/MediaCard";
 import { Art } from "../shell/Art";
+import { currentGreeting } from "../lib/greeting";
 
-function greeting() {
-  const h = new Date().getHours();
-  return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
-}
+const subscribeToClock = () => () => {};
 
-export function Home() {
+export function Home({ initialGreeting }: { initialGreeting: string }) {
   const p = usePlayer();
   const nav = useNavigate();
   const h1 = useRef<HTMLHeadingElement>(null);
+  const greeting = useSyncExternalStore(
+    subscribeToClock,
+    currentGreeting,
+    () => initialGreeting,
+  );
   useEffect(() => {
     h1.current?.focus();
   }, []);
@@ -80,7 +83,7 @@ export function Home() {
         tabIndex={-1}
         className="text-3xl font-black outline-none mb-5"
       >
-        {greeting()}
+        {greeting}
       </h1>
 
       {/* quick picks */}
