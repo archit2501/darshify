@@ -1,17 +1,20 @@
-import { usePlayer } from "../player/PlayerContext";
+import { useCareerMix } from "../career-mix/CareerMixContext";
 import { trackById, likedTrackIds, LIKED_COVER } from "../data/library";
 import { TrackRow } from "../shell/TrackRow";
 import { PlayButton } from "../shell/PlayButton";
 import { Art } from "../shell/Art";
+import { portfolio } from "../content/portfolio";
+
+const achievementsCollection = portfolio.collections.find(
+  (collection) => collection.id === "achievements",
+)!;
 
 export function LikedSongs() {
-  const p = usePlayer();
-  // union of seeded achievements + anything the user liked, preserving order
-  const ids = Array.from(new Set([...likedTrackIds, ...p.likes]));
+  const { open } = useCareerMix();
+  const ids = likedTrackIds;
   const tracks = ids.map(trackById).filter(Boolean) as NonNullable<
     ReturnType<typeof trackById>
   >[];
-  const playing = p.isPlaying && tracks.some((t) => t.id === p.current?.id);
 
   return (
     <div>
@@ -25,17 +28,20 @@ export function LikedSongs() {
         <Art
           src={LIKED_COVER}
           gradient="linear-gradient(135deg,#4a00e0,#b3b3ff)"
-          alt="Liked Songs"
+          alt="Selected achievements"
           className="w-40 h-40 md:w-52 md:h-52 rounded shadow-2xl shrink-0"
         />
         <div>
           <div className="text-xs font-bold uppercase tracking-wide">
-            Playlist
+            Evidence collection
           </div>
-          <h1 className="text-4xl md:text-7xl font-black my-3">Liked Songs</h1>
+          <h1 className="text-4xl md:text-7xl font-black my-3">
+            Selected achievements
+          </h1>
+          <div className="text-sub">{achievementsCollection.description}</div>
           <div className="text-sm">
             <span className="font-bold text-white">Darshil Jain</span> ·{" "}
-            {tracks.length} songs · the achievements on repeat
+            {tracks.length} selected achievements
           </div>
         </div>
       </header>
@@ -43,15 +49,13 @@ export function LikedSongs() {
       <div className="flex items-center gap-6 py-4">
         <PlayButton
           size={56}
-          playing={playing}
-          onClick={() =>
-            playing ? p.toggle() : tracks[0] && p.play(tracks[0], ids)
-          }
+          label="Start Career Mix"
+          onClick={(event) => open(event.currentTarget)}
         />
       </div>
 
       {tracks.map((t, i) => (
-        <TrackRow key={t.id} track={t} index={i} context={ids} />
+        <TrackRow key={t.id} track={t} index={i} />
       ))}
     </div>
   );

@@ -26,7 +26,10 @@ import {
   it,
   vi,
 } from "vitest";
-import { PlayerProvider } from "../player/PlayerContext";
+import {
+  CareerMixProvider,
+  useCareerMix,
+} from "../career-mix/CareerMixContext";
 import { AppShell } from "../shell/AppShell";
 import { MediaCard } from "../shell/MediaCard";
 import { PlayButton } from "../shell/PlayButton";
@@ -111,22 +114,41 @@ const renderShell = async (reduced: boolean) => {
       {
         path: "/",
         element: <AppShell />,
-        children: [{ index: true, element: <h1>Portfolio</h1> }],
+        children: [
+          {
+            index: true,
+            element: (
+              <>
+                <h1>Portfolio</h1>
+                <CareerMixTrigger />
+              </>
+            ),
+          },
+        ],
       },
     ],
     { initialEntries: ["/"] },
   );
 
   const view = render(
-    <PlayerProvider>
+    <CareerMixProvider>
       <RouterProvider router={router} />
-    </PlayerProvider>,
+    </CareerMixProvider>,
   );
   await act(async () => {
     await Promise.resolve();
   });
   return view;
 };
+
+function CareerMixTrigger() {
+  const { open } = useCareerMix();
+  return (
+    <button onClick={(event) => open(event.currentTarget)}>
+      Start Career Mix
+    </button>
+  );
+}
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -184,34 +206,29 @@ describe("editorial motion foundation", () => {
     }
   });
 
-  // Regression: a reduced-motion drawer starting translated or transparent hides final UI before animation settles.
-  it("renders the real reduced-motion drawer in its final visible state", async () => {
+  // Regression: a reduced-motion dock starting translated or transparent hides final UI before animation settles.
+  it("renders the real reduced-motion Career Mix dock in its final visible state", async () => {
     await renderShell(true);
 
-    fireEvent.click(
-      screen.getByRole("button", { name: "Open now playing view" }),
-    );
+    fireEvent.click(screen.getByRole("button", { name: "Start Career Mix" }));
 
-    const sheet = screen
-      .getAllByRole("complementary")
-      .find((panel) => panel.className.includes("h-full"));
-    const motionLayer = sheet?.parentElement;
-
-    expect(motionLayer).toBeInTheDocument();
-    expect(motionLayer?.style.transform).not.toContain("translate");
-    expect(motionLayer?.style.opacity).not.toBe("0");
+    const dock = screen.getByRole("region", { name: "Career Mix" });
+    expect(dock).toBeInTheDocument();
+    expect(dock.style.transform).not.toContain("translate");
+    expect(dock.style.opacity).not.toBe("0");
   });
 
   // Regression: reduced motion that only shortens duration makes hover scaling snap instead of suppressing the transform.
   it("suppresses transform state changes on the real reduced-motion controls", async () => {
     await renderShell(true);
-    const play = screen.getByRole("button", { name: "Play" });
+    fireEvent.click(screen.getByRole("button", { name: "Start Career Mix" }));
+    const pause = screen.getByRole("button", { name: "Pause Career Mix" });
     const cv = screen.getAllByRole("link", { name: "Download CV" })[0];
 
-    play.style.transform = "scale(1.05)";
+    pause.style.transform = "scale(1.05)";
     cv.style.transform = "scale(1.05)";
 
-    expect(getComputedStyle(play).transform).toBe("none");
+    expect(getComputedStyle(pause).transform).toBe("none");
     expect(getComputedStyle(cv).transform).toBe("none");
   });
 
@@ -227,8 +244,8 @@ describe("editorial motion foundation", () => {
   });
 
   // Regression: global Space and arrow shortcuts steal normal scrolling, text navigation, and native control interaction.
-  it("leaves ordinary page keys alone while keeping explicit shell controls working", async () => {
-    const view = await renderShell(false);
+  it("leaves ordinary page keys alone while keeping the explicit Career Mix trigger working", async () => {
+    await renderShell(false);
 
     const space = new KeyboardEvent("keydown", {
       key: " ",
@@ -244,62 +261,72 @@ describe("editorial motion foundation", () => {
     expect(space.defaultPrevented).toBe(false);
     expect(arrow.defaultPrevented).toBe(false);
     expect(
-      view.container.querySelector('button[aria-label="Play"]'),
+      screen.getByRole("button", { name: "Start Career Mix" }),
     ).toBeVisible();
     expect(
-      view.container.querySelector('input[aria-label="Seek"]'),
-    ).toHaveValue("0");
+      screen.queryByRole("region", { name: "Career Mix" }),
+    ).not.toBeInTheDocument();
   });
 
-  // Regression: shell disclosure buttons can remain visible while their panels stop opening or closing.
-  it("keeps the queue disclosure wired to its real panel", async () => {
-    const view = await renderShell(false);
-    const queue = view.container.querySelector<HTMLButtonElement>(
-      'button[aria-label="Queue"]',
-    );
+  // Regression: the shell can accidentally expose dead audio controls even after replacing the visible player.
+  it("keeps simulated playback controls out of the closed product shell", async () => {
+    await renderShell(false);
 
-    expect(queue).toBeVisible();
-    fireEvent.click(queue!);
-    expect(screen.getByRole("heading", { name: "Queue" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Close queue" }));
+    expect(
+      screen.queryByRole("slider", { name: "Seek" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("slider", { name: "Volume" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Shuffle" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { name: "Queue" }),
+    ).not.toBeInTheDocument();
+  });
+
+  // Regression: disconnecting the main scroll handler leaves the sticky header permanently transparent.
+  it("updates the shell header tint from real main-region scrolling", async () => {
+    await renderShell(false);
+    const main = screen.getByRole("main");
+    Object.defineProperty(main, "scrollTop", {
+      configurable: true,
+      value: 280,
+    });
+
+    fireEvent.scroll(main);
+
+    const tint = main.querySelector("header > div[aria-hidden]") as HTMLElement;
+    expect(tint.style.opacity).toBe("1");
+  });
+
+  // Regression: shell integration can render the dock while leaving its transport callbacks disconnected.
+  it("keeps every Career Mix shell control wired to observable state", async () => {
+    await renderShell(false);
+
+    fireEvent.click(screen.getByRole("button", { name: "Start Career Mix" }));
+    await waitFor(() =>
+      expect(screen.getByRole("region", { name: "Career Mix" })).toBeVisible(),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Pause Career Mix" }));
+    expect(
+      screen.getByRole("button", { name: "Play Career Mix" }),
+    ).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "Next chapter" }));
+    expect(screen.getByRole("heading", { name: "Analyze" })).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "Previous chapter" }));
+    expect(screen.getByRole("heading", { name: "Operate" })).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "Close Career Mix" }));
     await waitFor(() =>
       expect(
-        screen.queryByRole("heading", { name: "Queue" }),
+        screen.queryByRole("region", { name: "Career Mix" }),
       ).not.toBeInTheDocument(),
     );
   });
 
-  // Regression: transport callbacks can render correctly while their real controls no longer update player state.
-  it("keeps every player control wired to observable state", async () => {
-    await renderShell(false);
-
-    fireEvent.click(screen.getByRole("button", { name: "Like" }));
-    expect(screen.getByRole("button", { name: "Unlike" })).toBeVisible();
-    fireEvent.click(screen.getByRole("button", { name: "Unlike" }));
-    fireEvent.click(screen.getByRole("button", { name: "Shuffle" }));
-    fireEvent.click(screen.getByRole("button", { name: "Previous" }));
-    fireEvent.click(screen.getByRole("button", { name: "Play" }));
-    fireEvent.click(screen.getByRole("button", { name: "Pause" }));
-    fireEvent.click(screen.getByRole("button", { name: "Next" }));
-
-    const repeat = screen.getByRole("button", { name: "Repeat off" });
-    fireEvent.click(repeat);
-    fireEvent.click(screen.getByRole("button", { name: "Repeat all" }));
-    expect(screen.getByRole("button", { name: "Repeat one" })).toBeVisible();
-
-    fireEvent.change(screen.getByRole("slider", { name: "Seek" }), {
-      target: { value: "12" },
-    });
-    expect(screen.getByRole("slider", { name: "Seek" })).toHaveValue("12");
-    fireEvent.change(screen.getByRole("slider", { name: "Volume" }), {
-      target: { value: "0.5" },
-    });
-    expect(screen.getByRole("slider", { name: "Volume" })).toHaveValue("0.5");
-  });
-
-  // Regression: MediaCard can lose optional content or call navigation instead of its supplied play action.
-  it("renders both MediaCard variants and invokes the real play action", () => {
-    const onPlay = vi.fn();
+  // Regression: a MediaCard can regain a nested fake-play control instead of remaining truthful navigation.
+  it("renders both MediaCard variants as navigation without nested actions", () => {
     const { rerender } = render(
       <MemoryRouter>
         <MediaCard
@@ -308,17 +335,16 @@ describe("editorial motion foundation", () => {
           subtitle="Sourced result"
           gradient="linear-gradient(#000,#111)"
           cover="/cover.png"
-          onPlay={onPlay}
           round
         />
       </MemoryRouter>,
     );
 
     expect(screen.getByText("Sourced result")).toBeVisible();
-    fireEvent.click(
-      screen.getByRole("button", { name: "Play Evidence release" }),
-    );
-    expect(onPlay).toHaveBeenCalledOnce();
+    expect(
+      screen.getByRole("link", { name: /Evidence release/ }),
+    ).toHaveAttribute("href", "/artist");
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
 
     rerender(
       <MemoryRouter>

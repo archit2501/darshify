@@ -1,23 +1,20 @@
 import { useParams } from "react-router-dom";
 import { playlists, trackById } from "../data/library";
-import { usePlayer } from "../player/PlayerContext";
+import { useCareerMix } from "../career-mix/CareerMixContext";
 import { TrackRow } from "../shell/TrackRow";
 import { PlayButton } from "../shell/PlayButton";
 import { Art } from "../shell/Art";
-import { formatTime } from "../lib/format";
 import { NotFound } from "./NotFound";
 
 export function PlaylistPage() {
   const { id } = useParams();
-  const p = usePlayer();
+  const { open } = useCareerMix();
   const pl = playlists.find((x) => x.id === id);
   if (!pl) return <NotFound />;
 
   const tracks = pl.trackIds.map(trackById).filter(Boolean) as NonNullable<
     ReturnType<typeof trackById>
   >[];
-  const total = tracks.reduce((s, t) => s + t.durationSec, 0);
-  const playing = p.isPlaying && tracks.some((t) => t.id === p.current?.id);
 
   return (
     <div>
@@ -35,13 +32,13 @@ export function PlaylistPage() {
         />
         <div>
           <div className="text-xs font-bold uppercase tracking-wide">
-            {pl.kind}
+            Portfolio collection
           </div>
           <h1 className="text-4xl md:text-7xl font-black my-3">{pl.title}</h1>
           <div className="text-sub">{pl.description}</div>
           <div className="text-sm mt-2">
             <span className="font-bold text-white">Darshil Jain</span> ·{" "}
-            {tracks.length} songs · {formatTime(total)}
+            {tracks.length} evidence items
           </div>
         </div>
       </header>
@@ -49,22 +46,18 @@ export function PlaylistPage() {
       <div className="flex items-center gap-6 py-4">
         <PlayButton
           size={56}
-          playing={playing}
-          onClick={() =>
-            playing ? p.toggle() : p.play(tracks[0], pl.trackIds)
-          }
+          label="Start Career Mix"
+          onClick={(event) => open(event.currentTarget)}
         />
       </div>
 
-      <div className="grid grid-cols-[24px_1fr_auto_auto] md:grid-cols-[24px_1.6fr_1fr_auto_auto] gap-4 px-4 py-2 text-sub text-xs border-b border-white/10 mb-2">
+      <div className="grid grid-cols-[24px_1fr_auto] gap-4 px-4 py-2 text-sub text-xs border-b border-white/10 mb-2">
         <span>#</span>
-        <span>Title</span>
-        <span className="hidden md:block">Plays</span>
-        <span />
-        <span className="text-right">⏱</span>
+        <span>Evidence</span>
+        <span className="sr-only">Details</span>
       </div>
       {tracks.map((t, i) => (
-        <TrackRow key={t.id} track={t} index={i} context={pl.trackIds} />
+        <TrackRow key={t.id} track={t} index={i} />
       ))}
     </div>
   );

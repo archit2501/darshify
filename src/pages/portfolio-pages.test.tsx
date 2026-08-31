@@ -1,43 +1,75 @@
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { MemoryRouter, useLocation } from "react-router-dom";
-import { PlayerProvider, usePlayer } from "../player/PlayerContext";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
+import {
+  CareerMixProvider,
+  useCareerMix,
+} from "../career-mix/CareerMixContext";
+import { CareerMixDock } from "../career-mix/CareerMixDock";
+import { MotionProvider } from "../motion/MotionProvider";
 import { ToastProvider } from "../shell/Toast";
 import { ArtistPage } from "./ArtistPage";
 import { Home } from "./Home";
+import { Library } from "./Library";
+import { LikedSongs } from "./LikedSongs";
+import { PlaylistPage } from "./PlaylistPage";
+import { Search } from "./Search";
 
 function RuntimeProbe() {
-  const player = usePlayer();
+  const mix = useCareerMix();
   const { pathname } = useLocation();
   return (
     <>
       <output aria-label="Current route">{pathname}</output>
-      <output aria-label="Player state">
-        {player.current?.title ?? "No track"} ·{" "}
-        {player.isPlaying ? "playing" : "paused"}
-      </output>
+      <output aria-label="Career Mix state">{mix.state.status}</output>
     </>
   );
 }
 
-async function renderPage(page: React.ReactNode) {
-  const view = render(
-    <MemoryRouter>
-      <PlayerProvider>
+function TestRuntime({ children }: { children: React.ReactNode }) {
+  return (
+    <CareerMixProvider>
+      <MotionProvider>
         <ToastProvider>
-          {page}
+          {children}
+          <CareerMixDock />
           <RuntimeProbe />
         </ToastProvider>
-      </PlayerProvider>
-    </MemoryRouter>,
+      </MotionProvider>
+    </CareerMixProvider>
   );
-  await act(async () => {
-    await Promise.resolve();
-  });
-  return view;
 }
 
-const memoryStorage = (): Storage => {
+function expectNoSimulatedMetadata(
+  container: HTMLElement,
+  inventedValues: string[],
+) {
+  for (const inventedValue of inventedValues) {
+    const escapedValue = inventedValue.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const pattern = new RegExp(
+      /^[a-z]+$/i.test(inventedValue) ? `\\b${escapedValue}\\b` : escapedValue,
+      "i",
+    );
+    expect(container).not.toHaveTextContent(pattern);
+    for (const control of container.querySelectorAll("a, button, input")) {
+      expect(control).not.toHaveAccessibleName(pattern);
+    }
+  }
+}
+
+const routedPlaybackFictions = [
+  "EP",
+  "LP",
+  "Playlist",
+  "songs",
+  "on repeat",
+  "essential tracks",
+  "500,000",
+  "4:20",
+  "98,400 monthly listeners",
+];
+
+function memoryStorage(): Storage {
   const values = new Map<string, string>();
   return {
     get length() {
@@ -47,113 +79,249 @@ const memoryStorage = (): Storage => {
     getItem: (key) => values.get(key) ?? null,
     key: (index) => [...values.keys()][index] ?? null,
     removeItem: (key) => values.delete(key),
-    setItem: (key, value) => values.set(key, value),
+    setItem: (key, value) => values.set(key, String(value)),
   };
-};
+}
+
+const renderPage = (page: React.ReactNode, initialEntry = "/") =>
+  render(
+    <MemoryRouter initialEntries={[initialEntry]}>
+      <TestRuntime>{page}</TestRuntime>
+    </MemoryRouter>,
+  );
 
 beforeEach(() => {
   vi.stubGlobal("localStorage", memoryStorage());
-});
-afterEach(() => {
-  vi.unstubAllGlobals();
+  vi.stubGlobal("matchMedia", (query: string) => ({
+    matches: query === "(prefers-reduced-motion: reduce)",
+    media: query,
+    onchange: null,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  }));
 });
 
-describe("legacy portfolio pages inside the semantic shell", () => {
-  // Regression: making a quick-pick play control bubble into its card sends the recruiter away instead of starting the represented track in place.
-  it("keeps Home quick-pick navigation separate from its nested play action", async () => {
-    await renderPage(<Home initialGreeting="Good morning" />);
+afterEach(() => vi.unstubAllGlobals());
 
-    fireEvent.click(screen.getAllByText("Top Skills", { exact: true })[0]);
+describe("routed portfolio pages without the legacy player runtime", () => {
+  it("starts the silent Career Mix from Home and returns focus on close", () => {
+    renderPage(<Home initialGreeting="Good morning" />);
+    const trigger = screen.getByRole("button", { name: "Start Career Mix" });
+
+    fireEvent.click(trigger);
+
+    expect(screen.getByLabelText("Career Mix state")).toHaveTextContent(
+      "playing",
+    );
+    expect(screen.getByRole("region", { name: "Career Mix" })).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "Close Career Mix" }));
+    expect(trigger).toHaveFocus();
+  });
+
+  it("keeps Home cards as truthful evidence navigation without playback framing", () => {
+    const view = renderPage(<Home initialGreeting="Good morning" />);
+
+    expect(
+      screen.getByRole("link", { name: "Selected evidence" }),
+    ).toBeVisible();
+    expect(
+      screen.getAllByText("Operations and recruitment internships.")[0],
+    ).toBeVisible();
+    expect(
+      screen.getAllByRole("link", { name: /Achievements/ })[0],
+    ).toHaveAttribute("href", "/liked");
+    expectNoSimulatedMetadata(view.container, routedPlaybackFictions);
+
+    fireEvent.click(
+      screen.getAllByRole("link", { name: /Skills in context/ })[0],
+    );
     expect(screen.getByLabelText("Current route")).toHaveTextContent(
       "/playlist/skills",
     );
-
-    fireEvent.click(
-      screen.getAllByRole("button", { name: "Play Top Skills" })[0],
-    );
-    expect(screen.getByLabelText("Current route")).toHaveTextContent(
-      "/playlist/skills",
-    );
-    expect(screen.getByLabelText("Player state")).toHaveTextContent(
-      "Market Research · playing",
-    );
+    expect(
+      screen.queryByRole("button", { name: /Play (Top Skills|Experience)/ }),
+    ).not.toBeInTheDocument();
   });
 
-  // Regression: any Home shelf can retain its cards while its distinct play callback stops selecting the evidence represented by that shelf.
-  it("starts the hand-checked track represented by every Home shelf family", async () => {
-    await renderPage(<Home initialGreeting="Good morning" />);
+  it("renders Library with professional collection categories and truthful navigation", () => {
+    const view = renderPage(<Library />, "/library");
 
-    fireEvent.click(
-      screen.getAllByRole("button", { name: "Play Experience" })[1],
+    expect(
+      screen.getByRole("heading", { name: "Evidence library" }),
+    ).toBeVisible();
+    expect(screen.getByRole("link", { name: /Experience/ })).toHaveAttribute(
+      "href",
+      "/playlist/experience",
     );
-    expect(screen.getByLabelText("Player state")).toHaveTextContent(
-      "Operations Internship at Figmenta · playing",
-    );
+    expect(
+      screen.getByText("Operations and recruitment internships."),
+    ).toBeVisible();
+    expectNoSimulatedMetadata(view.container, routedPlaybackFictions);
 
-    fireEvent.click(
-      screen.getByRole("button", { name: "Play Market Research" }),
-    );
-    expect(screen.getByLabelText("Player state")).toHaveTextContent(
-      "Market Research · playing",
-    );
+    fireEvent.click(screen.getByRole("button", { name: "Collections" }));
+    expect(
+      screen.queryByRole("link", { name: /Candidate profile/ }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Experience/ })).toBeVisible();
 
-    fireEvent.click(
-      screen.getAllByRole("button", { name: "Play This Is Darshil" })[1],
+    fireEvent.click(screen.getByRole("button", { name: "Achievements" }));
+    expect(screen.getByRole("link", { name: /Achievements/ })).toHaveAttribute(
+      "href",
+      "/liked",
     );
-    expect(screen.getByLabelText("Player state")).toHaveTextContent(
-      "Market Research · playing",
-    );
+    expect(
+      screen.queryByRole("link", { name: /Experience/ }),
+    ).not.toBeInTheDocument();
 
-    fireEvent.click(
-      screen.getAllByRole("button", { name: "Play Experience" })[2],
-    );
-    expect(screen.getByLabelText("Player state")).toHaveTextContent(
-      "Operations Internship at Figmenta · playing",
-    );
+    fireEvent.click(screen.getByRole("button", { name: "All" }));
+    const search = screen.getByRole("textbox", {
+      name: "Search evidence library",
+    });
+    fireEvent.change(search, { target: { value: "Projects" } });
+    expect(screen.getByRole("link", { name: /Projects/ })).toBeVisible();
+    expect(
+      screen.queryByRole("link", { name: /Experience/ }),
+    ).not.toBeInTheDocument();
+
+    fireEvent.change(search, { target: { value: "" } });
+    fireEvent.click(screen.getByRole("button", { name: /Recents/ }));
+    fireEvent.click(screen.getByRole("button", { name: "A–Z" }));
+    expect(screen.getByRole("button", { name: /A–Z/ })).toBeVisible();
+
+    fireEvent.click(screen.getByRole("button", { name: /A–Z/ }));
+    fireEvent.click(window);
+    expect(screen.queryByRole("menu")).not.toBeInTheDocument();
   });
 
-  // Regression: the candidate page can render its proof rows while profile state or recruiter links stop working.
-  it("keeps Artist profile and conversion interactions operable", async () => {
-    await renderPage(<ArtistPage />);
+  it("renders Artist without PlayerProvider and rewires its primary action", () => {
+    const view = renderPage(<ArtistPage />);
 
     expect(
       screen.getByRole("heading", { level: 1, name: "Darshil Jain" }),
     ).toBeVisible();
-    expect(screen.getByRole("link", { name: "Download CV" })).toHaveAttribute(
+    expect(
+      screen.queryByRole("button", { name: "Follow" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /Like|Unlike/ }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText("Figmenta · Jan 2026 – Feb 2026")).toBeVisible();
+    expectNoSimulatedMetadata(view.container, [
+      "98,400 monthly listeners",
+      "500,000",
+      "4:20",
+      "920,000",
+      "3:52",
+    ]);
+    fireEvent.click(screen.getByRole("button", { name: "Start Career Mix" }));
+    expect(screen.getByLabelText("Career Mix state")).toHaveTextContent(
+      "playing",
+    );
+  });
+
+  it("renders a collection without PlayerProvider, playback, likes, or queue", () => {
+    const view = render(
+      <MemoryRouter initialEntries={["/playlist/experience"]}>
+        <TestRuntime>
+          <Routes>
+            <Route path="/playlist/:id" element={<PlaylistPage />} />
+          </Routes>
+        </TestRuntime>
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole("heading", { name: "Experience" })).toBeVisible();
+    expect(screen.getByText("Figmenta · Jan 2026 – Feb 2026")).toBeVisible();
+    expectNoSimulatedMetadata(view.container, ["500,000", "4:20", "12:20"]);
+    expect(screen.queryByText("Plays")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /^Play / }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /Like|Unlike/ }),
+    ).not.toBeInTheDocument();
+    fireEvent.contextMenu(
+      screen.getByText("Operations Internship at Figmenta"),
+    );
+    expect(screen.queryByText("Add to queue")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Start Career Mix" }));
+    expect(screen.getByLabelText("Career Mix state")).toHaveTextContent(
+      "playing",
+    );
+  });
+
+  it("renders Search results as proof without simulated skill metrics", () => {
+    const view = renderPage(<Search />, "/search");
+
+    fireEvent.change(
+      screen.getByRole("textbox", {
+        name: "Search experience, skills, and proof",
+      }),
+      { target: { value: "Market Research" } },
+    );
+
+    expect(screen.getByText("Top Skills")).toBeVisible();
+    expect(
+      screen.getByRole("link", { name: "Market Research" }),
+    ).toHaveAttribute("href", "/artist");
+    expectNoSimulatedMetadata(view.container, ["920,000", "3:52"]);
+  });
+
+  it("supports recent and empty Search states without presenting collection playback types", () => {
+    renderPage(<Search />, "/search");
+    const input = screen.getByRole("textbox", {
+      name: "Search experience, skills, and proof",
+    });
+
+    fireEvent.change(input, { target: { value: "Market Research" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    fireEvent.change(input, { target: { value: "" } });
+    expect(
+      screen.getByRole("heading", { name: "Recent searches" }),
+    ).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "Market Research" }));
+    expect(screen.getByRole("heading", { name: "Evidence" })).toBeVisible();
+
+    fireEvent.change(input, { target: { value: "" } });
+    fireEvent.click(screen.getByRole("button", { name: "Clear" }));
+    expect(
+      screen.queryByRole("heading", { name: "Recent searches" }),
+    ).not.toBeInTheDocument();
+
+    fireEvent.change(input, { target: { value: "no matching proof" } });
+    expect(
+      screen.getByText("No results for “no matching proof”"),
+    ).toBeVisible();
+
+    fireEvent.change(input, { target: { value: "Experience" } });
+    expect(screen.getByRole("link", { name: /Experience/ })).toHaveAttribute(
       "href",
-      "/Darshil_Jain_Resume.pdf",
+      "/playlist/experience",
     );
-
-    fireEvent.click(screen.getByRole("button", { name: "Follow" }));
-    expect(screen.getByRole("button", { name: "Following" })).toBeVisible();
-    fireEvent.click(screen.getByRole("button", { name: "Following" }));
-    expect(screen.getByRole("button", { name: "Follow" })).toBeVisible();
+    expect(screen.queryByText("EP")).not.toBeInTheDocument();
   });
 
-  // Regression: the prominent Artist transport can stop selecting and toggling its represented evidence.
-  it("keeps the Artist primary transport wired to player state", async () => {
-    await renderPage(<ArtistPage />);
-    fireEvent.click(screen.getByRole("button", { name: /^Play$/ }));
-    expect(screen.getByRole("button", { name: /^Pause$/ })).toBeVisible();
-    expect(screen.getByLabelText("Player state")).toHaveTextContent(
-      "Market Research · playing",
-    );
-    fireEvent.click(screen.getByRole("button", { name: /^Pause$/ }));
-    expect(screen.getByLabelText("Player state")).toHaveTextContent(
-      "Market Research · paused",
-    );
-  });
+  it("renders the liked alias as truthful selected evidence without playback framing", () => {
+    const view = renderPage(<LikedSongs />, "/liked");
 
-  // Regression: the Artist collection can remain visible while its play control no longer selects the represented role evidence.
-  it("starts Artist collection playback with its represented evidence", async () => {
-    await renderPage(<ArtistPage />);
-    fireEvent.click(screen.getByRole("button", { name: "Play Experience" }));
-    expect(screen.getByLabelText("Player state")).toHaveTextContent(
-      "Operations Internship at Figmenta · playing",
-    );
-    fireEvent.click(screen.getByRole("button", { name: /^Pause$/ }));
-    expect(screen.getByLabelText("Player state")).toHaveTextContent(
-      "Operations Internship at Figmenta · paused",
+    expect(
+      screen.getByRole("heading", { name: "Selected achievements" }),
+    ).toBeVisible();
+    expect(
+      screen.getByText(
+        "Competition results listed in the candidate-provided résumé.",
+      ),
+    ).toBeVisible();
+    expectNoSimulatedMetadata(view.container, routedPlaybackFictions);
+    expect(
+      screen.queryByRole("button", { name: /Like|Unlike/ }),
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Start Career Mix" }));
+    expect(screen.getByLabelText("Career Mix state")).toHaveTextContent(
+      "playing",
     );
   });
 });

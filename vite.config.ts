@@ -10,7 +10,6 @@ const designSystemRuntime = [
   "src/shell/AppShell.tsx",
   "src/shell/MediaCard.tsx",
   "src/shell/PlayButton.tsx",
-  "src/shell/PlayerBar.tsx",
   "src/shell/Sidebar.tsx",
   "src/shell/TopBar.tsx",
 ];
@@ -19,13 +18,22 @@ const semanticShellRuntime = [
   "src/icons/icons.tsx",
   "src/pages/ArtistPage.tsx",
   "src/pages/Home.tsx",
+  "src/pages/Library.tsx",
+  "src/pages/LikedSongs.tsx",
+  "src/pages/PlaylistPage.tsx",
+  "src/pages/Search.tsx",
   "src/shell/BottomNav.tsx",
   "src/shell/RouteFocus.tsx",
   "src/shell/SkipLink.tsx",
 ];
 const cumulativeRedesignRuntime = [
+  "app/root.tsx",
+  "app/routes/collection.tsx",
   ...designSystemRuntime,
   ...semanticShellRuntime,
+  "src/career-mix/CareerMixContext.tsx",
+  "src/career-mix/CareerMixDock.tsx",
+  "src/career-mix/reducer.ts",
   "src/components/EvidenceCover.tsx",
   "src/components/ProofWaveform.tsx",
   "src/content/artifactFallback.ts",
@@ -33,6 +41,7 @@ const cumulativeRedesignRuntime = [
   "src/content/waveform.ts",
   "src/data/library.ts",
   "src/shell/Art.tsx",
+  "src/shell/TrackRow.tsx",
 ];
 const coverageRuntime =
   coverageScope === "redesign"

@@ -7,7 +7,7 @@ export function PlayButton({
   label = "Play",
 }: {
   playing?: boolean;
-  onClick?: (e: React.MouseEvent) => void;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   size?: number;
   label?: string;
 }) {

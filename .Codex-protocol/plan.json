@@ -207,7 +207,7 @@
               "dependencies": ["2.2.1"],
               "smokeTest": "npm test -- src/components/ProofWaveform.test.tsx src/components/EvidenceCover.test.tsx && npm run lint && npm run type-check && npm run build",
               "ciJobs": ["quality", "test", "build"],
-              "status": "in_progress",
+              "status": "done",
               "criticalPath": false
             }
           ]
@@ -237,7 +237,7 @@
               "dependencies": ["2.2.1", "1.2.1"],
               "smokeTest": "npm test -- src/career-mix && npm run lint && npm run type-check && npm run build",
               "ciJobs": ["quality", "test", "build"],
-              "status": "todo",
+              "status": "in_progress",
               "criticalPath": true
             }
           ]
