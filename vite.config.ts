@@ -10,7 +10,6 @@ const designSystemRuntime = [
   "src/shell/AppShell.tsx",
   "src/shell/MediaCard.tsx",
   "src/shell/PlayButton.tsx",
-  "src/shell/PlayerBar.tsx",
   "src/shell/Sidebar.tsx",
   "src/shell/TopBar.tsx",
 ];
@@ -26,6 +25,9 @@ const semanticShellRuntime = [
 const cumulativeRedesignRuntime = [
   ...designSystemRuntime,
   ...semanticShellRuntime,
+  "src/career-mix/CareerMixContext.tsx",
+  "src/career-mix/CareerMixDock.tsx",
+  "src/career-mix/reducer.ts",
   "src/components/EvidenceCover.tsx",
   "src/components/ProofWaveform.tsx",
   "src/content/artifactFallback.ts",

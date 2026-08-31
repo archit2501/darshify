@@ -8,6 +8,7 @@ import {
   type LinksFunction,
 } from "react-router";
 import "../src/index.css";
+import { CareerMixProvider } from "../src/career-mix/CareerMixContext";
 import { PlayerProvider } from "../src/player/PlayerContext";
 import { AppShell } from "../src/shell/AppShell";
 import { ToastProvider } from "../src/shell/Toast";
@@ -49,9 +50,11 @@ export default function Root() {
   return (
     <>
       <PlayerProvider>
-        <ToastProvider>
-          <AppShell />
-        </ToastProvider>
+        <CareerMixProvider>
+          <ToastProvider>
+            <AppShell />
+          </ToastProvider>
+        </CareerMixProvider>
       </PlayerProvider>
       <HydrationMarker />
     </>

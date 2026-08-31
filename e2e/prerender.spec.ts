@@ -221,13 +221,10 @@ test("hydration regression: timezone, local storage, and reduced motion do not a
       name: greetingInTimezone(timezoneId!),
     }),
   ).toBeVisible();
-  await expect(page.getByLabel("Volume")).toHaveAttribute(
-    "aria-valuetext",
-    "35 percent",
-  );
-  await expect(page.getByLabel("Toggle ambient audio")).toHaveClass(
-    /text-accent/,
-  );
+  await expect(page.locator('[data-reduced-motion="true"]')).toBeVisible();
+  await expect(page.getByRole("region", { name: "Career Mix" })).toHaveCount(0);
+  await expect(page.getByLabel("Volume")).toHaveCount(0);
+  await expect(page.getByLabel("Toggle ambient audio")).toHaveCount(0);
 
   await page.goto("/search", { waitUntil: "networkidle" });
   await expect(page.getByText("Recent searches")).toBeVisible();
