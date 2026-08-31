@@ -306,7 +306,7 @@
               "dependencies": ["3.1.1"],
               "smokeTest": "npm test -- src/pages/ArtistPage.test.tsx src/components/ProofTrackRow.test.tsx src/components/ReleaseCard.test.tsx && npm run lint && npm run type-check && npm run build",
               "ciJobs": ["quality", "test", "build"],
-              "status": "in_progress",
+              "status": "done",
               "criticalPath": true
             }
           ]
@@ -337,7 +337,7 @@
               "dependencies": ["3.2.1"],
               "smokeTest": "npm test -- src/pages/CaseStudyPage.test.tsx && npm run build && npm run test:e2e -- e2e/case-studies.spec.ts e2e/prerender.spec.ts",
               "ciJobs": ["quality", "test", "build", "browser"],
-              "status": "todo",
+              "status": "in_progress",
               "criticalPath": true
             }
           ]
