@@ -40,6 +40,15 @@ export interface Artifact {
   provenance: string;
   sourceIds: string[];
   status: EvidenceStatus;
+  image?: {
+    src: string;
+    width: number;
+    height: number;
+    variants?: Array<{
+      src: string;
+      width: number;
+    }>;
+  };
 }
 
 export interface CaseStudy {

@@ -24,6 +24,7 @@ export function ArtistPage() {
           src={ARTIST_HERO}
           gradient={artist.gradient}
           className="absolute inset-0 w-full h-full"
+          priority
         />
         <div
           className="absolute inset-0"

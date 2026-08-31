@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800" role="img" aria-labelledby="title description">
+  <title id="title">Darshil Jain profile evidence cover</title>
+  <desc id="description">Fact-led profile cover showing 500 plus résumés screened, self-reported in Darshil Jain's résumé.</desc>
+  <rect width="800" height="800" fill="#1b1b1b"/>
+  <rect width="18" height="800" fill="#1ed760"/>
+  <g font-family="Arial, sans-serif">
+    <text x="64" y="118" fill="#b3b3b3" font-size="24" font-weight="700" letter-spacing="3">EVIDENCE PORTFOLIO</text>
+    <text x="64" y="296" fill="#f7f7f5" font-size="72" font-weight="800">Darshil</text>
+    <text x="64" y="376" fill="#f7f7f5" font-size="72" font-weight="800">Jain</text>
+    <text x="64" y="590" fill="#1ed760" font-family="monospace" font-size="48" font-weight="700">500+ résumés</text>
+    <text x="64" y="642" fill="#b3b3b3" font-family="monospace" font-size="20">screened · self-reported</text>
+  </g>
+</svg>

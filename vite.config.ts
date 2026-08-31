@@ -26,6 +26,12 @@ const semanticShellRuntime = [
 const cumulativeRedesignRuntime = [
   ...designSystemRuntime,
   ...semanticShellRuntime,
+  "src/components/EvidenceCover.tsx",
+  "src/components/ProofWaveform.tsx",
+  "src/content/portfolio.ts",
+  "src/content/waveform.ts",
+  "src/data/library.ts",
+  "src/shell/Art.tsx",
 ];
 const coverageRuntime =
   coverageScope === "redesign"

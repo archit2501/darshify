@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800" role="img" aria-labelledby="title description">
+  <title id="title">IIT Guwahati consulting project evidence cover</title>
+  <desc id="description">Fact-led project cover showing top 10 percent program recognition, self-reported in Darshil Jain's résumé.</desc>
+  <rect width="800" height="800" fill="#1b1b1b"/>
+  <rect width="18" height="800" fill="#1ed760"/>
+  <g font-family="Arial, sans-serif">
+    <text x="64" y="122" fill="#b3b3b3" font-size="26" font-weight="700" letter-spacing="4">PROJECT</text>
+    <text x="64" y="276" fill="#f7f7f5" font-size="58" font-weight="800">IIT Guwahati</text>
+    <text x="64" y="342" fill="#f7f7f5" font-size="38" font-weight="700">Consulting &amp; Analytics Club</text>
+    <text x="64" y="566" fill="#1ed760" font-family="monospace" font-size="80" font-weight="700">TOP 10%</text>
+    <text x="64" y="624" fill="#f7f7f5" font-family="monospace" font-size="26">program recognition</text>
+    <text x="64" y="682" fill="#b3b3b3" font-family="monospace" font-size="19">Dec 2025–Jan 2026 · self-reported</text>
+  </g>
+</svg>

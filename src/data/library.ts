@@ -209,17 +209,17 @@ export const likedTrackIds =
     .find((item) => item.id === "achievements")
     ?.caseStudyIds.slice() ?? [];
 
-// Generated cover art retained until the view migration is complete.
-export const LIKED_COVER = "/covers/liked.png";
-export const ARTIST_HERO = "/covers/artist-hero.png";
-export const AVATAR = "/covers/avatar.png";
+// Fact-led SVG adapters retained until the legacy views consume Artifact directly.
+export const LIKED_COVER = "/artifacts/achievements.svg";
+export const ARTIST_HERO = "/artifacts/profile-wide.svg";
+export const AVATAR = "/artifacts/profile-square.svg";
 
 const coverByKind: Record<Kind, string> = {
-  skill: "/covers/skills.png",
-  role: "/covers/experience.png",
-  project: "/covers/projects.png",
-  achievement: "/covers/liked.png",
-  cert: "/covers/certs.png",
+  skill: "/artifacts/skills.svg",
+  role: "/artifacts/experience.svg",
+  project: "/artifacts/projects.svg",
+  achievement: "/artifacts/achievements.svg",
+  cert: "/artifacts/certifications.svg",
 };
 
 /** @deprecated Covers are owned by portfolio collections. */

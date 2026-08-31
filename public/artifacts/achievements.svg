@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800" role="img" aria-labelledby="title description">
+  <title id="title">IIM Calcutta Product Decode achievement evidence cover</title>
+  <desc id="description">Fact-led achievement cover showing fourth position nationally, self-reported in Darshil Jain's résumé.</desc>
+  <rect width="800" height="800" fill="#1b1b1b"/>
+  <rect width="18" height="800" fill="#1ed760"/>
+  <g font-family="Arial, sans-serif">
+    <text x="64" y="122" fill="#b3b3b3" font-size="26" font-weight="700" letter-spacing="4">ACHIEVEMENT</text>
+    <text x="64" y="286" fill="#f7f7f5" font-size="62" font-weight="800">IIM Calcutta</text>
+    <text x="64" y="354" fill="#f7f7f5" font-size="38" font-weight="700">Product Decode</text>
+    <text x="64" y="566" fill="#1ed760" font-family="monospace" font-size="74" font-weight="700">4 position</text>
+    <text x="64" y="624" fill="#f7f7f5" font-family="monospace" font-size="26">national placement</text>
+    <text x="64" y="682" fill="#b3b3b3" font-family="monospace" font-size="19">date not listed · résumé · self-reported</text>
+  </g>
+</svg>
