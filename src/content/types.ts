@@ -67,6 +67,7 @@ export interface CaseStudy {
   situation: string;
   actions: string[];
   result: string;
+  featuredProofId: string | null;
   proofIds: string[];
   artifactIds: string[];
   skills: string[];

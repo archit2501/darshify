@@ -6,9 +6,71 @@ import { validatePortfolio } from "./validate";
 const candidateArtwork = (candidate: typeof portfolio.candidate) =>
   candidate.profileArtwork;
 
+const expectedFeaturedProofByCaseId: Record<string, string | null> = {
+  r1: "figmenta-resumes",
+  r2: "psr-clients",
+  r3: "mj-profiles",
+  p1: null,
+  p2: "iitg-participant-percentile",
+  p3: null,
+  p4: "zomato-metrics",
+  l1: "converge-participants",
+  a1: null,
+  a2: "product-decode-rank",
+  a3: null,
+  a4: "iitg-participant-percentile",
+  e1: "bba-cgpa",
+  e2: "class-xii-percentage",
+  c1: null,
+  c2: "iitg-participant-percentile",
+  c3: null,
+};
+
+const featuredProofId = (caseStudy: (typeof portfolio.caseStudies)[number]) =>
+  caseStudy.featuredProofId;
+
 describe("portfolio content", () => {
   it("has no unresolved references or unsupported quantitative claims", () => {
     expect(validatePortfolio(portfolio)).toEqual([]);
+  });
+
+  it("authors the strongest canonical featured proof independently of proof order", () => {
+    for (const caseStudy of portfolio.caseStudies) {
+      expect(featuredProofId(caseStudy), caseStudy.id).toBe(
+        expectedFeaturedProofByCaseId[caseStudy.id],
+      );
+    }
+  });
+
+  it("rejects missing, non-member, and differently sourced featured proofs", () => {
+    const missing = structuredClone(portfolio);
+    Object.assign(missing.caseStudies[0], { featuredProofId: undefined });
+    expect(validatePortfolio(missing)).toContain(
+      "Case study r1 is missing a featured proof",
+    );
+
+    const nonMember = structuredClone(portfolio);
+    Object.assign(nonMember.caseStudies[0], { featuredProofId: "psr-clients" });
+    expect(validatePortfolio(nonMember)).toContain(
+      "Case study r1 featured proof psr-clients is not a member of its proof IDs",
+    );
+
+    const differentlySourced = structuredClone(portfolio);
+    differentlySourced.sources.push({
+      id: "independent-source",
+      title: "Independent source",
+      kind: "public-link",
+      note: "A valid but unrelated source.",
+    });
+    const selectedProof = differentlySourced.proofPoints.find(
+      (proof) => proof.id === "figmenta-resumes",
+    );
+    expect(selectedProof).toBeDefined();
+    if (!selectedProof) return;
+    selectedProof.sourceIds = ["independent-source"];
+    expect(validatePortfolio(differentlySourced)).toContain(
+      "Case study r1 featured proof figmenta-resumes does not share provenance with its artifacts",
+    );
   });
 
   it("contains no simulated popularity or playback fields", () => {

@@ -32,6 +32,7 @@ const cumulativeRedesignRuntime = [
   "app/routes/collection.tsx",
   "app/routes/case-study.tsx",
   "app/routes/home.tsx",
+  "app/routes/not-found.tsx",
   ...designSystemRuntime,
   ...semanticShellRuntime,
   "src/career-mix/CareerMixContext.tsx",

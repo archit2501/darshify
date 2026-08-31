@@ -38,7 +38,9 @@ export function CaseStudyPage({ caseStudy }: { caseStudy: CaseStudy }) {
     caseStudy.id,
   );
   const primaryArtifact = artifacts[0];
-  const primaryProof = proofs[0];
+  const primaryProof = caseStudy.featuredProofId
+    ? proofById(caseStudy.featuredProofId)
+    : undefined;
   const primarySourceId =
     primaryProof?.sourceIds[0] ?? primaryArtifact?.sourceIds[0];
   const primarySource = primarySourceId

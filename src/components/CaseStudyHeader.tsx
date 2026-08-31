@@ -50,6 +50,9 @@ export function CaseStudyHeader({
           {proof && (
             <p className="mt-2 font-evidence text-section-title font-bold leading-none text-signal">
               {formatProofValue(proof)}
+              <span className="ml-2 align-middle text-utility text-text">
+                {proof.label}
+              </span>
             </p>
           )}
           <p className="mt-2 text-metadata leading-relaxed text-text">

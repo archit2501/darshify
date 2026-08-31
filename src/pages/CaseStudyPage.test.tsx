@@ -8,7 +8,48 @@ import {
 } from "react-router";
 import { portfolio } from "../content/portfolio";
 import { artifactById, proofById, sourceById } from "../content/selectors";
+import { formatProofValue } from "../content/waveform";
 import CaseStudyRoute, { loader, meta } from "../../app/routes/case-study";
+
+const expectedFeaturedProofByCaseId: Record<string, string | undefined> = {
+  r1: "figmenta-resumes",
+  r2: "psr-clients",
+  r3: "mj-profiles",
+  p1: undefined,
+  p2: "iitg-participant-percentile",
+  p3: undefined,
+  p4: "zomato-metrics",
+  l1: "converge-participants",
+  a1: undefined,
+  a2: "product-decode-rank",
+  a3: undefined,
+  a4: "iitg-participant-percentile",
+  e1: "bba-cgpa",
+  e2: "class-xii-percentage",
+  c1: undefined,
+  c2: "iitg-participant-percentile",
+  c3: undefined,
+};
+
+const expectedRelatedCaseIds: Record<string, string[]> = {
+  r1: ["r2", "r3"],
+  r2: ["r1", "r3"],
+  r3: ["r1", "r2"],
+  p1: ["p2", "p3"],
+  p2: ["a4", "c2"],
+  p3: ["p1", "p4"],
+  p4: ["p2", "p3"],
+  l1: ["r1", "p1"],
+  a1: ["a2", "a3"],
+  a2: ["a1", "a3"],
+  a3: ["a1", "a2"],
+  a4: ["p2", "c2"],
+  e1: ["e2", "c3"],
+  e2: ["e1"],
+  c1: ["c2", "c3"],
+  c2: ["p2", "a4"],
+  c3: ["c1", "e1"],
+};
 
 const loaderArgs = (slug: string) =>
   ({
@@ -55,8 +96,10 @@ describe("case-study pages", () => {
       expect(header).toHaveTextContent(caseStudy.recruiterTakeaway);
       expect(header).toHaveTextContent(caseStudy.result);
 
-      const proof = caseStudy.proofIds[0]
-        ? proofById(caseStudy.proofIds[0])
+      const expectedFeaturedProofId =
+        expectedFeaturedProofByCaseId[caseStudy.id];
+      const proof = expectedFeaturedProofId
+        ? proofById(expectedFeaturedProofId)
         : undefined;
       const artifact = artifactById(caseStudy.artifactIds[0]);
       const sourceId = proof?.sourceIds[0] ?? artifact?.sourceIds[0];
@@ -67,6 +110,10 @@ describe("case-study pages", () => {
       expect(expectedStatus).toBeDefined();
       expect(header).toHaveTextContent(source!.title);
       expect(header).toHaveTextContent(expectedStatus!);
+      if (proof) {
+        expect(header).toHaveTextContent(proof.label);
+        expect(header).toHaveTextContent(formatProofValue(proof));
+      }
 
       const sections = ["Situation", "Action", "Result", "Evidence"].map(
         (name) =>
@@ -96,6 +143,36 @@ describe("case-study pages", () => {
       expect(
         within(article!).getByRole("link", { name: "Email" }),
       ).toHaveAttribute("href", `mailto:${portfolio.candidate.email}`);
+    },
+  );
+
+  it.each(portfolio.caseStudies)(
+    "provides stable, valid related-case navigation for $slug",
+    async (caseStudy) => {
+      renderCaseStudy(caseStudy.slug);
+
+      await screen.findByRole("heading", {
+        level: 1,
+        name: caseStudy.title,
+      });
+      const related = screen.getByRole("region", {
+        name: "Related case studies",
+      });
+      const expectedIds = expectedRelatedCaseIds[caseStudy.id];
+      expect(expectedIds.length).toBeGreaterThan(0);
+      expect(expectedIds).not.toContain(caseStudy.id);
+      const links = within(related).getAllByRole("link");
+      expect(links).toHaveLength(expectedIds.length);
+      const expectedHrefs = expectedIds.map((relatedId) => {
+        const expected = portfolio.caseStudies.find(
+          (candidate) => candidate.id === relatedId,
+        );
+        expect(expected).toBeDefined();
+        return `/case-studies/${expected!.slug}`;
+      });
+      expect(links.map((link) => link.getAttribute("href"))).toEqual(
+        expectedHrefs,
+      );
     },
   );
 

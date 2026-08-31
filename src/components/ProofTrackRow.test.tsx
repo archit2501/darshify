@@ -23,7 +23,7 @@ describe("ProofTrackRow", () => {
       }),
     ).toBeVisible();
     expect(screen.getByText("Figmenta · Jan 2026 – Feb 2026")).toBeVisible();
-    expect(screen.getByText("35+ projects")).toBeVisible();
+    expect(screen.getByText("500+ résumés")).toBeVisible();
     expect(screen.getByText("Darshil Jain résumé")).toBeVisible();
     expect(screen.getByText("self-reported")).toBeVisible();
     expect(screen.getByText(/^Outcome:/).parentElement).toHaveTextContent(
