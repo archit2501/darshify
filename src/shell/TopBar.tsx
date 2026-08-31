@@ -28,21 +28,22 @@ export function TopBar({ scrollY = 0 }: { scrollY?: number }) {
       <button
         onClick={() => nav(-1)}
         aria-label="Back"
-        className="grid place-items-center w-8 h-8 rounded-full bg-black/60 text-white hover:bg-black"
+        className="grid place-items-center w-11 h-11 rounded-full bg-black/60 text-white hover:bg-black"
       >
         ‹
       </button>
       <button
         onClick={() => nav(1)}
         aria-label="Forward"
-        className="grid place-items-center w-8 h-8 rounded-full bg-black/60 text-white hover:bg-black"
+        className="grid place-items-center w-11 h-11 rounded-full bg-black/60 text-white hover:bg-black"
       >
         ›
       </button>
       <a
         href="/Darshil_Jain_Resume.pdf"
         download
-        className="ml-auto hidden sm:inline bg-white text-black text-sm font-bold rounded-full px-4 py-1.5 hover:scale-105 transition-transform"
+        data-motion-transform
+        className="interactive-target ml-auto hidden sm:inline-flex items-center justify-center bg-white text-black text-sm font-bold rounded-full px-4 motion-safe:hover:scale-105 transition-transform"
       >
         Download CV
       </a>

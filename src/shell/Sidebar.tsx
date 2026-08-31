@@ -98,7 +98,8 @@ export function Sidebar() {
         <a
           href="/Darshil_Jain_Resume.pdf"
           download
-          className="mt-4 block text-center border border-sub/40 rounded-full py-2 font-bold text-white hover:border-white hover:scale-[1.02] transition-transform"
+          data-motion-transform
+          className="interactive-target mt-4 flex items-center justify-center text-center border border-sub/40 rounded-full font-bold text-white hover:border-white motion-safe:hover:scale-[1.02] transition-transform"
         >
           ↓ Download CV
         </a>

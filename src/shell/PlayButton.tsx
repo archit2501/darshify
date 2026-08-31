@@ -15,7 +15,8 @@ export function PlayButton({
     <button
       onClick={onClick}
       aria-label={playing ? "Pause" : label}
-      className="grid place-items-center rounded-full bg-accent text-black shadow-lg hover:scale-105 active:scale-95 transition-transform"
+      data-motion-transform
+      className="grid place-items-center rounded-full bg-accent text-black shadow-lg motion-safe:hover:scale-105 motion-safe:active:scale-95 transition-transform"
       style={{ width: size, height: size }}
     >
       {playing ? (

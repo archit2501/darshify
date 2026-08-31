@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "motion/react";
 import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
 import { PlayerBar } from "./PlayerBar";
@@ -9,6 +9,7 @@ import { NowPlayingPanel } from "./NowPlayingPanel";
 import { BottomNav } from "./BottomNav";
 import { usePlayer } from "../player/PlayerContext";
 import { useReducedMotion } from "../lib/useReducedMotion";
+import { MotionProvider } from "../motion/MotionProvider";
 
 function isTyping(el: EventTarget | null) {
   const t = el as HTMLElement | null;
@@ -65,7 +66,7 @@ export function AppShell() {
   }, [p]);
 
   const slide = reduced
-    ? {}
+    ? { initial: false as const }
     : {
         initial: { x: 40, opacity: 0 },
         animate: { x: 0, opacity: 1 },
@@ -74,60 +75,68 @@ export function AppShell() {
       };
 
   return (
-    <div className="h-screen flex flex-col bg-bg">
-      <div className="flex-1 flex min-h-0 gap-0">
-        <Sidebar />
-        <main
-          ref={mainRef}
-          onScroll={(e) => setScrollY((e.target as HTMLElement).scrollTop)}
-          className="flex-1 min-w-0 m-2 rounded-lg overflow-y-auto bg-panel relative"
-        >
-          <TopBar scrollY={scrollY} />
-          <div className="px-4 md:px-6 pb-8">
-            <Outlet />
-          </div>
-        </main>
+    <MotionProvider>
+      <div
+        className="h-screen flex flex-col bg-bg"
+        data-reduced-motion={reduced}
+      >
+        <div className="flex-1 flex min-h-0 gap-0">
+          <Sidebar />
+          <main
+            ref={mainRef}
+            onScroll={(e) => setScrollY((e.target as HTMLElement).scrollTop)}
+            className="flex-1 min-w-0 m-2 rounded-lg overflow-y-auto bg-panel relative"
+          >
+            <TopBar scrollY={scrollY} />
+            <div className="px-4 md:px-6 pb-8">
+              <Outlet />
+            </div>
+          </main>
+          <AnimatePresence>
+            {npOpen && (
+              <m.div key="np" {...slide} className="hidden lg:block">
+                <NowPlayingPanel onClose={() => setNpOpen(false)} />
+              </m.div>
+            )}
+            {queueOpen && (
+              <m.div key="q" {...slide} className="hidden lg:block">
+                <QueuePanel onClose={() => setQueueOpen(false)} />
+              </m.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        <PlayerBar
+          onToggleQueue={() => {
+            setQueueOpen((q) => !q);
+            setNpOpen(false);
+          }}
+          onOpenNowPlaying={() => {
+            setNpOpen((n) => !n);
+            setQueueOpen(false);
+          }}
+        />
+        <BottomNav />
+
+        {/* mobile full-screen now-playing sheet */}
         <AnimatePresence>
           {npOpen && (
-            <motion.div key="np" {...slide} className="hidden lg:block">
-              <NowPlayingPanel onClose={() => setNpOpen(false)} />
-            </motion.div>
-          )}
-          {queueOpen && (
-            <motion.div key="q" {...slide} className="hidden lg:block">
-              <QueuePanel onClose={() => setQueueOpen(false)} />
-            </motion.div>
+            <m.div
+              key="sheet"
+              className="lg:hidden fixed inset-0 z-50"
+              initial={reduced ? false : { y: "100%" }}
+              animate={{ y: 0 }}
+              exit={reduced ? undefined : { y: "100%" }}
+              transition={{ duration: 0.26, ease: "easeOut" }}
+            >
+              <NowPlayingPanel
+                onClose={() => setNpOpen(false)}
+                variant="sheet"
+              />
+            </m.div>
           )}
         </AnimatePresence>
       </div>
-
-      <PlayerBar
-        onToggleQueue={() => {
-          setQueueOpen((q) => !q);
-          setNpOpen(false);
-        }}
-        onOpenNowPlaying={() => {
-          setNpOpen((n) => !n);
-          setQueueOpen(false);
-        }}
-      />
-      <BottomNav />
-
-      {/* mobile full-screen now-playing sheet */}
-      <AnimatePresence>
-        {npOpen && (
-          <motion.div
-            key="sheet"
-            className="lg:hidden fixed inset-0 z-50"
-            initial={reduced ? undefined : { y: "100%" }}
-            animate={reduced ? undefined : { y: 0 }}
-            exit={reduced ? undefined : { y: "100%" }}
-            transition={{ duration: 0.28, ease: "easeOut" }}
-          >
-            <NowPlayingPanel onClose={() => setNpOpen(false)} variant="sheet" />
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+    </MotionProvider>
   );
 }
