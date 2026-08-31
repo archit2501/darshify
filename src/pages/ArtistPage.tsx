@@ -6,7 +6,8 @@ import { TrackRow } from "../shell/TrackRow";
 import { MediaCard } from "../shell/MediaCard";
 import { Art } from "../shell/Art";
 import { formatPlays } from "../lib/format";
-import { contact } from "../data/library";
+import { ContactActions } from "../components/ContactActions";
+import { portfolio } from "../content/portfolio";
 
 export function ArtistPage() {
   const p = usePlayer();
@@ -86,28 +87,8 @@ export function ArtistPage() {
         <div className="rounded-lg bg-card p-6 max-w-2xl">
           <p className="text-sub leading-relaxed">{artist.about}</p>
           <p className="mt-3 text-sm text-sub">{artist.tagline}</p>
-          <div className="flex flex-wrap gap-3 mt-4 text-sm">
-            <a
-              href="/Darshil_Jain_Resume.pdf"
-              download
-              className="bg-accent text-black font-bold rounded-full px-4 py-2"
-            >
-              ↓ Download CV
-            </a>
-            <a
-              href={`mailto:${contact.email}`}
-              className="border border-sub/50 rounded-full px-4 py-2 hover:border-white"
-            >
-              Email
-            </a>
-            <a
-              href={contact.linkedin}
-              target="_blank"
-              rel="noreferrer"
-              className="border border-sub/50 rounded-full px-4 py-2 hover:border-white"
-            >
-              LinkedIn
-            </a>
+          <div className="mt-4">
+            <ContactActions candidate={portfolio.candidate} placement="hero" />
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useSyncExternalStore } from "react";
+import { useSyncExternalStore } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   playlists,
@@ -19,15 +19,11 @@ const subscribeToClock = () => () => {};
 export function Home({ initialGreeting }: { initialGreeting: string }) {
   const p = usePlayer();
   const nav = useNavigate();
-  const h1 = useRef<HTMLHeadingElement>(null);
   const greeting = useSyncExternalStore(
     subscribeToClock,
     currentGreeting,
     () => initialGreeting,
   );
-  useEffect(() => {
-    h1.current?.focus();
-  }, []);
 
   const quick = [
     {
@@ -78,13 +74,7 @@ export function Home({ initialGreeting }: { initialGreeting: string }) {
 
   return (
     <div className="pt-2">
-      <h1
-        ref={h1}
-        tabIndex={-1}
-        className="text-3xl font-black outline-none mb-5"
-      >
-        {greeting}
-      </h1>
+      <h1 className="mb-5 text-3xl font-black">{greeting}</h1>
 
       {/* quick picks */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-8">

@@ -111,3 +111,32 @@ export const PlusIcon = (p: P) => (
     <path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z" />
   </S>
 );
+export const DownloadIcon = (p: P) => (
+  <S {...p}>
+    <path
+      d="M12 3v12m0 0l-5-5m5 5l5-5M5 19h14"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </S>
+);
+export const MailIcon = (p: P) => (
+  <S {...p}>
+    <path
+      d="M3 6h18v12H3zM4 7l8 6 8-6"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </S>
+);
+export const LinkedInIcon = (p: P) => (
+  <S {...p}>
+    <path d="M5.2 8.3H2.6V21h2.6V8.3zM3.9 3A1.6 1.6 0 103.9 6.2 1.6 1.6 0 003.9 3zM21.4 13.7c0-3.8-2-5.6-4.8-5.6-2.2 0-3.2 1.2-3.8 2.1V8.3h-2.6V21h2.6v-6.3c0-1.7.3-3.3 2.4-3.3 2 0 2.1 1.9 2.1 3.4V21h2.6v-7.3h1.5z" />
+  </S>
+);

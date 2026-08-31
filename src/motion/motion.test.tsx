@@ -196,7 +196,7 @@ describe("editorial motion foundation", () => {
   it("suppresses transform state changes on the real reduced-motion controls", () => {
     renderShell(true);
     const play = screen.getByRole("button", { name: "Play" });
-    const cv = screen.getByRole("link", { name: "Download CV" });
+    const cv = screen.getAllByRole("link", { name: "Download CV" })[0];
 
     play.style.transform = "scale(1.05)";
     cv.style.transform = "scale(1.05)";
@@ -216,32 +216,25 @@ describe("editorial motion foundation", () => {
     expect(currentDescriptor?.value).toBe(localStorageDescriptor?.value);
   });
 
-  // Regression: a shell shortcut rewrite can steal input keys or stop transport and seek controls from responding.
-  it("keeps keyboard, scroll, queue, and panel shell interactions working", () => {
+  // Regression: global Space and arrow shortcuts steal normal scrolling, text navigation, and native control interaction.
+  it("leaves ordinary page keys alone while keeping explicit shell controls working", () => {
     renderShell(false);
 
-    fireEvent.keyDown(window, { key: " " });
-    expect(screen.getByRole("button", { name: "Pause" })).toBeVisible();
+    const space = new KeyboardEvent("keydown", {
+      key: " ",
+      cancelable: true,
+    });
+    const arrow = new KeyboardEvent("keydown", {
+      key: "ArrowRight",
+      cancelable: true,
+    });
+    window.dispatchEvent(space);
+    window.dispatchEvent(arrow);
 
-    const seek = screen.getByRole("slider", { name: "Seek" });
-    fireEvent.keyDown(window, { key: "ArrowRight" });
-    expect(seek).toHaveValue("5");
-    fireEvent.keyDown(window, { key: "ArrowLeft" });
-    expect(seek).toHaveValue("0");
-    fireEvent.keyDown(window, { key: "ArrowRight", shiftKey: true });
-    fireEvent.keyDown(window, { key: "ArrowLeft", shiftKey: true });
-
-    fireEvent.keyDown(seek, { key: "ArrowRight" });
-    const textarea = document.createElement("textarea");
-    document.body.append(textarea);
-    fireEvent.keyDown(textarea, { key: " " });
-    textarea.remove();
-    const editable = document.createElement("div");
-    editable.contentEditable = "true";
-    document.body.append(editable);
-    fireEvent.keyDown(editable, { key: " " });
-    editable.remove();
-    fireEvent.keyDown(window, { key: "Escape" });
+    expect(space.defaultPrevented).toBe(false);
+    expect(arrow.defaultPrevented).toBe(false);
+    expect(screen.getByRole("button", { name: "Play" })).toBeVisible();
+    expect(screen.getByRole("slider", { name: "Seek" })).toHaveValue("0");
 
     const main = screen.getByRole("main");
     Object.defineProperty(main, "scrollTop", {
