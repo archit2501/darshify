@@ -12,6 +12,7 @@ import {
   caseStudyEvidenceById,
   proofById,
 } from "../content/selectors";
+import { formatProofValue } from "../content/waveform";
 import { PlayIcon } from "../icons/icons";
 
 const selectedImpact = ["r1", "p2", "l1"].map((id) => {
@@ -19,6 +20,14 @@ const selectedImpact = ["r1", "p2", "l1"].map((id) => {
   if (!evidence) throw new Error(`Missing selected impact evidence: ${id}`);
   return evidence;
 });
+
+const { evidence: featuredEvidence, proof: featuredProof } = (() => {
+  const evidence = selectedImpact[0];
+  if (!evidence?.proof) {
+    throw new Error("Missing featured profile proof: r1");
+  }
+  return { evidence, proof: evidence.proof };
+})();
 
 const waveformProofs = [
   "figmenta-projects",
@@ -85,6 +94,42 @@ export function ArtistPage() {
                 Start Career Mix
               </button>
             </div>
+
+            <article
+              aria-label={`Featured proof: ${featuredProof.label}`}
+              className="mt-5 rounded-lg border border-line bg-black/20 p-3"
+            >
+              <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                <p className="font-evidence text-card-title font-bold text-signal">
+                  {formatProofValue(featuredProof)}
+                </p>
+                <p className="text-metadata font-bold text-text">
+                  {featuredProof.label}
+                </p>
+              </div>
+              <p className="mt-1 text-metadata leading-relaxed text-muted">
+                {featuredProof.summary}
+              </p>
+              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 font-evidence text-utility text-muted">
+                {featuredEvidence.source.url ? (
+                  <a
+                    href={featuredEvidence.source.url}
+                    className="underline decoration-line underline-offset-4 hover:decoration-signal"
+                  >
+                    {featuredEvidence.source.title}
+                  </a>
+                ) : (
+                  <span>{featuredEvidence.source.title}</span>
+                )}
+                <span>{featuredEvidence.status}</span>
+                <Link
+                  to={`/case-studies/${featuredEvidence.caseStudy.slug}`}
+                  className="font-bold text-text underline decoration-line underline-offset-4 hover:decoration-signal"
+                >
+                  View sourced case study
+                </Link>
+              </div>
+            </article>
           </div>
 
           <div className="hidden overflow-hidden rounded-lg border border-line shadow-xl sm:block">

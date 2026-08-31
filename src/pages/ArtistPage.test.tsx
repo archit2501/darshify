@@ -58,6 +58,35 @@ describe("Artist recruiter profile", () => {
     expect(within(impact).getAllByText(/^Outcome:/)).toHaveLength(3);
   });
 
+  it("surfaces a complete canonical proof claim in the proposition", () => {
+    renderArtist();
+
+    const proposition = screen.getByRole("region", {
+      name: "Candidate proposition",
+    });
+    const featuredProof = within(proposition).getByRole("article", {
+      name: "Featured proof: Projects tracked",
+    });
+
+    expect(within(featuredProof).getByText("35+ projects")).toBeVisible();
+    expect(
+      within(featuredProof).getByText(
+        "Projects covered by the centralized dashboard.",
+      ),
+    ).toBeVisible();
+    expect(
+      within(featuredProof).getByRole("link", {
+        name: "Darshil Jain résumé",
+      }),
+    ).toHaveAttribute("href", "/Darshil_Jain_Resume.pdf");
+    expect(within(featuredProof).getByText("self-reported")).toBeVisible();
+    expect(
+      within(featuredProof).getByRole("link", {
+        name: "View sourced case study",
+      }),
+    ).toHaveAttribute("href", "/case-studies/figmenta-operations-intern");
+  });
+
   it("contains no fabricated authority, popularity, or social controls", () => {
     const view = renderArtist();
     const forbidden =

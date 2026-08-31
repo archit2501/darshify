@@ -22,17 +22,31 @@ test("mobile Artist prioritizes proposition and sourced impact before releases",
     proposition.getByRole("button", { name: "Start Career Mix" }),
   ).toBeVisible();
 
-  const impactHeading = impact.getByRole("heading", {
-    level: 2,
-    name: "Selected Impact",
+  const featuredProof = proposition.getByRole("article", {
+    name: "Featured proof: Projects tracked",
   });
-  await expect(impactHeading).toBeVisible();
-  const impactHeadingBox = await impactHeading.boundingBox();
-  expect(impactHeadingBox).not.toBeNull();
-  expect(impactHeadingBox!.y + impactHeadingBox!.height).toBeLessThanOrEqual(
+  await expect(featuredProof).toContainText("35+ projects");
+  await expect(featuredProof).toContainText(
+    "Projects covered by the centralized dashboard.",
+  );
+  await expect(featuredProof).toContainText("Darshil Jain résumé");
+  await expect(featuredProof).toContainText("self-reported");
+  await expect(
+    featuredProof.getByRole("link", { name: "Darshil Jain résumé" }),
+  ).toHaveAttribute("href", "/Darshil_Jain_Resume.pdf");
+  await expect(
+    featuredProof.getByRole("link", { name: "View sourced case study" }),
+  ).toHaveAttribute("href", "/case-studies/figmenta-operations-intern");
+  const featuredProofBox = await featuredProof.boundingBox();
+  expect(featuredProofBox).not.toBeNull();
+  expect(featuredProofBox!.x).toBeGreaterThanOrEqual(0);
+  expect(featuredProofBox!.y).toBeGreaterThanOrEqual(0);
+  expect(featuredProofBox!.x + featuredProofBox!.width).toBeLessThanOrEqual(
+    390,
+  );
+  expect(featuredProofBox!.y + featuredProofBox!.height).toBeLessThanOrEqual(
     844,
   );
-
   await expect(impact.locator("article")).toHaveCount(3);
   await expect(
     impact.getByRole("link", { name: "Read case study" }),
