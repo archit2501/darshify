@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800" role="img" aria-labelledby="title description">
+  <title id="title">Figmenta experience evidence cover</title>
+  <desc id="description">Fact-led experience cover showing 500 plus résumés screened, self-reported in Darshil Jain's résumé.</desc>
+  <rect width="800" height="800" fill="#1b1b1b"/>
+  <rect width="18" height="800" fill="#1ed760"/>
+  <g font-family="Arial, sans-serif">
+    <text x="64" y="122" fill="#b3b3b3" font-size="26" font-weight="700" letter-spacing="4">EXPERIENCE</text>
+    <text x="64" y="310" fill="#f7f7f5" font-size="76" font-weight="800">Figmenta</text>
+    <text x="64" y="548" fill="#1ed760" font-family="monospace" font-size="58" font-weight="700">500+ résumés</text>
+    <text x="64" y="610" fill="#f7f7f5" font-family="monospace" font-size="26">Résumés screened</text>
+    <text x="64" y="650" fill="#b3b3b3" font-family="monospace" font-size="17">Jan 2026 – Feb 2026</text>
+    <text x="64" y="684" fill="#b3b3b3" font-family="monospace" font-size="17">Darshil Jain résumé</text>
+    <text x="64" y="718" fill="#b3b3b3" font-family="monospace" font-size="17">self-reported</text>
+  </g>
+</svg>

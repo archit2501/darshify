@@ -176,7 +176,7 @@
               "dependencies": ["2.1.1"],
               "smokeTest": "npm test -- src/components/ContactActions.test.tsx && npm run test:e2e -- e2e/shell-accessibility.spec.ts && npm run build",
               "ciJobs": ["quality", "test", "build", "browser"],
-              "status": "in_progress",
+              "status": "done",
               "criticalPath": true
             }
           ]
@@ -207,7 +207,7 @@
               "dependencies": ["2.2.1"],
               "smokeTest": "npm test -- src/components/ProofWaveform.test.tsx src/components/EvidenceCover.test.tsx && npm run lint && npm run type-check && npm run build",
               "ciJobs": ["quality", "test", "build"],
-              "status": "todo",
+              "status": "in_progress",
               "criticalPath": false
             }
           ]

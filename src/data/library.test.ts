@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, it, expect } from "vitest";
 import { portfolio } from "../content/portfolio";
 import {
@@ -7,6 +9,10 @@ import {
   genres,
   likedTrackIds,
   trackById,
+  ARTIST_HERO,
+  AVATAR,
+  LIKED_COVER,
+  coverFor,
 } from "./library";
 
 describe("library data", () => {
@@ -87,5 +93,38 @@ describe("library data", () => {
     } finally {
       likedTrackIds.pop();
     }
+  });
+
+  // Regression: deleting the generic PNG directory before all legacy consumers move leaves broken artwork URLs throughout the shell.
+  it("resolves every current cover consumer to a shipped evidence artifact", () => {
+    const coverUrls = [
+      ARTIST_HERO,
+      AVATAR,
+      LIKED_COVER,
+      ...playlists.map((playlist) => playlist.cover),
+      ...portfolio.collections.map((collection) => collection.cover),
+      ...(["skill", "role", "project", "achievement", "cert"] as const).map(
+        coverFor,
+      ),
+    ];
+
+    for (const url of new Set(coverUrls)) {
+      expect(url).toMatch(/^\/artifacts\/[a-z0-9-]+\.svg$/);
+      expect(existsSync(resolve(process.cwd(), "public", url.slice(1)))).toBe(
+        true,
+      );
+    }
+
+    expect(
+      new Set(portfolio.collections.map((collection) => collection.cover)),
+    ).toHaveLength(portfolio.collections.length);
+    expect(
+      portfolio.collections.find((collection) => collection.id === "certs")
+        ?.cover,
+    ).toBe("/artifacts/certifications.svg");
+    expect(
+      portfolio.collections.find((collection) => collection.id === "education")
+        ?.cover,
+    ).toBe("/artifacts/education.svg");
   });
 });

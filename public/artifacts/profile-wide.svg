@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title description">
+  <title id="title">Darshil Jain evidence portfolio cover</title>
+  <desc id="description">Fact-led cover showing 500 plus résumés screened, self-reported in Darshil Jain's résumé.</desc>
+  <rect width="1280" height="720" fill="#1b1b1b"/>
+  <rect width="18" height="720" fill="#1ed760"/>
+  <rect x="72" y="598" width="1136" height="2" fill="#303030"/>
+  <g font-family="Arial, sans-serif">
+    <text x="72" y="112" fill="#b3b3b3" font-size="24" font-weight="700" letter-spacing="4">EVIDENCE PORTFOLIO</text>
+    <text x="72" y="260" fill="#f7f7f5" font-size="86" font-weight="800">Darshil Jain</text>
+    <text x="72" y="352" fill="#1ed760" font-family="monospace" font-size="54" font-weight="700">500+ résumés screened</text>
+    <text x="72" y="404" fill="#f7f7f5" font-family="monospace" font-size="22">Résumés screened</text>
+    <text x="72" y="442" fill="#b3b3b3" font-family="monospace" font-size="18">Jan 2026 – Feb 2026</text>
+    <text x="72" y="478" fill="#b3b3b3" font-family="monospace" font-size="18">Darshil Jain résumé</text>
+    <text x="72" y="514" fill="#b3b3b3" font-family="monospace" font-size="18">self-reported</text>
+  </g>
+</svg>
