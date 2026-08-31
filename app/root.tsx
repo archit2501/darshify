@@ -5,11 +5,16 @@ import {
   Scripts,
   ScrollRestoration,
   isRouteErrorResponse,
+  type LinksFunction,
 } from "react-router";
 import "../src/index.css";
 import { PlayerProvider } from "../src/player/PlayerContext";
 import { AppShell } from "../src/shell/AppShell";
 import { ToastProvider } from "../src/shell/Toast";
+
+export const links: LinksFunction = () => [
+  { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
+];
 
 export function Layout({ children }: { children: ReactNode }) {
   return (

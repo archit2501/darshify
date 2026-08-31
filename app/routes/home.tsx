@@ -1,5 +1,10 @@
-import type { MetaFunction } from "react-router";
+import { useLoaderData, type MetaFunction } from "react-router";
+import { currentGreeting } from "../../src/lib/greeting";
 import { Home } from "../../src/pages/Home";
+
+export function loader() {
+  return { initialGreeting: currentGreeting() };
+}
 
 export const meta: MetaFunction = () => [
   { title: "Darshify | Darshil Jain" },
@@ -10,5 +15,6 @@ export const meta: MetaFunction = () => [
 ];
 
 export default function HomeRoute() {
-  return <Home />;
+  const { initialGreeting } = useLoaderData<typeof loader>();
+  return <Home initialGreeting={initialGreeting} />;
 }
