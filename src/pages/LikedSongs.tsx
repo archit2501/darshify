@@ -3,6 +3,11 @@ import { trackById, likedTrackIds, LIKED_COVER } from "../data/library";
 import { TrackRow } from "../shell/TrackRow";
 import { PlayButton } from "../shell/PlayButton";
 import { Art } from "../shell/Art";
+import { portfolio } from "../content/portfolio";
+
+const achievementsCollection = portfolio.collections.find(
+  (collection) => collection.id === "achievements",
+)!;
 
 export function LikedSongs() {
   const { open } = useCareerMix();
@@ -23,17 +28,20 @@ export function LikedSongs() {
         <Art
           src={LIKED_COVER}
           gradient="linear-gradient(135deg,#4a00e0,#b3b3ff)"
-          alt="Liked Songs"
+          alt="Selected achievements"
           className="w-40 h-40 md:w-52 md:h-52 rounded shadow-2xl shrink-0"
         />
         <div>
           <div className="text-xs font-bold uppercase tracking-wide">
-            Playlist
+            Evidence collection
           </div>
-          <h1 className="text-4xl md:text-7xl font-black my-3">Liked Songs</h1>
+          <h1 className="text-4xl md:text-7xl font-black my-3">
+            Selected achievements
+          </h1>
+          <div className="text-sub">{achievementsCollection.description}</div>
           <div className="text-sm">
             <span className="font-bold text-white">Darshil Jain</span> ·{" "}
-            {tracks.length} songs · the achievements on repeat
+            {tracks.length} selected achievements
           </div>
         </div>
       </header>

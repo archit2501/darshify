@@ -1,9 +1,22 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { playlists } from "../data/library";
+import { portfolio } from "../content/portfolio";
 
-type Filter = "all" | "playlists" | "achievements";
+type Filter = "all" | "collections" | "achievements";
 type Sort = "recents" | "az";
+type LibraryItem = {
+  to: string;
+  title: string;
+  sub: string;
+  gradient: string;
+  category: "profile" | "collection" | "achievement";
+};
+
+const collectionById = new Map(
+  portfolio.collections.map((collection) => [collection.id, collection]),
+);
+const achievementsCollection = collectionById.get("achievements")!;
 
 export function Library() {
   const [filter, setFilter] = useState<Filter>("all");
@@ -21,32 +34,33 @@ export function Library() {
   const sortLabel = sort === "recents" ? "Recents" : "A–Z";
 
   const items = useMemo(() => {
-    let list: { to: string; title: string; sub: string; gradient: string }[] = [
+    let list: LibraryItem[] = [
       {
         to: "/artist",
-        title: "This Is Darshil",
-        sub: "Artist",
+        title: "Candidate profile",
+        sub: portfolio.candidate.headline,
         gradient: "linear-gradient(135deg,#1ed760,#0a5)",
+        category: "profile",
       },
       {
         to: "/liked",
-        title: "Liked Songs",
-        sub: "Playlist · Achievements",
-        gradient: "linear-gradient(135deg,#4a00e0,#b3b3ff)",
+        title: "Achievements",
+        sub: achievementsCollection.description,
+        gradient: achievementsCollection.gradient,
+        category: "achievement",
       },
       ...playlists.map((p) => ({
         to: `/playlist/${p.id}`,
         title: p.title,
-        sub: `${p.kind} · Darshil Jain`,
+        sub: collectionById.get(p.id)?.description ?? "Portfolio evidence",
         gradient: p.gradient,
+        category: "collection" as const,
       })),
     ];
-    if (filter === "playlists")
-      list = list.filter(
-        (i) => i.sub.includes("Playlist") || /EP|LP/.test(i.sub),
-      );
+    if (filter === "collections")
+      list = list.filter((item) => item.category === "collection");
     if (filter === "achievements")
-      list = list.filter((i) => i.title === "Liked Songs");
+      list = list.filter((item) => item.category === "achievement");
     if (q)
       list = list.filter((i) =>
         i.title.toLowerCase().includes(q.toLowerCase()),
@@ -68,14 +82,15 @@ export function Library() {
   return (
     <div className="pt-2">
       <div className="flex items-center gap-3 mb-4 flex-wrap">
-        <h1 className="text-2xl font-black mr-2">Your Library</h1>
-        {pill("all", "All")} {pill("playlists", "Playlists")}{" "}
+        <h1 className="text-2xl font-black mr-2">Evidence library</h1>
+        {pill("all", "All")} {pill("collections", "Collections")}{" "}
         {pill("achievements", "Achievements")}
         <div className="ml-auto flex items-center gap-2">
           <input
+            aria-label="Search evidence library"
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search in library"
+            placeholder="Search evidence library"
             className="bg-card-hi rounded-full px-3 py-1.5 text-sm outline-none"
           />
           <div className="relative" onClick={(e) => e.stopPropagation()}>
@@ -128,7 +143,7 @@ export function Library() {
             className="flex items-center gap-3 p-2 rounded-md hover:bg-card"
           >
             <div
-              className={`w-12 h-12 shrink-0 ${i.sub === "Artist" ? "rounded-full" : "rounded"}`}
+              className={`w-12 h-12 shrink-0 ${i.category === "profile" ? "rounded-full" : "rounded"}`}
               style={{ background: i.gradient }}
             />
             <div className="min-w-0">

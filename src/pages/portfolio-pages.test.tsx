@@ -10,6 +10,7 @@ import { MotionProvider } from "../motion/MotionProvider";
 import { ToastProvider } from "../shell/Toast";
 import { ArtistPage } from "./ArtistPage";
 import { Home } from "./Home";
+import { Library } from "./Library";
 import { LikedSongs } from "./LikedSongs";
 import { PlaylistPage } from "./PlaylistPage";
 import { Search } from "./Search";
@@ -44,12 +45,29 @@ function expectNoSimulatedMetadata(
   inventedValues: string[],
 ) {
   for (const inventedValue of inventedValues) {
-    expect(container).not.toHaveTextContent(inventedValue);
+    const escapedValue = inventedValue.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const pattern = new RegExp(
+      /^[a-z]+$/i.test(inventedValue) ? `\\b${escapedValue}\\b` : escapedValue,
+      "i",
+    );
+    expect(container).not.toHaveTextContent(pattern);
     for (const control of container.querySelectorAll("a, button, input")) {
-      expect(control).not.toHaveAccessibleName(inventedValue);
+      expect(control).not.toHaveAccessibleName(pattern);
     }
   }
 }
+
+const routedPlaybackFictions = [
+  "EP",
+  "LP",
+  "Playlist",
+  "songs",
+  "on repeat",
+  "essential tracks",
+  "500,000",
+  "4:20",
+  "98,400 monthly listeners",
+];
 
 function memoryStorage(): Storage {
   const values = new Map<string, string>();
@@ -103,16 +121,79 @@ describe("routed portfolio pages without the legacy player runtime", () => {
     expect(trigger).toHaveFocus();
   });
 
-  it("keeps Home cards as truthful navigation without nested play actions", () => {
-    renderPage(<Home initialGreeting="Good morning" />);
+  it("keeps Home cards as truthful evidence navigation without playback framing", () => {
+    const view = renderPage(<Home initialGreeting="Good morning" />);
 
-    fireEvent.click(screen.getAllByRole("link", { name: /Top Skills/ })[0]);
+    expect(
+      screen.getByRole("link", { name: "Selected evidence" }),
+    ).toBeVisible();
+    expect(
+      screen.getAllByText("Operations and recruitment internships.")[0],
+    ).toBeVisible();
+    expect(
+      screen.getAllByRole("link", { name: /Achievements/ })[0],
+    ).toHaveAttribute("href", "/liked");
+    expectNoSimulatedMetadata(view.container, routedPlaybackFictions);
+
+    fireEvent.click(
+      screen.getAllByRole("link", { name: /Skills in context/ })[0],
+    );
     expect(screen.getByLabelText("Current route")).toHaveTextContent(
       "/playlist/skills",
     );
     expect(
       screen.queryByRole("button", { name: /Play (Top Skills|Experience)/ }),
     ).not.toBeInTheDocument();
+  });
+
+  it("renders Library with professional collection categories and truthful navigation", () => {
+    const view = renderPage(<Library />, "/library");
+
+    expect(
+      screen.getByRole("heading", { name: "Evidence library" }),
+    ).toBeVisible();
+    expect(screen.getByRole("link", { name: /Experience/ })).toHaveAttribute(
+      "href",
+      "/playlist/experience",
+    );
+    expect(
+      screen.getByText("Operations and recruitment internships."),
+    ).toBeVisible();
+    expectNoSimulatedMetadata(view.container, routedPlaybackFictions);
+
+    fireEvent.click(screen.getByRole("button", { name: "Collections" }));
+    expect(
+      screen.queryByRole("link", { name: /Candidate profile/ }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Experience/ })).toBeVisible();
+
+    fireEvent.click(screen.getByRole("button", { name: "Achievements" }));
+    expect(screen.getByRole("link", { name: /Achievements/ })).toHaveAttribute(
+      "href",
+      "/liked",
+    );
+    expect(
+      screen.queryByRole("link", { name: /Experience/ }),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "All" }));
+    const search = screen.getByRole("textbox", {
+      name: "Search evidence library",
+    });
+    fireEvent.change(search, { target: { value: "Projects" } });
+    expect(screen.getByRole("link", { name: /Projects/ })).toBeVisible();
+    expect(
+      screen.queryByRole("link", { name: /Experience/ }),
+    ).not.toBeInTheDocument();
+
+    fireEvent.change(search, { target: { value: "" } });
+    fireEvent.click(screen.getByRole("button", { name: /Recents/ }));
+    fireEvent.click(screen.getByRole("button", { name: "A–Z" }));
+    expect(screen.getByRole("button", { name: /A–Z/ })).toBeVisible();
+
+    fireEvent.click(screen.getByRole("button", { name: /A–Z/ }));
+    fireEvent.click(window);
+    expect(screen.queryByRole("menu")).not.toBeInTheDocument();
   });
 
   it("renders Artist without PlayerProvider and rewires its primary action", () => {
@@ -223,10 +304,18 @@ describe("routed portfolio pages without the legacy player runtime", () => {
     expect(screen.queryByText("EP")).not.toBeInTheDocument();
   });
 
-  it("renders the selected-achievements route without mutable player likes", () => {
-    renderPage(<LikedSongs />, "/liked");
+  it("renders the liked alias as truthful selected evidence without playback framing", () => {
+    const view = renderPage(<LikedSongs />, "/liked");
 
-    expect(screen.getByRole("heading", { name: "Liked Songs" })).toBeVisible();
+    expect(
+      screen.getByRole("heading", { name: "Selected achievements" }),
+    ).toBeVisible();
+    expect(
+      screen.getByText(
+        "Competition results listed in the candidate-provided résumé.",
+      ),
+    ).toBeVisible();
+    expectNoSimulatedMetadata(view.container, routedPlaybackFictions);
     expect(
       screen.queryByRole("button", { name: /Like|Unlike/ }),
     ).not.toBeInTheDocument();

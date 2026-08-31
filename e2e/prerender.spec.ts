@@ -9,8 +9,8 @@ const fixedRoutes = [
   { path: "/", heading: /^Good (morning|afternoon|evening)$/ },
   { path: "/artist", heading: portfolio.candidate.name },
   { path: "/search", heading: "Search portfolio" },
-  { path: "/library", heading: "Your Library" },
-  { path: "/liked", heading: "Liked Songs" },
+  { path: "/library", heading: "Evidence library" },
+  { path: "/liked", heading: "Selected achievements" },
 ] as const;
 
 const prerenderRoutes: ReadonlyArray<{
@@ -144,16 +144,16 @@ test.describe("production HTML without JavaScript", () => {
     ).toHaveAttribute("href", "/playlist/projects");
   });
 
-  test("liked alias regression: slash variants serve Liked Songs with non-duplicate metadata", async ({
+  test("liked alias regression: slash variants serve selected achievements with non-duplicate metadata", async ({
     page,
   }) => {
     for (const path of ["/liked", "/liked/"]) {
       const response = await page.goto(path, { waitUntil: "domcontentloaded" });
       expect(response?.status(), path).toBe(200);
       await expect(
-        page.getByRole("heading", { level: 1, name: "Liked Songs" }),
+        page.getByRole("heading", { level: 1, name: "Selected achievements" }),
       ).toBeVisible();
-      await expect(page).toHaveTitle("Liked Songs | Darshify");
+      await expect(page).toHaveTitle("Selected achievements | Darshify");
     }
   });
 

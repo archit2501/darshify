@@ -28,13 +28,13 @@ export function Home({ initialGreeting }: { initialGreeting: string }) {
   const quick = [
     {
       to: "/artist",
-      title: "This Is Darshil",
+      title: "Candidate profile",
       gradient: "linear-gradient(135deg,#1ed760,#0a5)",
       cover: AVATAR,
     },
     {
       to: "/playlist/skills",
-      title: "Top Skills",
+      title: "Skills in context",
       gradient: "linear-gradient(135deg,#ff4d6d,#7b2ff7)",
       cover: playlists[2].cover,
     },
@@ -46,7 +46,7 @@ export function Home({ initialGreeting }: { initialGreeting: string }) {
     },
     {
       to: "/liked",
-      title: "Liked Songs",
+      title: "Achievements",
       gradient: "linear-gradient(135deg,#4a00e0,#b3b3ff)",
       cover: LIKED_COVER,
     },
@@ -129,11 +129,11 @@ export function Home({ initialGreeting }: { initialGreeting: string }) {
         ))}
       </Shelf>
 
-      <Shelf title="Jump back in" to="/library">
+      <Shelf title="Explore evidence" to="/library">
         <MediaCard
           to="/artist"
-          title="This Is Darshil"
-          subtitle="The essential tracks"
+          title="Candidate profile"
+          subtitle={portfolio.candidate.headline}
           round
           gradient="linear-gradient(135deg,#1ed760,#0a5)"
           cover={AVATAR}
@@ -143,7 +143,7 @@ export function Home({ initialGreeting }: { initialGreeting: string }) {
             key={pl.id}
             to={`/playlist/${pl.id}`}
             title={pl.title}
-            subtitle={pl.kind}
+            subtitle={pl.description}
             gradient={pl.gradient}
             cover={pl.cover}
           />

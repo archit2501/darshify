@@ -18,6 +18,7 @@ const semanticShellRuntime = [
   "src/icons/icons.tsx",
   "src/pages/ArtistPage.tsx",
   "src/pages/Home.tsx",
+  "src/pages/Library.tsx",
   "src/pages/LikedSongs.tsx",
   "src/pages/PlaylistPage.tsx",
   "src/pages/Search.tsx",
@@ -27,6 +28,7 @@ const semanticShellRuntime = [
 ];
 const cumulativeRedesignRuntime = [
   "app/root.tsx",
+  "app/routes/collection.tsx",
   ...designSystemRuntime,
   ...semanticShellRuntime,
   "src/career-mix/CareerMixContext.tsx",

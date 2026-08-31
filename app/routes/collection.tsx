@@ -12,7 +12,7 @@ import { PlaylistPage } from "../../src/pages/PlaylistPage";
 import { NotFoundView } from "./not-found";
 
 type CollectionRouteData =
-  | { kind: "liked"; title: "Liked Songs"; description: string }
+  | { kind: "liked"; title: "Selected achievements"; description: string }
   | {
       kind: "collection";
       id: string;
@@ -24,7 +24,7 @@ export function loader({ params }: LoaderFunctionArgs) {
   if (params.id === undefined) {
     return {
       kind: "liked",
-      title: "Liked Songs",
+      title: "Selected achievements",
       description:
         "Darshil Jain's selected achievements and competition recognition.",
     } satisfies CollectionRouteData;
