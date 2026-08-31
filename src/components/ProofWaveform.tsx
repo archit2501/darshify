@@ -46,7 +46,7 @@ export function ProofWaveform({
   const descriptionId = useId();
   const data = buildWaveformData(points);
   const width = compact ? 320 : 640;
-  const height = compact ? 72 : 112;
+  const height = compact ? 48 : 112;
   const path = buildPath(
     data.map((point) => point.normalizedHeight),
     width,
@@ -123,20 +123,31 @@ export function ProofWaveform({
       ) : (
         <ol
           aria-label="Evidence behind the waveform"
-          className={`mt-4 grid gap-2 ${compact ? "grid-cols-1" : "sm:grid-cols-2 lg:grid-cols-3"}`}
+          className={`grid gap-2 ${compact ? "mt-2 grid-cols-3" : "mt-4 sm:grid-cols-2 lg:grid-cols-3"}`}
         >
           {data.map((point) => (
             <li key={point.id}>
               <a
                 href={point.caseStudyUrl}
-                className="block min-h-[var(--target-min)] rounded border border-line bg-elevated p-3 transition-colors duration-[var(--transition-hover-fast)] hover:border-signal focus-visible:border-signal"
+                aria-label={`${point.label}: ${point.displayValue}; ${point.period}; ${point.sourceLabel}; ${point.status}`}
+                className={`block min-h-[var(--target-min)] rounded border border-line bg-elevated transition-colors duration-[var(--transition-hover-fast)] hover:border-signal focus-visible:border-signal ${compact ? "p-2" : "p-3"}`}
               >
-                <span className="block font-bold text-text">{point.label}</span>
-                <span className="mt-1 block font-evidence text-metadata text-signal">
+                <span
+                  className={`block font-bold leading-tight text-text ${compact ? "text-utility" : ""}`}
+                >
+                  {point.label}
+                </span>
+                <span
+                  className={`mt-1 block font-evidence text-signal ${compact ? "text-utility" : "text-metadata"}`}
+                >
                   {point.displayValue}
                 </span>
-                <span className="mt-2 block text-utility text-muted">
-                  {point.period} · {point.sourceLabel} · {point.status}
+                <span
+                  className={`block text-utility text-muted ${compact ? "mt-1 leading-tight" : "mt-2"}`}
+                >
+                  {compact
+                    ? `${point.sourceLabel} · ${point.status}`
+                    : `${point.period} · ${point.sourceLabel} · ${point.status}`}
                 </span>
               </a>
             </li>

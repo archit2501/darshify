@@ -1,4 +1,4 @@
-import { portfolio } from "./portfolio";
+import { caseStudyById, sourceById } from "./selectors";
 import type { EvidenceStatus, ProofPoint } from "./types";
 
 export interface WaveformDatum {
@@ -13,12 +13,6 @@ export interface WaveformDatum {
   normalizedHeight: number;
 }
 
-const sourceById = new Map(
-  portfolio.sources.map((source) => [source.id, source]),
-);
-const caseStudyById = new Map(
-  portfolio.caseStudies.map((caseStudy) => [caseStudy.id, caseStudy]),
-);
 const numberFormatter = new Intl.NumberFormat("en-IN", {
   maximumFractionDigits: 2,
 });
@@ -42,7 +36,7 @@ export function buildWaveformData(
 
   return proofPoints.map((point) => {
     const sourceLabels = point.sourceIds.map(
-      (sourceId) => sourceById.get(sourceId)?.title,
+      (sourceId) => sourceById(sourceId)?.title,
     );
     if (
       sourceLabels.length === 0 ||
@@ -53,7 +47,7 @@ export function buildWaveformData(
       );
     }
 
-    const caseStudy = caseStudyById.get(point.caseStudyIds[0]);
+    const caseStudy = caseStudyById(point.caseStudyIds[0]);
     if (!caseStudy) {
       throw new Error(`Proof point ${point.id} has no canonical case study`);
     }

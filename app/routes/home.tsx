@@ -7,10 +7,11 @@ export function loader() {
 }
 
 export const meta: MetaFunction = () => [
-  { title: "Darshify | Darshil Jain" },
+  { title: "Darshil Jain | Strategy & Operations Portfolio" },
   {
     name: "description",
-    content: "Explore Darshil Jain's business, strategy, and operations work.",
+    content:
+      "Recruiter briefing for Darshil Jain: sourced experience across operations, recruitment, consulting, analytics, and student leadership.",
   },
 ];
 

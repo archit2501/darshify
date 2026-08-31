@@ -1,12 +1,17 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { portfolio } from "./portfolio";
 import {
+  artifactById,
   caseStudyById,
   caseStudyBySlug,
+  collectionById,
   collections,
   proofById,
   searchPortfolio,
+  sourceById,
 } from "./selectors";
+
+afterEach(() => vi.restoreAllMocks());
 
 describe("portfolio selectors", () => {
   it("looks up case studies and proof points by stable identity", () => {
@@ -36,5 +41,31 @@ describe("portfolio selectors", () => {
 
   it("exports the portfolio collections without rebuilding them", () => {
     expect(collections).toBe(portfolio.collections);
+  });
+
+  // Regression: resolving known content identities with Array.find makes every Home render rescan canonical collections.
+  it("resolves sources, artifacts, and collections through prebuilt identity maps", () => {
+    const sourceFind = vi
+      .spyOn(portfolio.sources, "find")
+      .mockImplementation(() => {
+        throw new Error("source lookup scanned the collection");
+      });
+    const artifactFind = vi
+      .spyOn(portfolio.artifacts, "find")
+      .mockImplementation(() => {
+        throw new Error("artifact lookup scanned the collection");
+      });
+    const collectionFind = vi
+      .spyOn(portfolio.collections, "find")
+      .mockImplementation(() => {
+        throw new Error("collection lookup scanned the collection");
+      });
+
+    expect(sourceById("darshil-resume")?.kind).toBe("resume");
+    expect(artifactById("darshil-resume-pdf")?.status).toBe("self-reported");
+    expect(collectionById("experience")?.slug).toBe("experience");
+    expect(sourceFind).not.toHaveBeenCalled();
+    expect(artifactFind).not.toHaveBeenCalled();
+    expect(collectionFind).not.toHaveBeenCalled();
   });
 });

@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { playlists, AVATAR, LIKED_COVER } from "../data/library";
 import { HomeIcon, SearchIcon, LibraryIcon } from "../icons/icons";
 import { Art } from "./Art";
@@ -9,6 +9,8 @@ const navCls = ({ isActive }: { isActive: boolean }) =>
   `interactive-target flex items-center gap-4 font-bold ${isActive ? "text-white" : "text-sub hover:text-white"}`;
 
 export function Sidebar() {
+  const { pathname } = useLocation();
+
   return (
     <nav
       aria-label="Primary navigation"
@@ -98,9 +100,11 @@ export function Sidebar() {
             </NavLink>
           ))}
         </div>
-        <div className="mt-4 border-t border-line pt-4">
-          <ContactActions candidate={portfolio.candidate} placement="rail" />
-        </div>
+        {pathname !== "/" && (
+          <div className="mt-4 border-t border-line pt-4">
+            <ContactActions candidate={portfolio.candidate} placement="rail" />
+          </div>
+        )}
       </div>
     </nav>
   );

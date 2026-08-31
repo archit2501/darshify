@@ -1,6 +1,9 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
+import { portfolio } from "./portfolio";
+import { artifactById, proofById, sourceById } from "./selectors";
+import { formatProofValue } from "./waveform";
 
 const readSvg = (filename: string) => {
   const source = readFileSync(
@@ -19,6 +22,31 @@ const visibleText = (filename: string) =>
     .join(" | ");
 
 describe("authored evidence SVGs", () => {
+  // Regression: the candidate cover's embedded number can drift unless the asset is resolved through its typed proof relation.
+  it("renders the canonical proof attached to the candidate artwork", () => {
+    const artwork = portfolio.candidate.profileArtwork;
+    const artifact = artifactById(artwork.artifactId);
+    const proof = proofById(artwork.proofId);
+    expect(artifact?.image).toBeDefined();
+    expect(proof).toBeDefined();
+    if (!artifact?.image || !proof) return;
+
+    const filename = artifact.image.src.split("/").at(-1);
+    expect(filename).toBeDefined();
+    if (!filename) return;
+    const text = visibleText(filename);
+
+    expect(text).toContain(formatProofValue(proof));
+    expect(text).toContain(proof.label);
+    expect(text).toContain(proof.period);
+    expect(text).toContain(proof.status);
+    for (const sourceId of proof.sourceIds) {
+      const source = sourceById(sourceId);
+      expect(source).toBeDefined();
+      if (source) expect(text).toContain(source.title);
+    }
+  });
+
   // Regression: static quantitative cover claims can drift from typed evidence by dropping their period, source, or verification status.
   it.each([
     {

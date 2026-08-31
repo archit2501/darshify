@@ -12,6 +12,13 @@ const caseStudySlugMap = new Map(
 const proofIdMap = new Map(
   portfolio.proofPoints.map((item) => [item.id, item]),
 );
+const sourceIdMap = new Map(portfolio.sources.map((item) => [item.id, item]));
+const artifactIdMap = new Map(
+  portfolio.artifacts.map((item) => [item.id, item]),
+);
+const collectionIdMap = new Map(
+  portfolio.collections.map((item) => [item.id, item]),
+);
 
 const searchableCaseStudies = portfolio.caseStudies.map((item) => ({
   item,
@@ -34,6 +41,9 @@ const searchableCaseStudies = portfolio.caseStudies.map((item) => ({
 export const caseStudyById = (id: string) => caseStudyIdMap.get(id);
 export const caseStudyBySlug = (slug: string) => caseStudySlugMap.get(slug);
 export const proofById = (id: string) => proofIdMap.get(id);
+export const sourceById = (id: string) => sourceIdMap.get(id);
+export const artifactById = (id: string) => artifactIdMap.get(id);
+export const collectionById = (id: string) => collectionIdMap.get(id);
 
 export const searchPortfolio = (query: string) => {
   const needle = normalize(query);

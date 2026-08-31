@@ -116,7 +116,7 @@ const renderShell = async (reduced: boolean) => {
         element: <AppShell />,
         children: [
           {
-            index: true,
+            path: "search",
             element: (
               <>
                 <h1>Portfolio</h1>
@@ -127,7 +127,7 @@ const renderShell = async (reduced: boolean) => {
         ],
       },
     ],
-    { initialEntries: ["/"] },
+    { initialEntries: ["/search"] },
   );
 
   const view = render(
@@ -185,9 +185,10 @@ describe("editorial motion foundation", () => {
   // Regression: 32px history buttons and an unconstrained CV link violate the approved 44×44px target floor.
   it("gives every real TopBar control a 44 by 44 pixel minimum target", () => {
     reduceMotion(false);
-    const router = createMemoryRouter([{ path: "/", element: <TopBar /> }], {
-      initialEntries: ["/"],
-    });
+    const router = createMemoryRouter(
+      [{ path: "/search", element: <TopBar /> }],
+      { initialEntries: ["/search"] },
+    );
     render(<RouterProvider router={router} />);
 
     const targetToken = getComputedStyle(document.documentElement)

@@ -125,7 +125,7 @@ describe("routed portfolio pages without the legacy player runtime", () => {
     const view = renderPage(<Home initialGreeting="Good morning" />);
 
     expect(
-      screen.getByRole("link", { name: "Selected evidence" }),
+      screen.getByRole("region", { name: "Recruiter Essentials" }),
     ).toBeVisible();
     expect(
       screen.getAllByText("Operations and recruitment internships.")[0],
@@ -136,7 +136,9 @@ describe("routed portfolio pages without the legacy player runtime", () => {
     expectNoSimulatedMetadata(view.container, routedPlaybackFictions);
 
     fireEvent.click(
-      screen.getAllByRole("link", { name: /Skills in context/ })[0],
+      screen.getByRole("link", {
+        name: /Skills in context.*Explore collection/,
+      }),
     );
     expect(screen.getByLabelText("Current route")).toHaveTextContent(
       "/playlist/skills",

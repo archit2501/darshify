@@ -23,7 +23,10 @@ export const validatePortfolio = (value: Portfolio): string[] => {
   const proofById = new Map(
     value.proofPoints.map((proof) => [proof.id, proof]),
   );
-  const artifactIds = new Set(value.artifacts.map((artifact) => artifact.id));
+  const artifactById = new Map(
+    value.artifacts.map((artifact) => [artifact.id, artifact]),
+  );
+  const artifactIds = new Set(artifactById.keys());
   const caseStudyById = new Map(
     value.caseStudies.map((caseStudy) => [caseStudy.id, caseStudy]),
   );
@@ -55,6 +58,36 @@ export const validatePortfolio = (value: Portfolio): string[] => {
     value.collections.map((item) => item.slug),
   )) {
     errors.push(`Duplicate collection slug: ${slug}`);
+  }
+
+  const profileArtwork = value.candidate.profileArtwork;
+  const profileArtworkArtifact = artifactById.get(profileArtwork.artifactId);
+  const profileArtworkProof = proofById.get(profileArtwork.proofId);
+
+  if (!profileArtworkArtifact) {
+    errors.push(
+      `Candidate profile artwork references unknown artifact ${profileArtwork.artifactId}`,
+    );
+  } else if (!profileArtworkArtifact.image) {
+    errors.push(
+      `Candidate profile artwork artifact ${profileArtwork.artifactId} must be image-backed`,
+    );
+  }
+  if (!profileArtworkProof) {
+    errors.push(
+      `Candidate profile artwork references unknown proof ${profileArtwork.proofId}`,
+    );
+  }
+  if (
+    profileArtworkArtifact &&
+    profileArtworkProof &&
+    !profileArtworkArtifact.sourceIds.some((sourceId) =>
+      profileArtworkProof.sourceIds.includes(sourceId),
+    )
+  ) {
+    errors.push(
+      `Candidate profile artwork ${profileArtworkArtifact.id} and proof ${profileArtworkProof.id} must share an evidence source`,
+    );
   }
 
   for (const proof of value.proofPoints) {

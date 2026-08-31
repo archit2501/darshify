@@ -8,6 +8,9 @@ export function MediaCard({
   gradient,
   cover,
   round = false,
+  eyebrow,
+  actionLabel,
+  evidenceKind,
 }: {
   to: string;
   title: string;
@@ -15,22 +18,43 @@ export function MediaCard({
   gradient: string;
   cover?: string;
   round?: boolean;
+  eyebrow?: string;
+  actionLabel?: string;
+  evidenceKind?: string;
 }) {
-  return (
+  const card = (
     <Link
       to={to}
-      className="group relative block w-44 shrink-0 rounded-lg bg-card hover:bg-card-hi transition-colors p-4 text-left"
+      className="group relative flex h-full min-h-11 flex-col rounded-lg bg-card p-4 text-left transition-colors duration-[var(--transition-hover)] hover:bg-card-hi"
     >
       <Art
         src={cover}
         gradient={gradient}
         alt={title}
-        className={`relative aspect-square w-full mb-3 shadow-lg ${round ? "rounded-full" : "rounded-md"}`}
+        className={`relative mb-3 aspect-square w-full shadow-lg ${round ? "rounded-full" : "rounded-md"}`}
       />
-      <div className="font-bold truncate">{title}</div>
+      {eyebrow && (
+        <div className="mb-1 font-evidence text-utility uppercase tracking-wide text-signal">
+          {eyebrow}
+        </div>
+      )}
+      <div className="text-card-title font-bold leading-tight">{title}</div>
       {subtitle && (
-        <div className="text-sub text-sm line-clamp-2 mt-1">{subtitle}</div>
+        <div className="mt-2 line-clamp-3 text-sm text-sub">{subtitle}</div>
+      )}
+      {actionLabel && (
+        <span className="mt-auto pt-4 text-sm font-bold text-text underline decoration-line underline-offset-4 group-hover:decoration-signal">
+          {actionLabel}
+        </span>
       )}
     </Link>
+  );
+
+  return evidenceKind ? (
+    <article data-evidence-kind={evidenceKind} className="min-w-0">
+      {card}
+    </article>
+  ) : (
+    <div className="w-44 shrink-0">{card}</div>
   );
 }
