@@ -1,49 +1,55 @@
 import { useParams } from "react-router-dom";
-import { playlists, trackById } from "../data/library";
 import { useCareerMix } from "../career-mix/CareerMixContext";
-import { TrackRow } from "../shell/TrackRow";
-import { PlayButton } from "../shell/PlayButton";
+import { ProofTrackRow } from "../components/ProofTrackRow";
+import { caseStudyEvidenceById, collectionById } from "../content/selectors";
 import { Art } from "../shell/Art";
+import { PlayButton } from "../shell/PlayButton";
 import { NotFound } from "./NotFound";
 
 export function PlaylistPage() {
-  const { id } = useParams();
+  const { id = "" } = useParams();
   const { open } = useCareerMix();
-  const pl = playlists.find((x) => x.id === id);
-  if (!pl) return <NotFound />;
+  const collection = collectionById(id);
+  if (!collection) return <NotFound />;
 
-  const tracks = pl.trackIds.map(trackById).filter(Boolean) as NonNullable<
-    ReturnType<typeof trackById>
-  >[];
+  const evidence = collection.caseStudyIds.map((caseStudyId) => {
+    const item = caseStudyEvidenceById(caseStudyId);
+    if (!item) {
+      throw new Error(
+        `Collection ${collection.id} references missing evidence ${caseStudyId}`,
+      );
+    }
+    return item;
+  });
 
   return (
-    <div>
-      <header
-        className="flex flex-col md:flex-row md:items-end gap-4 md:gap-6 pt-4 pb-6 -mx-4 md:-mx-6 px-4 md:px-6"
-        style={{
-          background: `linear-gradient(180deg, rgba(0,0,0,.1), var(--color-panel)), ${pl.gradient}`,
-        }}
-      >
+    <div className="pb-12">
+      <header className="-mx-4 flex flex-col gap-5 border-b border-line bg-elevated px-4 pb-6 pt-4 md:-mx-6 md:flex-row md:items-end md:gap-6 md:px-6">
         <Art
-          src={pl.cover}
-          gradient={pl.gradient}
-          alt={pl.title}
-          className="w-40 h-40 md:w-52 md:h-52 rounded shadow-2xl shrink-0"
+          src={collection.cover}
+          gradient={collection.gradient}
+          alt=""
+          className="h-40 w-40 shrink-0 rounded-md shadow-2xl md:h-52 md:w-52"
         />
-        <div>
-          <div className="text-xs font-bold uppercase tracking-wide">
-            Portfolio collection
-          </div>
-          <h1 className="text-4xl md:text-7xl font-black my-3">{pl.title}</h1>
-          <div className="text-sub">{pl.description}</div>
-          <div className="text-sm mt-2">
-            <span className="font-bold text-white">Darshil Jain</span> ·{" "}
-            {tracks.length} evidence items
-          </div>
+        <div className="min-w-0">
+          <p className="font-evidence text-utility uppercase tracking-wide text-signal">
+            Professional collection
+          </p>
+          <h1 className="mt-2 text-hero-mobile font-black leading-none md:text-hero-desktop">
+            {collection.title}
+          </h1>
+          <p className="mt-3 max-w-[65ch] text-muted">
+            {collection.description}
+          </p>
+          <p className="mt-3 font-evidence text-utility text-muted">
+            <span className="text-text">{collection.themedLabel}</span> ·{" "}
+            {evidence.length} evidence{" "}
+            {evidence.length === 1 ? "item" : "items"}
+          </p>
         </div>
       </header>
 
-      <div className="flex items-center gap-6 py-4">
+      <div className="py-5">
         <PlayButton
           size={56}
           label="Start Career Mix"
@@ -51,14 +57,23 @@ export function PlaylistPage() {
         />
       </div>
 
-      <div className="grid grid-cols-[24px_1fr_auto] gap-4 px-4 py-2 text-sub text-xs border-b border-white/10 mb-2">
-        <span>#</span>
-        <span>Evidence</span>
-        <span className="sr-only">Details</span>
-      </div>
-      {tracks.map((t, i) => (
-        <TrackRow key={t.id} track={t} index={i} />
-      ))}
+      <section aria-labelledby="collection-evidence-heading">
+        <h2
+          id="collection-evidence-heading"
+          className="text-section-title font-black"
+        >
+          Evidence in this collection
+        </h2>
+        <ol className="mt-4 grid gap-3">
+          {evidence.map((item, index) => (
+            <ProofTrackRow
+              key={item.caseStudy.id}
+              evidence={item}
+              index={index}
+            />
+          ))}
+        </ol>
+      </section>
     </div>
   );
 }

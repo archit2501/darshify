@@ -9,8 +9,8 @@ const authoredDimensions: Record<string, { width: number; height: number }> = {
   "/artifacts/education.svg": { width: 800, height: 800 },
 };
 
-// Compatibility renderer for legacy views. New evidence surfaces use
-// EvidenceCover with a typed Artifact.
+// Renderer for authored presentation covers. EvidenceCover is used when a
+// surface owns a typed Artifact rather than a typed Collection cover.
 export function Art({
   src,
   gradient,

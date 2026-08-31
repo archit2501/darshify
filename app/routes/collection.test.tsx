@@ -1,5 +1,5 @@
 import { createElement } from "react";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import {
   createMemoryRouter,
@@ -70,14 +70,23 @@ describe("collection route", () => {
         content:
           "Darshil Jain's selected achievements and competition recognition.",
       },
+      { tagName: "link", rel: "canonical", href: "/liked" },
     ]);
   });
 
   it("loads canonical collections and rejects unknown identifiers", () => {
-    expect(loader(loaderArgs({ id: "achievements" }))).toMatchObject({
+    const achievements = loader(loaderArgs({ id: "achievements" }));
+    expect(achievements).toMatchObject({
       kind: "collection",
       id: "achievements",
       title: "Achievements",
+    });
+    expect(
+      meta({ data: achievements } as Parameters<typeof meta>[0]),
+    ).toContainEqual({
+      tagName: "link",
+      rel: "canonical",
+      href: "/liked",
     });
     expect(loader(loaderArgs({ id: "missing" }))).toMatchObject({
       data: null,
@@ -111,9 +120,15 @@ describe("collection route", () => {
     expect(
       await screen.findByRole("heading", { name: "Achievements" }),
     ).toBeVisible();
-    expect(
-      screen.getByRole("link", {
+    const firstAchievement = screen
+      .getByRole("heading", {
         name: "National Business Plan Championship Finalist",
+      })
+      .closest("article");
+    expect(firstAchievement).not.toBeNull();
+    expect(
+      within(firstAchievement!).getByRole("link", {
+        name: "Read case study",
       }),
     ).toHaveAttribute(
       "href",

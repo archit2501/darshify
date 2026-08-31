@@ -1,12 +1,12 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { playlists } from "../data/library";
 import { ContactActions } from "../components/ContactActions";
 import { portfolio } from "../content/portfolio";
+import { collectionById } from "../content/selectors";
 
 function accentFor(path: string): string | null {
   if (path.startsWith("/playlist/")) {
     const id = path.split("/")[2];
-    return playlists.find((p) => p.id === id)?.gradient ?? null;
+    return collectionById(id)?.gradient ?? null;
   }
   if (path === "/artist") return "linear-gradient(180deg,#1ed760,#0a5)";
   if (path === "/liked") return "linear-gradient(180deg,#4a00e0,#b3b3ff)";

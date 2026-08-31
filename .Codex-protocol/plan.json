@@ -275,7 +275,7 @@
               "dependencies": ["2.3.1", "2.4.1"],
               "smokeTest": "npm test -- src/components/RecruiterHero.test.tsx src/pages/Home.test.tsx && npm run test:e2e -- e2e/recruiter-home.spec.ts && npm run build",
               "ciJobs": ["quality", "test", "build", "browser"],
-              "status": "in_progress",
+              "status": "done",
               "criticalPath": true
             }
           ]
@@ -306,7 +306,7 @@
               "dependencies": ["3.1.1"],
               "smokeTest": "npm test -- src/pages/ArtistPage.test.tsx src/components/ProofTrackRow.test.tsx src/components/ReleaseCard.test.tsx && npm run lint && npm run type-check && npm run build",
               "ciJobs": ["quality", "test", "build"],
-              "status": "todo",
+              "status": "in_progress",
               "criticalPath": true
             }
           ]

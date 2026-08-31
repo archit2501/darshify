@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { playlists } from "../data/library";
 import { portfolio } from "../content/portfolio";
 
 type Filter = "all" | "collections" | "achievements";
@@ -49,13 +48,15 @@ export function Library() {
         gradient: achievementsCollection.gradient,
         category: "achievement",
       },
-      ...playlists.map((p) => ({
-        to: `/playlist/${p.id}`,
-        title: p.title,
-        sub: collectionById.get(p.id)?.description ?? "Portfolio evidence",
-        gradient: p.gradient,
-        category: "collection" as const,
-      })),
+      ...portfolio.collections
+        .filter((collection) => collection.id !== "achievements")
+        .map((collection) => ({
+          to: `/playlist/${collection.id}`,
+          title: collection.title,
+          sub: collection.description,
+          gradient: collection.gradient,
+          category: "collection" as const,
+        })),
     ];
     if (filter === "collections")
       list = list.filter((item) => item.category === "collection");
