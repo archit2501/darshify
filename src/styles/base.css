@@ -51,8 +51,9 @@ textarea {
   font: inherit;
 }
 
-:where(button, [role="button"], input, select, textarea) {
+:where(a, button, [role="button"], input, select, textarea) {
   min-block-size: var(--target-min);
+  min-inline-size: var(--target-min);
 }
 
 :where(a, button, input, select, textarea, [tabindex]):focus-visible {
@@ -103,4 +104,12 @@ textarea {
     transition-delay: 0ms !important;
     transition-duration: 0.01ms !important;
   }
+
+  [data-motion-transform] {
+    transform: none !important;
+  }
+}
+
+[data-reduced-motion="true"] [data-motion-transform] {
+  transform: none !important;
 }

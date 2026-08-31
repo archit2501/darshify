@@ -85,7 +85,8 @@ export function PlayerBar({
             <button
               onClick={p.toggle}
               aria-label={p.isPlaying ? "Pause" : "Play"}
-              className={`grid place-items-center w-11 h-11 rounded-full bg-white text-black hover:scale-105 transition-transform duration-[var(--transition-hover-fast)] disabled:opacity-40 ${!p.hasPlayed ? "ring-2 ring-accent" : ""}`}
+              data-motion-transform
+              className={`grid place-items-center w-11 h-11 rounded-full bg-white text-black motion-safe:hover:scale-105 transition-transform duration-[var(--transition-hover-fast)] disabled:opacity-40 ${!p.hasPlayed ? "ring-2 ring-accent" : ""}`}
               disabled={!c}
             >
               {p.isPlaying ? <PauseIcon size={18} /> : <PlayIcon size={18} />}

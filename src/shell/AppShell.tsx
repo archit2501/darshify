@@ -76,7 +76,10 @@ export function AppShell() {
 
   return (
     <MotionProvider>
-      <div className="h-screen flex flex-col bg-bg">
+      <div
+        className="h-screen flex flex-col bg-bg"
+        data-reduced-motion={reduced}
+      >
         <div className="flex-1 flex min-h-0 gap-0">
           <Sidebar />
           <main

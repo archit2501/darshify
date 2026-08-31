@@ -34,14 +34,18 @@ export function MediaCard({
         <div className="text-sub text-sm line-clamp-2 mt-1">{subtitle}</div>
       )}
       {onPlay && (
-        <div className="absolute right-6 top-[42%] opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-[opacity,transform] duration-[var(--transition-hover)]">
+        <div
+          data-motion-transform
+          className="absolute right-6 top-[42%] opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-[opacity,transform] duration-[var(--transition-hover)]"
+        >
           <button
             onClick={(e) => {
               e.preventDefault();
               onPlay();
             }}
             aria-label={`Play ${title}`}
-            className="grid place-items-center w-12 h-12 rounded-full bg-accent text-black shadow-xl hover:scale-105"
+            data-motion-transform
+            className="grid place-items-center w-12 h-12 rounded-full bg-accent text-black shadow-xl motion-safe:hover:scale-105"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
               <path d="M7 4.5v15l13-7.5z" />
