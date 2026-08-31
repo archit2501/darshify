@@ -21,6 +21,94 @@ const collectionIdMap = new Map(
   portfolio.collections.map((item) => [item.id, item]),
 );
 
+export type ProfessionalCategory =
+  | "Experience"
+  | "Projects"
+  | "Leadership"
+  | "Achievements"
+  | "Education"
+  | "Certifications";
+
+const caseIdsForCollection = (id: string) =>
+  new Set(collectionIdMap.get(id)?.caseStudyIds ?? []);
+
+const categoryDefinitions: Array<{
+  label: ProfessionalCategory | "Skills";
+  aliases: string[];
+  caseStudyIds: Set<string>;
+}> = [
+  {
+    label: "Experience",
+    aliases: ["experience"],
+    caseStudyIds: caseIdsForCollection("experience"),
+  },
+  {
+    label: "Projects",
+    aliases: ["project", "projects"],
+    caseStudyIds: caseIdsForCollection("projects"),
+  },
+  {
+    label: "Leadership",
+    aliases: ["leadership"],
+    caseStudyIds: new Set(
+      portfolio.caseStudies
+        .filter((item) => item.kind === "leadership")
+        .map((item) => item.id),
+    ),
+  },
+  {
+    label: "Achievements",
+    aliases: ["achievement", "achievements"],
+    caseStudyIds: caseIdsForCollection("achievements"),
+  },
+  {
+    label: "Education",
+    aliases: ["education"],
+    caseStudyIds: caseIdsForCollection("education"),
+  },
+  {
+    label: "Certifications",
+    aliases: ["certification", "certifications", "credential", "credentials"],
+    caseStudyIds: caseIdsForCollection("certs"),
+  },
+  {
+    label: "Skills",
+    aliases: ["skill", "skills"],
+    caseStudyIds: caseIdsForCollection("skills"),
+  },
+];
+
+const categoryIdsByQuery = new Map(
+  categoryDefinitions.flatMap((category) =>
+    category.aliases.map((alias) => [normalize(alias), category.caseStudyIds]),
+  ),
+);
+
+const professionalCategoryByCaseStudyId = new Map<string, ProfessionalCategory>(
+  categoryDefinitions
+    .filter(
+      (
+        category,
+      ): category is typeof category & { label: ProfessionalCategory } =>
+        category.label !== "Skills",
+    )
+    .flatMap((category) =>
+      [...category.caseStudyIds].map(
+        (id) => [id, category.label] as [string, ProfessionalCategory],
+      ),
+    ),
+);
+
+const artifactReferenceCount = new Map<string, number>();
+for (const item of portfolio.caseStudies) {
+  for (const artifactId of item.artifactIds) {
+    artifactReferenceCount.set(
+      artifactId,
+      (artifactReferenceCount.get(artifactId) ?? 0) + 1,
+    );
+  }
+}
+
 const caseStudyEvidenceIdMap = new Map<string, CaseStudyEvidence>(
   portfolio.caseStudies.map((caseStudy) => {
     const proof = caseStudy.featuredProofId
@@ -50,6 +138,9 @@ const searchableCaseStudies = portfolio.caseStudies.map((item) => {
     const artifact = artifactIdMap.get(id);
     return artifact ? [artifact] : [];
   });
+  const itemSpecificArtifacts = artifacts.filter(
+    (artifact) => artifactReferenceCount.get(artifact.id) === 1,
+  );
   const sources = new Set([
     ...proofs.flatMap((proof) => proof.sourceIds),
     ...artifacts.flatMap((artifact) => artifact.sourceIds),
@@ -78,12 +169,17 @@ const searchableCaseStudies = portfolio.caseStudies.map((item) => {
           proof.summary,
           proof.period,
         ]),
-        ...artifacts.flatMap((artifact) => [
+        ...itemSpecificArtifacts.flatMap((artifact) => [
           artifact.title,
           artifact.alt,
           artifact.provenance,
         ]),
         ...sourceEvidence,
+        ...categoryDefinitions.flatMap((category) =>
+          category.caseStudyIds.has(item.id)
+            ? [category.label, ...category.aliases]
+            : [],
+        ),
       ].join(" "),
     ),
   };
@@ -112,6 +208,8 @@ export const artifactById = (id: string) => artifactIdMap.get(id);
 export const collectionById = (id: string) => collectionIdMap.get(id);
 export const caseStudyEvidenceById = (id: string) =>
   caseStudyEvidenceIdMap.get(id);
+export const professionalCategoryForCaseStudy = (id: string) =>
+  professionalCategoryByCaseStudyId.get(id);
 export const relatedCaseStudies = (caseStudy: CaseStudy) =>
   caseStudy.relatedIds.flatMap((id) => {
     const related = caseStudyIdMap.get(id);
@@ -120,18 +218,24 @@ export const relatedCaseStudies = (caseStudy: CaseStudy) =>
 
 export const searchPortfolio = (query: string) => {
   const needle = normalize(query);
+  const categoryIds = categoryIdsByQuery.get(needle);
   return needle
     ? searchableCaseStudies
-        .filter(({ searchText }) => searchText.includes(needle))
+        .filter(({ item, searchText }) =>
+          categoryIds ? categoryIds.has(item.id) : searchText.includes(needle),
+        )
         .map(({ item }) => item)
     : [];
 };
 
 export const searchSkills = (query: string): SkillSearchResult[] => {
   const needle = normalize(query);
+  const isSkillCategory = needle === "skill" || needle === "skills";
   return needle
     ? searchableSkills
-        .filter(({ searchText }) => searchText.includes(needle))
+        .filter(({ searchText }) =>
+          isSkillCategory ? true : searchText.includes(needle),
+        )
         .map(({ label, caseStudyIds }) => ({ label, caseStudyIds }))
     : [];
 };

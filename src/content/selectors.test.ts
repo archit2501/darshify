@@ -35,9 +35,35 @@ describe("portfolio selectors", () => {
     ).toEqual(["p1", "p3"]);
   });
 
-  it("searches source provenance prepared with the canonical corpus", () => {
+  it("searches canonical source provenance without shared artifact prose", () => {
     expect(
-      searchPortfolio("candidate-provided pdf").map((item) => item.id),
+      searchPortfolio("candidate-authored source").map((item) => item.id),
+    ).toEqual(portfolio.caseStudies.map((item) => item.id));
+  });
+
+  it.each([
+    ["experience", ["r1", "r2", "r3"]],
+    ["projects", ["p1", "p2", "p3", "p4"]],
+    ["leadership", ["l1"]],
+    ["achievements", ["a1", "a2", "a3", "a4"]],
+    ["education", ["e1", "e2"]],
+    ["certifications", ["c1", "c2", "c3"]],
+    ["skills", ["r1", "r2", "r3", "p1", "p2", "p3", "p4", "l1"]],
+  ])(
+    "keeps the %s category scoped to canonical collection identity",
+    (query, expectedIds) => {
+      expect(searchPortfolio(query).map((item) => item.id)).toEqual(
+        expectedIds,
+      );
+    },
+  );
+
+  it("retains item and source evidence without indexing shared résumé category prose", () => {
+    expect(searchPortfolio("dashboard creator").map((item) => item.id)).toEqual(
+      ["p4"],
+    );
+    expect(
+      searchPortfolio("candidate-authored source").map((item) => item.id),
     ).toEqual(portfolio.caseStudies.map((item) => item.id));
   });
 
@@ -47,7 +73,7 @@ describe("portfolio selectors", () => {
       "Strategic Analysis",
       "behavioral nudges",
       "publication-ready",
-      "candidate-provided pdf",
+      "candidate-authored source",
       "not present",
     ];
     const batches: number[] = [];

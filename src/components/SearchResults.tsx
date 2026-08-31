@@ -1,37 +1,36 @@
 import { Link } from "react-router-dom";
-import type { SkillSearchResult } from "../content/selectors";
+import {
+  professionalCategoryForCaseStudy,
+  type ProfessionalCategory,
+  type SkillSearchResult,
+} from "../content/selectors";
 import type { CaseStudy } from "../content/types";
 
 type ProfessionalGroup = {
   id: string;
-  label: "Experience" | "Projects" | "Leadership" | "Achievements";
+  label: ProfessionalCategory;
   items: CaseStudy[];
 };
 
-const groupCases = (results: CaseStudy[]): ProfessionalGroup[] => [
-  {
-    id: "experience-results",
-    label: "Experience",
-    items: results.filter((item) => item.kind === "experience"),
-  },
-  {
-    id: "project-results",
-    label: "Projects",
-    items: results.filter((item) => item.kind === "project"),
-  },
-  {
-    id: "leadership-results",
-    label: "Leadership",
-    items: results.filter((item) => item.kind === "leadership"),
-  },
-  {
-    id: "achievement-results",
-    label: "Achievements",
-    items: results.filter(
-      (item) => item.kind === "achievement" || item.kind === "education",
-    ),
-  },
+const professionalGroups: Array<{
+  id: string;
+  label: ProfessionalCategory;
+}> = [
+  { id: "experience-results", label: "Experience" },
+  { id: "project-results", label: "Projects" },
+  { id: "leadership-results", label: "Leadership" },
+  { id: "achievement-results", label: "Achievements" },
+  { id: "education-results", label: "Education" },
+  { id: "certification-results", label: "Certifications" },
 ];
+
+const groupCases = (results: CaseStudy[]): ProfessionalGroup[] =>
+  professionalGroups.map((group) => ({
+    ...group,
+    items: results.filter(
+      (item) => professionalCategoryForCaseStudy(item.id) === group.label,
+    ),
+  }));
 
 function ResultCard({ item }: { item: CaseStudy }) {
   return (
@@ -75,8 +74,13 @@ export function SearchResults({
 
   if (!resultCount) {
     return (
-      <section role="status" aria-live="polite" className="py-10">
-        <h2 className="text-section-title font-bold text-text">
+      <section className="py-10">
+        <h2
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          className="text-section-title font-bold text-text"
+        >
           No results for “{query}”
         </h2>
         <p className="mt-2 max-w-[65ch] text-muted">
@@ -88,8 +92,13 @@ export function SearchResults({
   }
 
   return (
-    <div className="grid gap-10" aria-live="polite">
-      <p className="font-evidence text-metadata text-muted">
+    <div className="grid gap-10">
+      <p
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="font-evidence text-metadata text-muted"
+      >
         {resultCount} {resultCount === 1 ? "match" : "matches"} for “{query}”
       </p>
       {groups.map((group) => (

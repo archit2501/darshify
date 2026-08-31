@@ -47,7 +47,11 @@ describe("Search professional discovery", () => {
       "Haldiram's International Expansion Strategy",
     ],
     ["takeaway", "operating visibility", "Operations Internship at Figmenta"],
-    ["source", "Candidate-provided PDF", "Operations Internship at Figmenta"],
+    [
+      "source",
+      "Candidate-authored source",
+      "Operations Internship at Figmenta",
+    ],
   ])("matches %s evidence deterministically", (_field, query, title) => {
     renderSearch();
     fireEvent.change(screen.getByRole("searchbox"), {
@@ -86,6 +90,55 @@ describe("Search professional discovery", () => {
     ).toHaveAttribute("href", "/playlist/skills");
   });
 
+  it("keeps education and certifications out of Achievements", () => {
+    renderSearch();
+    fireEvent.change(screen.getByRole("searchbox"), {
+      target: { value: "candidate-authored source" },
+    });
+
+    const achievements = screen.getByRole("region", { name: "Achievements" });
+    const education = screen.getByRole("region", { name: "Education" });
+    const certifications = screen.getByRole("region", {
+      name: "Certifications",
+    });
+
+    expect(
+      within(achievements).getByRole("heading", {
+        name: "BPlan Showdown Winner",
+      }),
+    ).toBeVisible();
+    expect(
+      within(achievements).queryByRole("heading", {
+        name: "BBA in Business and Industry",
+      }),
+    ).not.toBeInTheDocument();
+    expect(
+      within(education).getByRole("heading", {
+        name: "BBA in Business and Industry",
+      }),
+    ).toBeVisible();
+    expect(
+      within(certifications).getByRole("heading", {
+        name: "Winter Consulting Program",
+      }),
+    ).toBeVisible();
+  });
+
+  it("announces only a concise count while leaving the result tree outside the live region", () => {
+    renderSearch();
+    fireEvent.change(screen.getByRole("searchbox"), {
+      target: { value: "Figmenta" },
+    });
+
+    const status = screen.getByRole("status");
+    expect(status).toHaveTextContent("1 match for “Figmenta”");
+    expect(status).toHaveAttribute("aria-live", "polite");
+    expect(status).toHaveAttribute("aria-atomic", "true");
+    expect(
+      screen.getByRole("region", { name: "Experience" }).closest("[aria-live]"),
+    ).toBeNull();
+  });
+
   it("announces a useful empty state and never persists raw queries", () => {
     const setItem = vi.spyOn(Storage.prototype, "setItem");
     renderSearch();
@@ -97,6 +150,9 @@ describe("Search professional discovery", () => {
 
     expect(screen.getByRole("status")).toHaveTextContent(
       "No results for “no matching evidence”",
+    );
+    expect(screen.getByRole("status")).not.toHaveTextContent(
+      "Try an organization",
     );
     expect(
       screen.getByText(/Try an organization, skill, action, result/),

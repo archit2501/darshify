@@ -18,6 +18,10 @@ test("mobile search is labelled, does not steal focus, and exposes stable groupe
     page.getByRole("region", { name: "Achievements" }),
   ).toBeVisible();
   await expect(page.getByRole("region", { name: "Skills" })).toBeVisible();
+  await expect(page.getByRole("status")).toContainText("matches for");
+  await expect(
+    page.getByRole("region", { name: "Projects" }),
+  ).not.toHaveAttribute("aria-live");
   await expect(
     page.getByRole("link", {
       name: "Read ZautoAI Strategy Consulting Engagement",
@@ -28,6 +32,33 @@ test("mobile search is labelled, does not steal focus, and exposes stable groupe
   await expect(page.getByRole("status")).toContainText(
     "No results for “definitely absent”",
   );
+});
+
+test("category identity and result groups do not leak shared résumé prose", async ({
+  page,
+}) => {
+  await page.goto("/search", { waitUntil: "networkidle" });
+  const search = page.getByRole("searchbox");
+
+  const cases: Array<[string, string, string]> = [
+    ["projects", "Projects", "ZautoAI Strategy Consulting Engagement"],
+    ["leadership", "Leadership", "Founder and President of Igniters Club"],
+    ["certifications", "Certifications", "Winter Consulting Program"],
+    ["education", "Education", "BBA in Business and Industry"],
+  ];
+
+  for (const [query, group, title] of cases) {
+    await search.fill(query);
+    const region = page.getByRole("region", { name: group });
+    await expect(region.getByRole("heading", { name: title })).toBeVisible();
+    await expect(page.locator("[aria-live] article")).toHaveCount(0);
+  }
+
+  await search.fill("certifications");
+  await expect(page.getByRole("region", { name: "Achievements" })).toHaveCount(
+    0,
+  );
+  await expect(page.getByRole("region", { name: "Education" })).toHaveCount(0);
 });
 
 test("Career Library filters and A–Z sort remain keyboard operable on mobile", async ({
