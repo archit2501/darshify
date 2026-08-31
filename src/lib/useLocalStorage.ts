@@ -1,34 +1,55 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export function useLocalStorage<T>(
   key: string,
   initial: T,
 ): [T, (v: T) => void] {
-  const [initialValue] = useState(initial);
-  const [value, setValue] = useState<T>(initialValue);
+  const [defaultsByKey, setDefaultsByKey] = useState(
+    () => new Map<string, T>([[key, initial]]),
+  );
+  let selectedDefault = defaultsByKey.get(key) as T;
+  if (!defaultsByKey.has(key)) {
+    selectedDefault = initial;
+    setDefaultsByKey((current) => {
+      if (current.has(key)) return current;
+      const next = new Map(current);
+      next.set(key, initial);
+      return next;
+    });
+  }
+
+  const [value, setValue] = useState<T>(selectedDefault);
+  const syncVersion = useRef(0);
 
   useEffect(() => {
     let active = true;
+    const version = ++syncVersion.current;
+    let storedValue = selectedDefault;
     try {
       const raw = window.localStorage.getItem(key);
       if (raw === null) {
-        window.localStorage.setItem(key, JSON.stringify(initialValue));
+        window.localStorage.setItem(key, JSON.stringify(selectedDefault));
       } else {
-        const storedValue = JSON.parse(raw) as T;
-        queueMicrotask(() => {
-          if (active) setValue(storedValue);
-        });
+        try {
+          storedValue = JSON.parse(raw) as T;
+        } catch {
+          window.localStorage.setItem(key, JSON.stringify(selectedDefault));
+        }
       }
     } catch {
-      /* ignore unavailable or malformed storage */
+      /* ignore unavailable storage */
     }
+    queueMicrotask(() => {
+      if (active && syncVersion.current === version) setValue(storedValue);
+    });
     return () => {
       active = false;
     };
-  }, [initialValue, key]);
+  }, [key, selectedDefault]);
 
   const setStoredValue = useCallback(
     (next: T) => {
+      syncVersion.current += 1;
       setValue(next);
       try {
         window.localStorage.setItem(key, JSON.stringify(next));

@@ -122,6 +122,21 @@ test.describe("production HTML without JavaScript", () => {
         /.+/,
       );
     }
+
+    await page.goto("/case-studies/figmenta-operations-intern", {
+      waitUntil: "domcontentloaded",
+    });
+    await expect(page.getByText("Figmenta", { exact: true })).toBeVisible();
+    await expect(page.getByText("Jan 2026 – Feb 2026")).toBeVisible();
+    await expect(
+      page.getByText(
+        "Built operating visibility and reusable hiring workflows for an Asia team.",
+        { exact: true },
+      ),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "Back to Projects" }),
+    ).toHaveAttribute("href", "/playlist/projects");
   });
 
   test("liked alias regression: slash variants serve Liked Songs with non-duplicate metadata", async ({
