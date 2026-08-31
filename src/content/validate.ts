@@ -204,6 +204,11 @@ export const validatePortfolio = (value: Portfolio): string[] => {
   };
 
   for (const collection of value.collections) {
+    if (!collection.themedLabel.trim()) {
+      errors.push(
+        `Collection ${collection.id} is missing a themed release label`,
+      );
+    }
     validateCaseStudyRefs("Collection", collection.id, collection.caseStudyIds);
   }
   for (const chapter of value.careerMixChapters) {

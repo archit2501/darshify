@@ -5,6 +5,7 @@ import { ArtistPage } from "../../src/pages/ArtistPage";
 export const meta: MetaFunction = () => [
   { title: `${portfolio.candidate.name} | Darshify` },
   { name: "description", content: portfolio.candidate.summary },
+  { tagName: "link", rel: "canonical", href: "/artist" },
 ];
 
 export default function ArtistRoute() {

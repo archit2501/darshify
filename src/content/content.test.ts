@@ -105,6 +105,15 @@ describe("portfolio content", () => {
     );
   });
 
+  it("requires a typed secondary release label for every collection", () => {
+    const invalid = structuredClone(portfolio);
+    invalid.collections[0].themedLabel = "";
+
+    expect(validatePortfolio(invalid)).toContain(
+      "Collection experience is missing a themed release label",
+    );
+  });
+
   it("requires proof-to-case links to be reciprocal", () => {
     const invalid = structuredClone(portfolio);
     invalid.caseStudies[0].proofIds = invalid.caseStudies[0].proofIds.filter(

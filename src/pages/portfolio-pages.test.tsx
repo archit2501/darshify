@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import {
@@ -58,8 +58,6 @@ function expectNoSimulatedMetadata(
 }
 
 const routedPlaybackFictions = [
-  "EP",
-  "LP",
   "Playlist",
   "songs",
   "on repeat",
@@ -259,22 +257,28 @@ describe("routed portfolio pages without the legacy player runtime", () => {
     const view = renderPage(<Search />, "/search");
 
     fireEvent.change(
-      screen.getByRole("textbox", {
+      screen.getByRole("searchbox", {
         name: "Search experience, skills, and proof",
       }),
       { target: { value: "Market Research" } },
     );
 
-    expect(screen.getByText("Top Skills")).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Evidence" })).toBeVisible();
+    const strategyCase = screen
+      .getByRole("heading", {
+        name: "ZautoAI Strategy Consulting Engagement",
+      })
+      .closest("article");
+    expect(strategyCase).not.toBeNull();
     expect(
-      screen.getByRole("link", { name: "Market Research" }),
-    ).toHaveAttribute("href", "/artist");
+      within(strategyCase!).getByRole("link", { name: "Read case study" }),
+    ).toHaveAttribute("href", "/case-studies/zautoai-strategy-consulting");
     expectNoSimulatedMetadata(view.container, ["920,000", "3:52"]);
   });
 
   it("supports recent and empty Search states without presenting collection playback types", () => {
     renderPage(<Search />, "/search");
-    const input = screen.getByRole("textbox", {
+    const input = screen.getByRole("searchbox", {
       name: "Search experience, skills, and proof",
     });
 
@@ -303,7 +307,7 @@ describe("routed portfolio pages without the legacy player runtime", () => {
       "href",
       "/playlist/experience",
     );
-    expect(screen.queryByText("EP")).not.toBeInTheDocument();
+    expect(screen.getByText("Career EP")).toBeVisible();
   });
 
   it("renders the liked alias as truthful selected evidence without playback framing", () => {

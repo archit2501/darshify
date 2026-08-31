@@ -1,52 +1,52 @@
 import { useCareerMix } from "../career-mix/CareerMixContext";
-import { trackById, likedTrackIds, LIKED_COVER } from "../data/library";
-import { TrackRow } from "../shell/TrackRow";
-import { PlayButton } from "../shell/PlayButton";
+import { ProofTrackRow } from "../components/ProofTrackRow";
+import { caseStudyEvidenceById, collectionById } from "../content/selectors";
 import { Art } from "../shell/Art";
-import { portfolio } from "../content/portfolio";
+import { PlayButton } from "../shell/PlayButton";
 
-const achievementsCollection = portfolio.collections.find(
-  (collection) => collection.id === "achievements",
-)!;
+const achievements = (() => {
+  const collection = collectionById("achievements");
+  if (!collection) throw new Error("Missing achievements collection");
+  return collection;
+})();
+
+const achievementEvidence = achievements.caseStudyIds.map((caseStudyId) => {
+  const evidence = caseStudyEvidenceById(caseStudyId);
+  if (!evidence)
+    throw new Error(`Missing achievement evidence: ${caseStudyId}`);
+  return evidence;
+});
 
 export function LikedSongs() {
   const { open } = useCareerMix();
-  const ids = likedTrackIds;
-  const tracks = ids.map(trackById).filter(Boolean) as NonNullable<
-    ReturnType<typeof trackById>
-  >[];
 
   return (
-    <div>
-      <header
-        className="flex flex-col md:flex-row md:items-end gap-4 md:gap-6 pt-4 pb-6 -mx-4 md:-mx-6 px-4 md:px-6"
-        style={{
-          background:
-            "linear-gradient(180deg, rgba(0,0,0,.1), var(--color-panel)), linear-gradient(135deg,#4a00e0,#b3b3ff)",
-        }}
-      >
+    <div className="pb-12">
+      <header className="-mx-4 flex flex-col gap-5 border-b border-line bg-elevated px-4 pb-6 pt-4 md:-mx-6 md:flex-row md:items-end md:gap-6 md:px-6">
         <Art
-          src={LIKED_COVER}
-          gradient="linear-gradient(135deg,#4a00e0,#b3b3ff)"
-          alt="Selected achievements"
-          className="w-40 h-40 md:w-52 md:h-52 rounded shadow-2xl shrink-0"
+          src={achievements.cover}
+          gradient={achievements.gradient}
+          alt=""
+          className="h-40 w-40 shrink-0 rounded-md shadow-2xl md:h-52 md:w-52"
         />
-        <div>
-          <div className="text-xs font-bold uppercase tracking-wide">
-            Evidence collection
-          </div>
-          <h1 className="text-4xl md:text-7xl font-black my-3">
+        <div className="min-w-0">
+          <p className="font-evidence text-utility uppercase tracking-wide text-signal">
+            Professional collection
+          </p>
+          <h1 className="mt-2 text-hero-mobile font-black leading-none md:text-hero-desktop">
             Selected achievements
           </h1>
-          <div className="text-sub">{achievementsCollection.description}</div>
-          <div className="text-sm">
-            <span className="font-bold text-white">Darshil Jain</span> ·{" "}
-            {tracks.length} selected achievements
-          </div>
+          <p className="mt-3 max-w-[65ch] text-muted">
+            {achievements.description}
+          </p>
+          <p className="mt-3 font-evidence text-utility text-muted">
+            <span className="text-text">{achievements.themedLabel}</span> ·{" "}
+            {achievementEvidence.length} résumé-listed recognition items
+          </p>
         </div>
       </header>
 
-      <div className="flex items-center gap-6 py-4">
+      <div className="py-5">
         <PlayButton
           size={56}
           label="Start Career Mix"
@@ -54,9 +54,23 @@ export function LikedSongs() {
         />
       </div>
 
-      {tracks.map((t, i) => (
-        <TrackRow key={t.id} track={t} index={i} />
-      ))}
+      <section aria-labelledby="selected-achievements-heading">
+        <h2
+          id="selected-achievements-heading"
+          className="text-section-title font-black"
+        >
+          Recognition evidence
+        </h2>
+        <ol className="mt-4 grid gap-3">
+          {achievementEvidence.map((evidence, index) => (
+            <ProofTrackRow
+              key={evidence.caseStudy.id}
+              evidence={evidence}
+              index={index}
+            />
+          ))}
+        </ol>
+      </section>
     </div>
   );
 }

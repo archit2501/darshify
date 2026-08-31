@@ -1,9 +1,23 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { playlists, AVATAR, LIKED_COVER } from "../data/library";
 import { HomeIcon, SearchIcon, LibraryIcon } from "../icons/icons";
 import { Art } from "./Art";
 import { ContactActions } from "../components/ContactActions";
 import { portfolio } from "../content/portfolio";
+import { artifactById, collectionById } from "../content/selectors";
+
+const { profileArtworkSrc, achievements } = (() => {
+  const artwork = artifactById(portfolio.candidate.profileArtwork.artifactId);
+  const collection = collectionById("achievements");
+  if (!artwork?.image || !collection) {
+    throw new Error(
+      "Sidebar portfolio artwork must resolve from typed content",
+    );
+  }
+  return { profileArtworkSrc: artwork.image.src, achievements: collection };
+})();
+const sidebarCollections = portfolio.collections.filter(
+  (collection) => collection.id !== "achievements",
+);
 
 const navCls = ({ isActive }: { isActive: boolean }) =>
   `interactive-target flex items-center gap-4 font-bold ${isActive ? "text-white" : "text-sub hover:text-white"}`;
@@ -49,7 +63,7 @@ export function Sidebar() {
             }
           >
             <Art
-              src={AVATAR}
+              src={profileArtworkSrc}
               gradient="linear-gradient(135deg,#1ed760,#0a5)"
               className="w-11 h-11 rounded-full shrink-0"
             />
@@ -67,8 +81,8 @@ export function Sidebar() {
             }
           >
             <Art
-              src={LIKED_COVER}
-              gradient="linear-gradient(135deg,#4a00e0,#b3b3ff)"
+              src={achievements.cover}
+              gradient={achievements.gradient}
               className="w-11 h-11 rounded shrink-0"
             />
             <span>
@@ -78,22 +92,22 @@ export function Sidebar() {
               <span className="text-sub text-xs">Recognition</span>
             </span>
           </NavLink>
-          {playlists.map((pl) => (
+          {sidebarCollections.map((collection) => (
             <NavLink
-              key={pl.id}
-              to={`/playlist/${pl.id}`}
+              key={collection.id}
+              to={`/playlist/${collection.id}`}
               className={({ isActive }) =>
                 `flex items-center gap-3 rounded-md p-2 ${isActive ? "bg-card-hi" : "hover:bg-card"}`
               }
             >
               <Art
-                src={pl.cover}
-                gradient={pl.gradient}
+                src={collection.cover}
+                gradient={collection.gradient}
                 className="w-11 h-11 rounded shrink-0"
               />
               <span className="min-w-0">
                 <span className="block font-semibold text-white truncate">
-                  {pl.title}
+                  {collection.title}
                 </span>
                 <span className="text-sub text-xs">Portfolio collection</span>
               </span>

@@ -77,10 +77,18 @@ export interface Collection {
   id: string;
   slug: string;
   title: string;
+  themedLabel: string;
   description: string;
   cover: string;
   gradient: string;
   caseStudyIds: string[];
+}
+
+export interface CaseStudyEvidence {
+  caseStudy: CaseStudy;
+  proof?: ProofPoint;
+  source: EvidenceSource;
+  status: EvidenceStatus;
 }
 
 export interface CareerMixChapter {
