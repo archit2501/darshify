@@ -34,7 +34,7 @@ export function MediaCard({
         <div className="text-sub text-sm line-clamp-2 mt-1">{subtitle}</div>
       )}
       {onPlay && (
-        <div className="absolute right-6 top-[42%] opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all">
+        <div className="absolute right-6 top-[42%] opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-[opacity,transform] duration-[var(--transition-hover)]">
           <button
             onClick={(e) => {
               e.preventDefault();
