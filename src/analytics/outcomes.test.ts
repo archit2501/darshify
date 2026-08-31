@@ -150,6 +150,62 @@ describe("privacy-safe outcome analytics", () => {
     consoleLog.mockRestore();
   });
 
+  describe("raw URL syntax boundary", () => {
+    const rawNormalizationBypasses = [
+      `${CANONICAL_SITE_ORIGIN}/artist\\`,
+      `${CANONICAL_SITE_ORIGIN}\\artist`,
+      `${CANONICAL_SITE_ORIGIN}/private/%2e%2e/artist`,
+      `${CANONICAL_SITE_ORIGIN}/private/%2E%2E/artist`,
+      `${CANONICAL_SITE_ORIGIN}/private/../artist`,
+      `${CANONICAL_SITE_ORIGIN}/private/.%2e/artist`,
+      `${CANONICAL_SITE_ORIGIN}/private/%2e./artist`,
+      `${CANONICAL_SITE_ORIGIN}/private/%252e%252e/artist`,
+      `${CANONICAL_SITE_ORIGIN}/private/%25252e%25252e/artist`,
+      `${CANONICAL_SITE_ORIGIN}/private/%252e%2e/artist`,
+      `${CANONICAL_SITE_ORIGIN}/%2fartist`,
+      `${CANONICAL_SITE_ORIGIN}/%252Fartist`,
+      `${CANONICAL_SITE_ORIGIN}/artist%5c`,
+      `${CANONICAL_SITE_ORIGIN}/artist%255C`,
+      `${CANONICAL_SITE_ORIGIN}/private/%2e%2e%5cartist`,
+      `https://candidate@wrapped-portfolio.vercel.app/artist`,
+      `https://wrapped-portfolio.vercel.app@profiles.example.test/artist`,
+      `https://wrapped-portfolio.vercel.app:443/artist`,
+      `https://WRAPPED-PORTFOLIO.vercel.app/artist`,
+      `https://wrapped-portfolio.vercel.app\n/artist`,
+      `https://wrapped-portfolio.vercel.app/arti\tst`,
+    ];
+
+    it.each(rawNormalizationBypasses)(
+      "rejects dangerous syntax before URL parsing and emits nothing: %s",
+      (url) => {
+        const vendor = vi.fn();
+        const consoleLog = vi
+          .spyOn(console, "log")
+          .mockImplementation(() => {});
+        const candidate = redactAnalyticsEvent({ type: "pageview", url });
+
+        if (candidate) vendor(candidate);
+
+        expect(candidate).toBeNull();
+        expect(vendor).not.toHaveBeenCalled();
+        expect(consoleLog).not.toHaveBeenCalled();
+        consoleLog.mockRestore();
+      },
+    );
+
+    it("strips normal encoded query and fragment metadata after accepting the raw route", () => {
+      expect(
+        redactAnalyticsEvent({
+          type: "pageview",
+          url: `${CANONICAL_SITE_ORIGIN}/artist?next=https%3A%2F%2Fexample.test%2Fprivate&label=%2e%2e#path=%255Cprivate`,
+        }),
+      ).toEqual({
+        type: "pageview",
+        url: `${CANONICAL_SITE_ORIGIN}/artist`,
+      });
+    });
+  });
+
   it.each([
     "/case-studies/darshil.jain@example.com",
     "/playlist/+91-9268264843",

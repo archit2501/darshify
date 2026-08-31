@@ -128,6 +128,45 @@ const sendToVercel: OutcomeTransport = (name, properties) =>
 
 const canonicalHostname = new URL(CANONICAL_SITE_ORIGIN).hostname;
 
+const encodedDangerousPathOctet =
+  /%(?:25)*(?:2e|2f|5c|0[0-9a-f]|1[0-9a-f]|7f)/i;
+const literalDotSegment = /(?:^|\/)\.{1,2}(?:\/|$)/;
+const containsRawControlCharacter = (value: string) =>
+  Array.from(value).some((character) => {
+    const codePoint = character.codePointAt(0) ?? 0;
+    return codePoint <= 0x1f || codePoint === 0x7f;
+  });
+
+const validateRawAnalyticsUrl = (
+  rawUrl: string,
+): { authority: string; pathname: string } | null => {
+  if (containsRawControlCharacter(rawUrl) || rawUrl.includes("\\")) return null;
+
+  const match = /^https:\/\/([^/?#]+)(\/[^?#]*)?([?#][\s\S]*)?$/.exec(rawUrl);
+  if (!match?.[2]) return null;
+
+  const authority = match[1];
+  const labels = authority.split(".");
+  if (
+    labels.some(
+      (label) =>
+        !/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(label) || label.length > 63,
+    )
+  ) {
+    return null;
+  }
+
+  const pathname = match[2];
+  if (
+    encodedDangerousPathOctet.test(pathname) ||
+    literalDotSegment.test(pathname)
+  ) {
+    return null;
+  }
+
+  return { authority, pathname };
+};
+
 export function shouldEnableAnalytics(hostname: string): boolean {
   return hostname === canonicalHostname || hostname.endsWith(".vercel.app");
 }
@@ -142,10 +181,21 @@ export const trackOutcome = createOutcomeTracker(
 export function redactAnalyticsEvent(
   event: BeforeSendEvent,
 ): BeforeSendEvent | null {
+  const rawUrl = validateRawAnalyticsUrl(event.url);
+  if (!rawUrl) return null;
+
   try {
     const url = new URL(event.url);
     const canonicalPath = canonicalPathForPathname(url.pathname);
-    if (!shouldEnableAnalytics(url.hostname) || canonicalPath === undefined) {
+    if (
+      url.username ||
+      url.password ||
+      url.port ||
+      url.host !== rawUrl.authority ||
+      url.pathname !== rawUrl.pathname ||
+      !shouldEnableAnalytics(url.hostname) ||
+      canonicalPath === undefined
+    ) {
       return null;
     }
     const safeOrigin =
