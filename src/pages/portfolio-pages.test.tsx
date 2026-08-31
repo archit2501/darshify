@@ -12,6 +12,7 @@ import { ArtistPage } from "./ArtistPage";
 import { Home } from "./Home";
 import { LikedSongs } from "./LikedSongs";
 import { PlaylistPage } from "./PlaylistPage";
+import { Search } from "./Search";
 
 function RuntimeProbe() {
   const mix = useCareerMix();
@@ -38,6 +39,32 @@ function TestRuntime({ children }: { children: React.ReactNode }) {
   );
 }
 
+function expectNoSimulatedMetadata(
+  container: HTMLElement,
+  inventedValues: string[],
+) {
+  for (const inventedValue of inventedValues) {
+    expect(container).not.toHaveTextContent(inventedValue);
+    for (const control of container.querySelectorAll("a, button, input")) {
+      expect(control).not.toHaveAccessibleName(inventedValue);
+    }
+  }
+}
+
+function memoryStorage(): Storage {
+  const values = new Map<string, string>();
+  return {
+    get length() {
+      return values.size;
+    },
+    clear: () => values.clear(),
+    getItem: (key) => values.get(key) ?? null,
+    key: (index) => [...values.keys()][index] ?? null,
+    removeItem: (key) => values.delete(key),
+    setItem: (key, value) => values.set(key, String(value)),
+  };
+}
+
 const renderPage = (page: React.ReactNode, initialEntry = "/") =>
   render(
     <MemoryRouter initialEntries={[initialEntry]}>
@@ -46,6 +73,7 @@ const renderPage = (page: React.ReactNode, initialEntry = "/") =>
   );
 
 beforeEach(() => {
+  vi.stubGlobal("localStorage", memoryStorage());
   vi.stubGlobal("matchMedia", (query: string) => ({
     matches: query === "(prefers-reduced-motion: reduce)",
     media: query,
@@ -88,7 +116,7 @@ describe("routed portfolio pages without the legacy player runtime", () => {
   });
 
   it("renders Artist without PlayerProvider and rewires its primary action", () => {
-    renderPage(<ArtistPage />);
+    const view = renderPage(<ArtistPage />);
 
     expect(
       screen.getByRole("heading", { level: 1, name: "Darshil Jain" }),
@@ -99,6 +127,14 @@ describe("routed portfolio pages without the legacy player runtime", () => {
     expect(
       screen.queryByRole("button", { name: /Like|Unlike/ }),
     ).not.toBeInTheDocument();
+    expect(screen.getByText("Figmenta · Jan 2026 – Feb 2026")).toBeVisible();
+    expectNoSimulatedMetadata(view.container, [
+      "98,400 monthly listeners",
+      "500,000",
+      "4:20",
+      "920,000",
+      "3:52",
+    ]);
     fireEvent.click(screen.getByRole("button", { name: "Start Career Mix" }));
     expect(screen.getByLabelText("Career Mix state")).toHaveTextContent(
       "playing",
@@ -106,7 +142,7 @@ describe("routed portfolio pages without the legacy player runtime", () => {
   });
 
   it("renders a collection without PlayerProvider, playback, likes, or queue", () => {
-    render(
+    const view = render(
       <MemoryRouter initialEntries={["/playlist/experience"]}>
         <TestRuntime>
           <Routes>
@@ -117,6 +153,9 @@ describe("routed portfolio pages without the legacy player runtime", () => {
     );
 
     expect(screen.getByRole("heading", { name: "Experience" })).toBeVisible();
+    expect(screen.getByText("Figmenta · Jan 2026 – Feb 2026")).toBeVisible();
+    expectNoSimulatedMetadata(view.container, ["500,000", "4:20", "12:20"]);
+    expect(screen.queryByText("Plays")).not.toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: /^Play / }),
     ).not.toBeInTheDocument();
@@ -131,6 +170,57 @@ describe("routed portfolio pages without the legacy player runtime", () => {
     expect(screen.getByLabelText("Career Mix state")).toHaveTextContent(
       "playing",
     );
+  });
+
+  it("renders Search results as proof without simulated skill metrics", () => {
+    const view = renderPage(<Search />, "/search");
+
+    fireEvent.change(
+      screen.getByRole("textbox", {
+        name: "Search experience, skills, and proof",
+      }),
+      { target: { value: "Market Research" } },
+    );
+
+    expect(screen.getByText("Top Skills")).toBeVisible();
+    expect(
+      screen.getByRole("link", { name: "Market Research" }),
+    ).toHaveAttribute("href", "/artist");
+    expectNoSimulatedMetadata(view.container, ["920,000", "3:52"]);
+  });
+
+  it("supports recent and empty Search states without presenting collection playback types", () => {
+    renderPage(<Search />, "/search");
+    const input = screen.getByRole("textbox", {
+      name: "Search experience, skills, and proof",
+    });
+
+    fireEvent.change(input, { target: { value: "Market Research" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    fireEvent.change(input, { target: { value: "" } });
+    expect(
+      screen.getByRole("heading", { name: "Recent searches" }),
+    ).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "Market Research" }));
+    expect(screen.getByRole("heading", { name: "Evidence" })).toBeVisible();
+
+    fireEvent.change(input, { target: { value: "" } });
+    fireEvent.click(screen.getByRole("button", { name: "Clear" }));
+    expect(
+      screen.queryByRole("heading", { name: "Recent searches" }),
+    ).not.toBeInTheDocument();
+
+    fireEvent.change(input, { target: { value: "no matching proof" } });
+    expect(
+      screen.getByText("No results for “no matching proof”"),
+    ).toBeVisible();
+
+    fireEvent.change(input, { target: { value: "Experience" } });
+    expect(screen.getByRole("link", { name: /Experience/ })).toHaveAttribute(
+      "href",
+      "/playlist/experience",
+    );
+    expect(screen.queryByText("EP")).not.toBeInTheDocument();
   });
 
   it("renders the selected-achievements route without mutable player likes", () => {

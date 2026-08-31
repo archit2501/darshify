@@ -55,6 +55,7 @@ export function Search() {
       <h1 className="mb-5 text-3xl font-black">Search portfolio</h1>
       <input
         autoFocus
+        aria-label="Search experience, skills, and proof"
         value={q}
         onChange={(e) => setQ(e.target.value)}
         onKeyDown={(e) => {
@@ -63,7 +64,7 @@ export function Search() {
         onBlur={() => {
           if (results.length) remember(q);
         }}
-        placeholder="What do you want to play?"
+        placeholder="Search experience, skills, and proof"
         className="w-full max-w-md bg-white text-black rounded-full px-5 py-3 font-medium outline-none mb-6"
       />
 
@@ -143,21 +144,16 @@ export function Search() {
                     className="aspect-square rounded mb-3"
                   />
                   <div className="font-bold truncate">{pl.title}</div>
-                  <div className="text-sub text-sm">{pl.kind}</div>
+                  <div className="text-sub text-sm">{pl.description}</div>
                 </Link>
               ))}
             </div>
           )}
           {results.length > 0 && (
             <>
-              <h2 className="text-xl font-bold mb-2">Songs</h2>
+              <h2 className="text-xl font-bold mb-2">Evidence</h2>
               {results.map((t, i) => (
-                <TrackRow
-                  key={t.id}
-                  track={t}
-                  index={i}
-                  context={results.map((x) => x.id)}
-                />
+                <TrackRow key={t.id} track={t} index={i} />
               ))}
             </>
           )}

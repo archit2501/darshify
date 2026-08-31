@@ -2,7 +2,7 @@ import { useSyncExternalStore } from "react";
 import { Link } from "react-router-dom";
 import {
   playlists,
-  tracks,
+  trackById,
   coverFor,
   AVATAR,
   LIKED_COVER,
@@ -13,6 +13,7 @@ import { Shelf } from "../shell/Shelf";
 import { MediaCard } from "../shell/MediaCard";
 import { Art } from "../shell/Art";
 import { currentGreeting } from "../lib/greeting";
+import { portfolio } from "../content/portfolio";
 
 const subscribeToClock = () => () => {};
 
@@ -63,7 +64,10 @@ export function Home({ initialGreeting }: { initialGreeting: string }) {
     },
   ];
 
-  const topHits = [...tracks].sort((a, b) => b.plays - a.plays).slice(0, 6);
+  const selectedEvidence = portfolio.caseStudies
+    .slice(0, 6)
+    .map((caseStudy) => trackById(caseStudy.id))
+    .filter(Boolean) as NonNullable<ReturnType<typeof trackById>>[];
 
   return (
     <div className="pt-2">
@@ -112,8 +116,8 @@ export function Home({ initialGreeting }: { initialGreeting: string }) {
         ))}
       </Shelf>
 
-      <Shelf title="Your Top Hits" to="/artist">
-        {topHits.map((t) => (
+      <Shelf title="Selected evidence" to="/artist">
+        {selectedEvidence.map((t) => (
           <MediaCard
             key={t.id}
             to="/artist"

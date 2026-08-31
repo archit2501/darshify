@@ -1,16 +1,18 @@
-import { artist, tracks, playlists, ARTIST_HERO } from "../data/library";
+import { artist, trackById, playlists, ARTIST_HERO } from "../data/library";
 import { useCareerMix } from "../career-mix/CareerMixContext";
 import { PlayButton } from "../shell/PlayButton";
 import { TrackRow } from "../shell/TrackRow";
 import { MediaCard } from "../shell/MediaCard";
 import { Art } from "../shell/Art";
-import { formatPlays } from "../lib/format";
 import { ContactActions } from "../components/ContactActions";
 import { portfolio } from "../content/portfolio";
 
 export function ArtistPage() {
   const { open } = useCareerMix();
-  const popular = [...tracks].sort((a, b) => b.plays - a.plays).slice(0, 6);
+  const highlights = portfolio.caseStudies
+    .slice(0, 6)
+    .map((caseStudy) => trackById(caseStudy.id))
+    .filter(Boolean) as NonNullable<ReturnType<typeof trackById>>[];
 
   return (
     <div className="-mx-4 md:-mx-6">
@@ -34,9 +36,7 @@ export function ArtistPage() {
           <h1 className="text-5xl md:text-8xl font-black my-2 drop-shadow-lg">
             {artist.name}
           </h1>
-          <div className="text-white/90">
-            {formatPlays(artist.monthlyListeners)} monthly listeners
-          </div>
+          <div className="text-white/90">{portfolio.candidate.headline}</div>
         </div>
       </header>
 
@@ -49,19 +49,19 @@ export function ArtistPage() {
           />
         </div>
 
-        <h2 className="text-2xl font-bold mb-2">Popular</h2>
-        {popular.map((t, i) => (
+        <h2 className="text-2xl font-bold mb-2">Selected evidence</h2>
+        {highlights.map((t, i) => (
           <TrackRow key={t.id} track={t} index={i} />
         ))}
 
-        <h2 className="text-2xl font-bold mt-8 mb-3">Discography</h2>
+        <h2 className="text-2xl font-bold mt-8 mb-3">Evidence collections</h2>
         <div className="flex gap-4 overflow-x-auto pb-2">
           {playlists.map((pl) => (
             <MediaCard
               key={pl.id}
               to={`/playlist/${pl.id}`}
               title={pl.title}
-              subtitle={`${pl.kind} · Darshil Jain`}
+              subtitle={pl.description}
               gradient={pl.gradient}
               cover={pl.cover}
             />

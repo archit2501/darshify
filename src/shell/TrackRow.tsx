@@ -1,20 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "./Toast";
-import { formatTime, formatPlays } from "../lib/format";
 import type { Track } from "../data/library";
 import { caseStudyById } from "../content/selectors";
 
-export function TrackRow({
-  track,
-  index,
-  showPlays = true,
-}: {
-  track: Track;
-  index: number;
-  context?: string[];
-  showPlays?: boolean;
-}) {
+export function TrackRow({ track, index }: { track: Track; index: number }) {
   const toast = useToast();
   const nav = useNavigate();
   const [open, setOpen] = useState(false);
@@ -43,25 +33,17 @@ export function TrackRow({
 
   return (
     <div className="rounded-md hover:bg-card-hi" onContextMenu={onContext}>
-      <div className="group grid grid-cols-[24px_1fr_auto_auto] items-center gap-4 px-4 py-2 text-sub md:grid-cols-[24px_1.6fr_1fr_auto_auto]">
+      <div className="group grid grid-cols-[24px_1fr_auto] items-center gap-4 px-4 py-2 text-sub">
         <div className="w-6 text-center tabular-nums">{index + 1}</div>
 
         <div className="min-w-0 text-left">
-          {caseStudy ? (
-            <Link
-              to={proofHref}
-              className="block truncate font-medium text-white hover:underline"
-            >
-              {track.title}
-            </Link>
-          ) : (
-            <div className="truncate font-medium text-white">{track.title}</div>
-          )}
+          <Link
+            to={proofHref}
+            className="block truncate font-medium text-white hover:underline"
+          >
+            {track.title}
+          </Link>
           <div className="text-sm truncate">{track.subtitle}</div>
-        </div>
-
-        <div className="hidden md:block text-sm truncate">
-          {showPlays ? formatPlays(track.plays) : ""}
         </div>
 
         <button
@@ -71,10 +53,6 @@ export function TrackRow({
         >
           {open ? "▾" : "ⓘ"}
         </button>
-
-        <div className="text-sm tabular-nums w-10 text-right">
-          {formatTime(track.durationSec)}
-        </div>
       </div>
 
       {open && (

@@ -20,6 +20,7 @@ const semanticShellRuntime = [
   "src/pages/Home.tsx",
   "src/pages/LikedSongs.tsx",
   "src/pages/PlaylistPage.tsx",
+  "src/pages/Search.tsx",
   "src/shell/BottomNav.tsx",
   "src/shell/RouteFocus.tsx",
   "src/shell/SkipLink.tsx",
