@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, type CSSProperties } from "react";
 import { Outlet } from "react-router-dom";
 import { CareerMixDock } from "../career-mix/CareerMixDock";
 import { useReducedMotion } from "../lib/useReducedMotion";
@@ -8,7 +8,9 @@ import { BottomNav } from "./BottomNav";
 import { GlobalTopBar } from "./GlobalTopBar";
 import { PageFooter } from "./PageFooter";
 import { RouteFocus } from "./RouteFocus";
-import { Sidebar } from "./Sidebar";
+import { LIBRARY, useLayoutPrefs } from "./layoutPrefs";
+import { LibraryPanel } from "./LibraryPanel";
+import { Resizer } from "./Resizer";
 import { SkipLink } from "./SkipLink";
 
 /**
@@ -20,17 +22,45 @@ import { SkipLink } from "./SkipLink";
 export function AppShell() {
   const reduced = useReducedMotion();
   const mainRef = useRef<HTMLElement>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
+  const [layout, updateLayout] = useLayoutPrefs();
+  const libraryWidth = layout.libraryCollapsed
+    ? LIBRARY.rail
+    : layout.libraryWidth;
 
   return (
     <MotionProvider>
       <SkipLink />
       <NowPlayingTitle />
-      <div className="app-frame" data-reduced-motion={reduced}>
+      <div
+        ref={frameRef}
+        className="app-frame"
+        data-reduced-motion={reduced}
+        style={{ "--lib-current": `${libraryWidth}px` } as CSSProperties}
+      >
         <div className="app-top max-md:hidden">
           <GlobalTopBar />
         </div>
-        <div className="app-library max-md:hidden">
-          <Sidebar />
+        <div className="app-library relative max-md:hidden">
+          <LibraryPanel
+            collapsed={layout.libraryCollapsed}
+            onToggleCollapsed={() =>
+              updateLayout({ libraryCollapsed: !layout.libraryCollapsed })
+            }
+          />
+          {layout.libraryCollapsed ? null : (
+            <div className="absolute inset-y-0 -right-[0.3125rem] flex">
+              <Resizer
+                label="Resize Your Library"
+                value={layout.libraryWidth}
+                min={LIBRARY.min}
+                max={LIBRARY.max}
+                target={() => frameRef.current}
+                cssVar="--lib-current"
+                onCommit={(libraryWidth) => updateLayout({ libraryWidth })}
+              />
+            </div>
+          )}
         </div>
         <main
           id="main-content"

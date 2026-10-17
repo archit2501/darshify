@@ -30,7 +30,7 @@ const taskRuntimeModules = [
   "src/seo/structuredData.ts",
   "src/shell/MediaCard.tsx",
   "src/shell/Shelf.tsx",
-  "src/shell/Sidebar.tsx",
+  "src/shell/LibraryPanel.tsx",
   "src/shell/GlobalTopBar.tsx",
 ];
 

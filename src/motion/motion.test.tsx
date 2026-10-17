@@ -7,7 +7,6 @@ import { resolve } from "node:path";
 import { useContext } from "react";
 import {
   act,
-  within,
   fireEvent,
   render,
   screen,
@@ -36,7 +35,7 @@ import {
 import { AppShell } from "../shell/AppShell";
 import { MediaCard } from "../shell/MediaCard";
 import { PlayButton } from "../shell/PlayButton";
-import { Sidebar } from "../shell/Sidebar";
+import { LibraryPanel } from "../shell/LibraryPanel";
 import { GlobalTopBar } from "../shell/GlobalTopBar";
 import { MotionProvider } from "./MotionProvider";
 
@@ -201,15 +200,10 @@ describe("editorial motion foundation", () => {
     await renderShell(true);
     fireEvent.click(screen.getByRole("button", { name: "Start Career Mix" }));
     const pause = screen.getByRole("button", { name: "Pause Career Mix" });
-    const cv = within(
-      screen.getAllByRole("group", { name: "Contact Darshil Jain" })[0],
-    ).getByRole("link", { name: "Download CV" });
 
     pause.style.transform = "scale(1.05)";
-    cv.style.transform = "scale(1.05)";
 
     expect(getComputedStyle(pause).transform).toBe("none");
-    expect(getComputedStyle(cv).transform).toBe("none");
   });
 
   // Regression: replacing window.localStorage before vi.stubGlobal makes later tests inherit the fake storage.
@@ -364,13 +358,18 @@ describe("editorial motion foundation", () => {
     expect(screen.getByText("/second")).toBeVisible();
   });
 
-  // Regression: active-route styling callbacks can fail on non-home sidebar entries after route refactors.
-  it("marks each real Sidebar route family active", () => {
+  // Regression: active-route styling callbacks can fail on non-home library entries after route refactors.
+  it("marks each real Your Library route family active", () => {
     for (const path of ["/artist", "/liked", "/playlist/experience"]) {
       const view = render(
-        <MemoryRouter initialEntries={[path]}>
-          <Sidebar />
-        </MemoryRouter>,
+        <PlayerProvider createAudio={() => null}>
+          <MemoryRouter initialEntries={[path]}>
+            <LibraryPanel
+              collapsed={false}
+              onToggleCollapsed={() => undefined}
+            />
+          </MemoryRouter>
+        </PlayerProvider>,
       );
       const current = view.container.querySelector('[aria-current="page"]');
       expect(current).toBeInTheDocument();
