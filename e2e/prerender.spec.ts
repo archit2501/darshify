@@ -14,7 +14,7 @@ const fixedRoutes = [
   { path: "/", heading: portfolio.candidate.name },
   { path: "/artist", heading: portfolio.candidate.name },
   { path: "/search", heading: "Search portfolio" },
-  { path: "/library", heading: "Career Library" },
+  { path: "/library", heading: "Your Library" },
   { path: "/liked", heading: "Selected achievements" },
 ] as const;
 

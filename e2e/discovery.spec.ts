@@ -70,9 +70,9 @@ test("Career Library filters and A–Z sort remain keyboard operable on mobile",
   await page.goto("/library", { waitUntil: "networkidle" });
 
   await expect(
-    page.getByRole("heading", { level: 1, name: "Career Library" }),
+    page.getByRole("heading", { level: 1, name: "Your Library" }),
   ).toBeVisible();
-  const projects = page.getByRole("button", { name: "Projects" });
+  const projects = page.getByRole("button", { name: "Projects", exact: true });
   await projects.focus();
   await page.keyboard.press("Enter");
   await expect(projects).toHaveAttribute("aria-pressed", "true");

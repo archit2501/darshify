@@ -146,9 +146,7 @@ describe("routed portfolio pages without the legacy player runtime", () => {
   it("renders Library with professional collection categories and truthful navigation", () => {
     const view = renderPage(<Library />, "/library");
 
-    expect(
-      screen.getByRole("heading", { name: "Career Library" }),
-    ).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Your Library" })).toBeVisible();
     expect(
       screen.getByRole("link", { name: "Explore Experience" }),
     ).toHaveAttribute("href", "/playlist/experience");
@@ -169,7 +167,7 @@ describe("routed portfolio pages without the legacy player runtime", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "All categories" }));
     const search = screen.getByRole("searchbox", {
-      name: "Search Career Library",
+      name: "Search Your Library",
     });
     fireEvent.change(search, { target: { value: "Projects" } });
     expect(
