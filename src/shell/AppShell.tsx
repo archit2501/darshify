@@ -8,6 +8,10 @@ import { BottomNav } from "./BottomNav";
 import { GlobalTopBar } from "./GlobalTopBar";
 import { PageFooter } from "./PageFooter";
 import { PlayerBar } from "./PlayerBar";
+import { NowPlayingPanel } from "./NowPlayingPanel";
+import { QueueView } from "./QueueView";
+import { LyricsView } from "./LyricsView";
+import { usePlayer } from "../player/hooks";
 import { RouteFocus } from "./RouteFocus";
 import { LIBRARY, useLayoutPrefs } from "./layoutPrefs";
 import { LibraryPanel } from "./LibraryPanel";
@@ -25,6 +29,8 @@ export function AppShell() {
   const mainRef = useRef<HTMLElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
   const [layout, updateLayout] = useLayoutPrefs();
+  const panel = usePlayer((state) => state.panel);
+  const lyricsView = usePlayer((state) => state.lyricsView);
   const libraryWidth = layout.libraryCollapsed
     ? LIBRARY.rail
     : layout.libraryWidth;
@@ -38,6 +44,7 @@ export function AppShell() {
           ref={frameRef}
           className="app-frame"
           data-reduced-motion={reduced}
+          data-panel={panel ? "open" : "closed"}
           style={{ "--lib-current": `${libraryWidth}px` } as CSSProperties}
         >
           <div className="app-top max-md:hidden">
@@ -70,13 +77,23 @@ export function AppShell() {
             data-scroll-root
             className="app-main"
           >
-            {/* Pages own their gutters once rebuilt (sprint 3); older pages
-              still rely on this padding. */}
-            <div className="px-4 pt-4 pb-8 md:px-6">
-              <Outlet />
-            </div>
-            <PageFooter />
+            {lyricsView ? (
+              <LyricsView />
+            ) : (
+              <>
+                {/* Pages own their gutters once rebuilt (sprint 3); older
+                    pages still rely on this padding. */}
+                <div className="px-4 pt-4 pb-8 md:px-6">
+                  <Outlet />
+                </div>
+                <PageFooter />
+              </>
+            )}
           </main>
+          <div className="app-panel">
+            {panel === "now-playing" ? <NowPlayingPanel /> : null}
+            {panel === "queue" ? <QueueView /> : null}
+          </div>
           <div className="app-bar">
             <div className="max-md:hidden">
               <PlayerBar />
