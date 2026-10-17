@@ -5,6 +5,7 @@ export default [
   route("artist", "routes/artist.tsx"),
   route("search", "routes/search.tsx"),
   route("library", "routes/library.tsx"),
+  route("rewind", "routes/rewind.tsx"),
   route("playlist/:id", "routes/collection.tsx", {
     id: "routes/collection-playlist",
   }),

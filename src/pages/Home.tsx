@@ -1,4 +1,5 @@
 import { useCallback, useRef, type CSSProperties } from "react";
+import { Link } from "react-router-dom";
 import { MediaCard } from "../components/MediaCard";
 import { QuickPicks, type QuickPick } from "../components/QuickPicks";
 import { RecruiterHero } from "../components/RecruiterHero";
@@ -89,6 +90,26 @@ export function Home() {
             </h2>
             <QuickPicks picks={quickPicks} onTint={tint} />
           </section>
+
+          <Link
+            to="/rewind"
+            className="group relative flex items-center justify-between gap-4 overflow-hidden rounded-panel bg-linear-to-br from-[#e8115b] via-[#1e3264] to-[#0d73ec] p-5 transition-transform duration-(--dur-hover) motion-safe:hover:scale-[1.01] md:p-7"
+          >
+            <span>
+              <span className="block text-sm font-bold text-white/85">
+                Your year in review
+              </span>
+              <span className="block text-2xl font-black tracking-[-0.03em] md:text-4xl">
+                Darshil&apos;s Rewind is here
+              </span>
+              <span className="mt-1 block text-sm text-white/85">
+                Internships, top skills, awards: the story in eight slides.
+              </span>
+            </span>
+            <span className="shrink-0 rounded-full bg-fg px-5 py-2.5 text-sm font-bold text-black">
+              Watch now
+            </span>
+          </Link>
 
           <div className="-mx-3">
             <Shelf title="Recruiter Essentials">

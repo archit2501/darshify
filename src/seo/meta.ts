@@ -11,7 +11,8 @@ type FixedRouteMeta =
   | { kind: "artist" }
   | { kind: "search" }
   | { kind: "library" }
-  | { kind: "liked" };
+  | { kind: "liked" }
+  | { kind: "rewind" };
 
 export type RouteMetaInput =
   | FixedRouteMeta
@@ -37,6 +38,7 @@ const fixedRoutes: CanonicalRoute[] = [
   { id: "search", path: "/search", meta: { kind: "search" } },
   { id: "library", path: "/library", meta: { kind: "library" } },
   { id: "liked", path: "/liked", meta: { kind: "liked" } },
+  { id: "rewind", path: "/rewind", meta: { kind: "rewind" } },
 ];
 
 export const canonicalRouteInventory: CanonicalRoute[] = [
@@ -84,6 +86,11 @@ const fixedCopy: Record<
     title: "Browse professional evidence | Darshify",
     description:
       "Browse Darshil Jain's professional evidence categories and career releases by experience, project, skill, credential, achievement, or education.",
+  },
+  rewind: {
+    title: "Darshil's Rewind: the year in review | Darshify",
+    description:
+      "Darshil Jain's work in review, told like a music year-in-review: internships, top skills, a club built from zero, awards and grades, all from the résumé.",
   },
   liked: {
     title: "Selected achievements | Darshify",

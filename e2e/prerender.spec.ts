@@ -16,6 +16,7 @@ const fixedRoutes = [
   { path: "/search", heading: "Search portfolio" },
   { path: "/library", heading: "Your Library" },
   { path: "/liked", heading: "Selected achievements" },
+  { path: "/rewind", heading: "Darshil's Rewind" },
 ] as const;
 
 const prerenderRoutes: ReadonlyArray<{

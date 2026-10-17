@@ -8,6 +8,7 @@ const columns = [
     links: [
       { label: "Profile", to: "/artist" },
       { label: "This Is Darshil Jain", to: "/playlist/this-is-darshil-jain" },
+      { label: "Rewind", to: "/rewind" },
     ],
   },
   {

@@ -48,6 +48,7 @@ const fixedCategories: Record<
   search: "Evidence search",
   library: "Career library",
   liked: "Selected achievements",
+  rewind: "Year in review",
 };
 
 const categoryFor = (meta: RouteMetaInput): string => {
