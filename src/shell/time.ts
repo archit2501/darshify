@@ -16,3 +16,12 @@ export function spokenTime(ms: number): string {
   parts.push(`${seconds} ${seconds === 1 ? "second" : "seconds"}`);
   return parts.join(" ");
 }
+
+/** "1 min 34 sec" for a list's running time, as release headers show it. */
+export function formatListLength(ms: number): string {
+  const total = Math.max(0, Math.round(ms / 1000));
+  const minutes = Math.floor(total / 60);
+  const seconds = total % 60;
+  if (minutes === 0) return `${seconds} sec`;
+  return seconds === 0 ? `${minutes} min` : `${minutes} min ${seconds} sec`;
+}

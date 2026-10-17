@@ -43,6 +43,13 @@ const semanticShellRuntime = [
   "src/shell/ReleaseMenu.tsx",
   "src/shell/ShortcutsDialog.tsx",
   "src/shell/useShortcuts.ts",
+  "src/components/MediaCard.tsx",
+  "src/components/Shelf.tsx",
+  "src/components/TrackTable.tsx",
+  "src/components/ReleaseHeader.tsx",
+  "src/components/ActionBar.tsx",
+  "src/components/titleSize.ts",
+  "src/content/songFacts.ts",
   "src/shell/RouteFocus.tsx",
   "src/shell/SkipLink.tsx",
 ];

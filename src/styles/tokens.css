@@ -118,6 +118,8 @@
   --np-min: 17.5rem;
   --np-max: 26.25rem;
   --content-x: 1.5rem;
+  /* Space above page content: room for the phone's floating top row. */
+  --page-top: 1rem;
   --row-h: 3.5rem;
   /* WCAG 2.2: 24px minimum on fine pointers, 44px on touch. */
   --target-fine: 1.5rem;
@@ -143,6 +145,7 @@
 @media (max-width: 767px) {
   :root {
     --content-x: 1rem;
+    --page-top: 4rem;
   }
 }
 
