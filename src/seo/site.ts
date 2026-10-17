@@ -12,7 +12,7 @@ export const SITE = {
   locale: "en_IN",
   language: "en",
   themeColor: "#121212",
-  /** Disambiguates Darshil from other people who share his name in search. */
+  /** Disambiguates Darshil from other people who share the name in search. */
   titleQualifier: "Operations & Strategy · BBA, MSI Delhi",
   nonAffiliationNote:
     "Darshify is a personal portfolio inspired by music-streaming apps. It is not affiliated with or endorsed by Spotify.",

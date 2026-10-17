@@ -1,6 +1,6 @@
 # Darshify
 
-Darshify is the personal portfolio of **Darshil Jain**, a BBA (Business & Industry) student at Maharaja Surajmal Institute (GGSIPU), New Delhi, working across operations, strategy and people. It presents his career the way a music-streaming app presents an artist:
+Darshify is the personal portfolio of **Darshil Jain**, a BBA (Business & Industry) student at Maharaja Surajmal Institute (GGSIPU), New Delhi, working across operations, strategy and people. It presents Darshil's career the way a music-streaming app presents an artist:
 
 | On the site  | In Darshil's career                                         |
 | ------------ | ----------------------------------------------------------- |
@@ -11,7 +11,7 @@ Darshify is the personal portfolio of **Darshil Jain**, a BBA (Business & Indust
 | Genres       | Skills                                                      |
 | Liked Songs  | Awards                                                      |
 
-Every number on the site comes from his résumé. Darshify is an independent personal project and is not affiliated with or endorsed by Spotify.
+Every number on the site comes from Darshil's résumé. Darshify is an independent personal project and is not affiliated with or endorsed by Spotify.
 
 ## Stack
 
