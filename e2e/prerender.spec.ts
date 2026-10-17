@@ -295,7 +295,7 @@ test("hydration regression: timezone, local storage, and reduced motion do not a
   await page.goto("/search", { waitUntil: "networkidle" });
   await expect(page.getByText("Recent searches")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "operations" })).toHaveCount(0);
-  await expect(page.getByRole("searchbox")).toHaveValue("");
+  await expect(page.getByRole("main").getByRole("searchbox")).toHaveValue("");
   expect(consoleErrors).toEqual([]);
   expect(pageErrors).toEqual([]);
   await context.close();

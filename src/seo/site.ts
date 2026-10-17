@@ -12,6 +12,7 @@ export const SITE = {
   locale: "en_IN",
   language: "en",
   themeColor: "#121212",
+  copyrightYear: 2026,
   /** Disambiguates Darshil from other people who share the name in search. */
   titleQualifier: "Operations & Strategy · BBA, MSI Delhi",
   nonAffiliationNote:

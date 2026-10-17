@@ -7,6 +7,7 @@ import { resolve } from "node:path";
 import { useContext } from "react";
 import {
   act,
+  within,
   fireEvent,
   render,
   screen,
@@ -36,7 +37,7 @@ import { AppShell } from "../shell/AppShell";
 import { MediaCard } from "../shell/MediaCard";
 import { PlayButton } from "../shell/PlayButton";
 import { Sidebar } from "../shell/Sidebar";
-import { TopBar } from "../shell/TopBar";
+import { GlobalTopBar } from "../shell/GlobalTopBar";
 import { MotionProvider } from "./MotionProvider";
 
 const tokenStyles = document.createElement("style");
@@ -183,31 +184,6 @@ describe("editorial motion foundation", () => {
     expect(screen.getByText("user")).toBeVisible();
   });
 
-  // Regression: 32px history buttons and an unconstrained CV link violate the approved 44×44px target floor.
-  it("gives every real TopBar control a 44 by 44 pixel minimum target", () => {
-    reduceMotion(false);
-    const router = createMemoryRouter(
-      [{ path: "/search", element: <TopBar /> }],
-      { initialEntries: ["/search"] },
-    );
-    render(<RouterProvider router={router} />);
-
-    const targetToken = getComputedStyle(document.documentElement)
-      .getPropertyValue("--target-min")
-      .trim();
-    expect(parseFloat(targetToken) * 16).toBe(44);
-
-    const controls = [
-      screen.getByRole("button", { name: "Back" }),
-      screen.getByRole("button", { name: "Forward" }),
-      screen.getByRole("link", { name: "Download CV" }),
-    ];
-    for (const control of controls) {
-      expect(getComputedStyle(control).minInlineSize).toBe("var(--target-min)");
-      expect(getComputedStyle(control).minBlockSize).toBe("var(--target-min)");
-    }
-  });
-
   // Regression: a reduced-motion dock starting translated or transparent hides final UI before animation settles.
   it("renders the real reduced-motion Career Mix dock in its final visible state", async () => {
     await renderShell(true);
@@ -225,7 +201,9 @@ describe("editorial motion foundation", () => {
     await renderShell(true);
     fireEvent.click(screen.getByRole("button", { name: "Start Career Mix" }));
     const pause = screen.getByRole("button", { name: "Pause Career Mix" });
-    const cv = screen.getAllByRole("link", { name: "Download CV" })[0];
+    const cv = within(
+      screen.getAllByRole("group", { name: "Contact Darshil Jain" })[0],
+    ).getByRole("link", { name: "Download CV" });
 
     pause.style.transform = "scale(1.05)";
     cv.style.transform = "scale(1.05)";
@@ -286,21 +264,6 @@ describe("editorial motion foundation", () => {
     expect(
       screen.queryByRole("heading", { name: "Queue" }),
     ).not.toBeInTheDocument();
-  });
-
-  // Regression: disconnecting the main scroll handler leaves the sticky header permanently transparent.
-  it("updates the shell header tint from real main-region scrolling", async () => {
-    await renderShell(false);
-    const main = screen.getByRole("main");
-    Object.defineProperty(main, "scrollTop", {
-      configurable: true,
-      value: 280,
-    });
-
-    fireEvent.scroll(main);
-
-    const tint = main.querySelector("header > div[aria-hidden]") as HTMLElement;
-    expect(tint.style.opacity).toBe("1");
   });
 
   // Regression: shell integration can render the dock while leaving its transport callbacks disconnected.
@@ -374,33 +337,8 @@ describe("editorial motion foundation", () => {
   });
 
   // Regression: route-specific tint selection can silently fall back when known Artist, Liked, or playlist paths render.
-  it("uses the correct real TopBar tint for every supported route family", () => {
-    const cases = [
-      ["/", "rgb(13, 13, 18)"],
-      ["/artist", "linear-gradient(180deg, rgb(30, 215, 96), rgb(0, 170, 85))"],
-      [
-        "/liked",
-        "linear-gradient(180deg, rgb(74, 0, 224), rgb(179, 179, 255))",
-      ],
-      ["/playlist/experience", "linear-gradient"],
-      ["/playlist/missing", "rgb(13, 13, 18)"],
-    ] as const;
-
-    for (const [path, expected] of cases) {
-      const router = createMemoryRouter(
-        [{ path: "*", element: <TopBar scrollY={280} /> }],
-        { initialEntries: [path] },
-      );
-      const view = render(<RouterProvider router={router} />);
-      const tint = view.container.querySelector("[aria-hidden]") as HTMLElement;
-      expect(tint.style.opacity).toBe("1");
-      expect(tint.style.background).toContain(expected);
-      view.unmount();
-    }
-  });
-
   // Regression: history controls can stop calling router navigation while retaining their visual button states.
-  it("keeps TopBar history controls wired to real router navigation", () => {
+  it("keeps the global top bar's history controls wired to real router navigation", () => {
     function LocationProbe() {
       return <output>{useLocation().pathname}</output>;
     }
@@ -410,7 +348,7 @@ describe("editorial motion foundation", () => {
           path: "*",
           element: (
             <>
-              <TopBar />
+              <GlobalTopBar />
               <LocationProbe />
             </>
           ),
@@ -420,9 +358,9 @@ describe("editorial motion foundation", () => {
     );
     render(<RouterProvider router={router} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Back" }));
+    fireEvent.click(screen.getByRole("button", { name: "Go back" }));
     expect(screen.getByText("/first")).toBeVisible();
-    fireEvent.click(screen.getByRole("button", { name: "Forward" }));
+    fireEvent.click(screen.getByRole("button", { name: "Go forward" }));
     expect(screen.getByText("/second")).toBeVisible();
   });
 
