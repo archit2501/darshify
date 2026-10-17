@@ -25,7 +25,7 @@ describe("RecruiterHero", () => {
     render(
       <PlayerProvider createAudio={() => null}>
         <MemoryRouter>
-          <RecruiterHero greeting="Good morning" />
+          <RecruiterHero />
         </MemoryRouter>
       </PlayerProvider>,
     );
@@ -67,14 +67,13 @@ describe("RecruiterHero", () => {
     expect(
       screen.getByRole("button", { name: "Pause This Is Darshil Jain" }),
     ).toBeVisible();
-    expect(screen.getByText("Good morning")).toHaveClass("sr-only");
   });
 
   it("renders the candidate artwork, proof cover, and compact proof waveform", () => {
     render(
       <PlayerProvider createAudio={() => null}>
         <MemoryRouter>
-          <RecruiterHero greeting="Hello" />
+          <RecruiterHero />
         </MemoryRouter>
       </PlayerProvider>,
     );

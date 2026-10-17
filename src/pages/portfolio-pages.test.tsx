@@ -103,7 +103,7 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe("routed portfolio pages without the legacy player runtime", () => {
   it("plays This Is Darshil Jain from Home and pauses it from the same button", () => {
-    renderPage(<Home initialGreeting="Good morning" />);
+    renderPage(<Home />);
 
     fireEvent.click(
       screen.getByRole("button", { name: "Play This Is Darshil Jain" }),
@@ -117,33 +117,30 @@ describe("routed portfolio pages without the legacy player runtime", () => {
     expect(screen.getByLabelText("Player state")).toHaveTextContent("paused");
   });
 
-  it("keeps Home cards as truthful evidence navigation without playback framing", () => {
-    const view = renderPage(<Home initialGreeting="Good morning" />);
+  it("keeps Home cards as real navigation and real playback, without invented numbers", () => {
+    const view = renderPage(<Home />);
 
     expect(
       screen.getByRole("region", { name: "Recruiter Essentials" }),
     ).toBeVisible();
+    const releases = screen.getByRole("region", { name: "Releases" });
+    expect(within(releases).getByText("2025–2026 · EP")).toBeVisible();
     expect(
-      screen.getAllByText(
-        "Three internships across operations and human resources, 2025–2026.",
-      )[0],
-    ).toBeVisible();
-    expect(
-      screen.getAllByRole("link", { name: /Achievements/ })[0],
+      within(releases).getByRole("link", { name: "Achievements" }),
     ).toHaveAttribute("href", "/liked");
     expectNoSimulatedMetadata(view.container, routedPlaybackFictions);
 
     fireEvent.click(
-      screen.getByRole("link", {
-        name: /Skills Mix.*Explore collection/,
-      }),
+      within(releases).getByRole("button", { name: "Play Experience" }),
     );
+    expect(screen.getByLabelText("Player state")).toHaveTextContent(
+      "release:experience playing",
+    );
+
+    fireEvent.click(within(releases).getByRole("link", { name: "Skills Mix" }));
     expect(screen.getByLabelText("Current route")).toHaveTextContent(
       "/playlist/skills",
     );
-    expect(
-      screen.queryByRole("button", { name: /Play (Top Skills|Experience)/ }),
-    ).not.toBeInTheDocument();
   });
 
   it("renders Library with professional collection categories and truthful navigation", () => {

@@ -16,7 +16,7 @@ const renderHome = () =>
   render(
     <MemoryRouter>
       <PlayerProvider createAudio={() => null}>
-        <Home initialGreeting="Good morning" />
+        <Home />
         <PlayerState />
       </PlayerProvider>
     </MemoryRouter>,
@@ -88,14 +88,15 @@ describe("Home recruiter briefing", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("renders the secondary evidence shelf as full-width collection articles", () => {
+  it("renders every release as a card in the Releases shelf", () => {
     renderHome();
 
     const collections = screen.getByRole("region", {
-      name: "Evidence collections",
+      name: "Releases",
     });
     const cards = within(collections).getAllByRole("article");
-    expect(cards).toHaveLength(portfolio.collections.length);
+    // Every release except the spotlight's "This Is Darshil Jain".
+    expect(cards).toHaveLength(portfolio.collections.length - 1);
     expect(
       cards.every((card) => card.dataset.evidenceKind === "collection"),
     ).toBe(true);

@@ -29,9 +29,7 @@ describe("route root", () => {
         {
           path: "/",
           element: <Root />,
-          children: [
-            { index: true, element: <Home initialGreeting="Good morning" /> },
-          ],
+          children: [{ index: true, element: <Home /> }],
         },
       ],
       { initialEntries: ["/"] },
