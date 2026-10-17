@@ -464,7 +464,7 @@
                     "dependencies": [],
                     "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
                     "ciJobs": ["quality", "test", "build", "browser"],
-                    "status": "in_progress",
+                    "status": "done",
                     "criticalPath": true,
                     "parallelizable": false
                   }
@@ -479,11 +479,12 @@
                     "title": "Spotify-grade tokens, Figtree, icon set and Base UI",
                     "acceptance": [
                       "tokens.css carries the research B5 system: surfaces #000/#121212/#1f1f1f/#2a2a2a, tints, #fff/#b3b3b3 text, green states, radii 4/6/8/pill, shadows, motion durations, layout vars",
-                      "Figtree Variable is the only font; Archivo and IBM Plex Mono removed; tabular figures verified (or fallback documented)",
+                      "Figtree Variable is the only font (Archivo and IBM Plex Mono removed). Verified: Figtree has no tabular figures, so live timers render digits in fixed-width cells",
                       "The global 44px min-size rule is scoped to coarse pointers and .interactive-target; desktop hit areas stay >= 24px",
                       "White 2px focus ring; equalizer keyframes; range-input scrubber/volume styles; reduced motion zeroes durations and freezes the equalizer",
                       "Original icon set extended on a 24px grid (shuffle, repeat, repeat-one, queue, lyrics, now-playing view, volume levels, heart, plus/check, more, download, pin, speaker, chevrons, close, expand, share, link, keyboard)",
-                      "@base-ui/react installed at a pinned version"
+                      "@base-ui/react installed at a pinned version",
+                      "Base styles live in @layer base/components so Tailwind utilities always win (fixes the white-on-white Career Mix play button and similar conflicts)"
                     ],
                     "estimateHours": 5,
                     "timeComplexity": "n/a",
@@ -497,7 +498,7 @@
                     "dependencies": ["1.1.1"],
                     "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
                     "ciJobs": ["quality", "test", "build", "browser"],
-                    "status": "todo",
+                    "status": "in_progress",
                     "criticalPath": true,
                     "parallelizable": false
                   }
@@ -1148,7 +1149,7 @@
             ]
           }
         ],
-        "generatedAt": "2026-10-17T02:31:46.794Z"
+        "generatedAt": "2026-10-17T02:46:58.565Z"
       }
     </script>
     <script>
