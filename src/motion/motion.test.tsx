@@ -4,7 +4,6 @@ import { readFileSync } from "node:fs";
 import { readStylesheet } from "../test/stylesheets";
 import { PlayerProvider } from "../player/PlayerProvider";
 import { resolve } from "node:path";
-import { useContext } from "react";
 import {
   act,
   within,
@@ -13,13 +12,12 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
-import { MotionConfigContext } from "motion/react";
 import {
   createMemoryRouter,
   MemoryRouter,
   RouterProvider,
   useLocation,
-} from "react-router-dom";
+} from "react-router";
 import {
   afterAll,
   afterEach,
@@ -38,7 +36,6 @@ import { releaseArt } from "../content/artwork";
 import { PlayButton } from "../shell/PlayButton";
 import { LibraryPanel } from "../shell/LibraryPanel";
 import { GlobalTopBar } from "../shell/GlobalTopBar";
-import { MotionProvider } from "./MotionProvider";
 
 const tokenStyles = document.createElement("style");
 const baseStyles = document.createElement("style");
@@ -161,21 +158,16 @@ describe("editorial motion foundation", () => {
     expect(tokens).toMatch(/--color-signal:\s*var\(--color-green\);/);
   });
 
-  // Regression: omitting reducedMotion="user" lets translated entrance motion run against the user's OS preference.
-  it("configures Motion to follow the user's reduced-motion preference", () => {
-    reduceMotion(false);
-
-    function PolicyProbe() {
-      return <output>{useContext(MotionConfigContext).reducedMotion}</output>;
-    }
-
-    render(
-      <MotionProvider>
-        <PolicyProbe />
-      </MotionProvider>,
+  // Regression: the waveform's draw-on must stop for people who reduce motion,
+  // and must end fully drawn (an animation stuck at its start hides the line).
+  it("draws the proof waveform with CSS that honours reduced motion", () => {
+    const base = readStylesheet("src/styles/base.css");
+    expect(base).toMatch(
+      /\.waveform-draw\s*\{[^}]*stroke-dashoffset:\s*1;[^}]*animation:\s*waveform-draw[^}]*forwards;/,
     );
-
-    expect(screen.getByText("user")).toBeVisible();
+    expect(base).toMatch(
+      /prefers-reduced-motion:\s*reduce\)\s*\{\s*\.waveform-draw\s*\{\s*animation:\s*none;\s*stroke-dashoffset:\s*0;/,
+    );
   });
 
   // Regression: a reduced-motion player starting translated or transparent hides final UI before animation settles.

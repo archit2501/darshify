@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
+import { playerSurface } from "../content/color";
 import { CloseIcon } from "../icons/icons";
 import { usePlaybackClock, usePlayer, usePlayerActions } from "../player/hooks";
 import { activeCueIndex, trackById } from "../player/tracks";
@@ -36,14 +37,14 @@ export function LyricsView() {
     <section
       aria-label={`Lyrics: ${track.title}`}
       className="relative min-h-full px-(--content-x) pt-6 pb-24"
-      style={{ backgroundColor: track.art.color }}
+      style={{ backgroundColor: playerSurface(track.art.color) }}
     >
       <div className="sticky top-0 flex items-center justify-between py-2">
-        <p className="text-sm font-bold">
-          <Link to={track.href} className="hover:underline">
+        <p className="text-sm">
+          <Link to={track.href} className="font-bold hover:underline">
             {track.title}
           </Link>
-          <span className="text-white/70"> · Darshil Jain</span>
+          <span> · Darshil Jain</span>
         </p>
         <IconButton label="Close lyrics" onClick={toggleLyrics}>
           <CloseIcon size={18} />
@@ -60,8 +61,8 @@ export function LyricsView() {
                 index === active
                   ? "text-fg"
                   : index < active
-                    ? "text-white/60 hover:text-white/80"
-                    : "text-black/60 hover:text-white/80"
+                    ? "text-white/80 hover:text-fg"
+                    : "text-white/55 hover:text-white/80"
               }`}
             >
               {cue.text}

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import type { CoverArt } from "../content/artwork";
 import type { Portrait } from "../content/types";
 import { usePlayer } from "../player/hooks";
@@ -80,11 +80,13 @@ export function MediaCard({
           </div>
         ) : null}
       </div>
-      <h3 className="truncate font-bold">
+      <h3 className="font-bold">
+        {/* A block link is a full 24px line tall (WCAG 2.5.8); its ::after
+            still stretches over the whole card. */}
         <Link
           to={href}
           aria-label={linkLabel}
-          className="after:absolute after:inset-0 after:rounded-panel focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-fg"
+          className="block truncate after:absolute after:inset-0 after:rounded-panel focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-fg"
         >
           {title}
         </Link>

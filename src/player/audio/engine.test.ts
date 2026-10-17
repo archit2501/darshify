@@ -59,6 +59,23 @@ describe("ambient engine", () => {
     expect(latest).toBeLessThan(4 + 0.25 + 60 / VOICES.experience.bpm);
   });
 
+  it("warms a suspended, silent graph once, ahead of the first Play", () => {
+    const { engine, context, created } = setup();
+    engine.warm();
+    expect(created()).toBe(1);
+    expect(context.suspended).toBe(1);
+    expect(context.oscillators).toHaveLength(0);
+    expect(engine.active).toBe(false);
+
+    engine.play("r1", "experience");
+    expect(created()).toBe(1);
+    expect(context.resumed).toBe(1);
+    // Warming again never suspends a context that is already built.
+    engine.warm();
+    expect(context.suspended).toBe(1);
+    expect(engine.active).toBe(true);
+  });
+
   it("crossfades to a new song and retires the old voice", () => {
     const { engine, context, clock } = setup();
     engine.play("r1", "experience");

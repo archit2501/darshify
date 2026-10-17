@@ -1,6 +1,7 @@
 import { useId } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { artistArt } from "../content/artwork";
+import { playerSurface } from "../content/color";
 import { portfolio } from "../content/portfolio";
 import { caseStudyById } from "../content/selectors";
 import { usePlaybackClock, usePlayer, usePlayerActions } from "../player/hooks";
@@ -35,7 +36,7 @@ export function LyricsCard({
     <section
       aria-labelledby={id}
       className="rounded-panel p-4"
-      style={{ backgroundColor: color }}
+      style={{ backgroundColor: playerSurface(color) }}
     >
       <div className="mb-3 flex items-center justify-between">
         <h3 id={id} className="font-bold">
@@ -52,14 +53,14 @@ export function LyricsCard({
           Show lyrics
         </button>
       </div>
-      <ol className="space-y-2 text-lg leading-snug font-bold">
+      <ol className="space-y-2 text-xl leading-snug font-bold">
         {track.cues.map((cue, index) => (
           <li key={cue.startMs}>
             <button
               type="button"
               onClick={() => seek(cue.startMs)}
               aria-current={index === active ? "true" : undefined}
-              className={`text-left transition-colors duration-(--dur-reveal) ${index === active ? "text-fg" : index < active ? "text-white/70" : "text-black/55 hover:text-white/80"}`}
+              className={`text-left transition-colors duration-(--dur-reveal) ${index === active ? "text-fg" : index < active ? "text-white/80" : "text-white/55 hover:text-white/80"}`}
             >
               {cue.text}
             </button>
@@ -131,6 +132,11 @@ export function ArtistCard({ onNavigate }: { onNavigate?: () => void }) {
           portrait={portfolio.candidate.portrait}
           size="fill"
           className="aspect-[16/10]"
+        />
+        {/* Keeps the heading readable over any photo, light ones included. */}
+        <span
+          aria-hidden="true"
+          className="absolute inset-x-0 top-0 h-1/2 bg-linear-to-b from-black/75 to-transparent"
         />
         <h3 id={id} className="absolute top-3 left-4 font-bold drop-shadow">
           About the artist

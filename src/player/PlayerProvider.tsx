@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { trackOutcome } from "../analytics/outcomes";
+import { whenIdle } from "../lib/idle";
 import { createAmbientEngine, type AmbientEngine } from "./audio/engine";
 import { PlayerStoreContext } from "./context";
 import { elapsedAt } from "./reducer";
@@ -127,8 +128,10 @@ function useMediaSession(store: PlayerStore) {
 
 /**
  * Keeps the generated soundtrack in step with the player. The engine (and its
- * AudioContext) is only created once something actually plays, which always
- * follows a click, tap or media key, so browsers never block or autoplay it.
+ * AudioContext) is only created after the visitor has clicked, tapped or
+ * pressed a key, so browsers never block or autoplay it: in idle time after
+ * that first interaction (creating the context can block for ~200 ms, which
+ * shouldn't land on the Play click), or on the first Play if that comes first.
  */
 function useAmbientSound(
   store: PlayerStore,
@@ -137,10 +140,30 @@ function useAmbientSound(
   useEffect(() => {
     let engine: AmbientEngine | null | undefined;
     let playingId: string | null = null;
+    const build = () => {
+      if (engine === undefined) engine = createAudio();
+      return engine;
+    };
+
+    const activation = ["pointerdown", "keydown"] as const;
+    let cancelWarm = () => {};
+    const stopListening = () => {
+      for (const type of activation) {
+        window.removeEventListener(type, warmSoon, true);
+      }
+    };
+    function warmSoon() {
+      stopListening();
+      cancelWarm = whenIdle(() => build()?.warm());
+    }
+    for (const type of activation) {
+      window.addEventListener(type, warmSoon, true);
+    }
+
     const sync = () => {
       const state = store.getState();
       if (state.status === "playing") {
-        if (engine === undefined) engine = createAudio();
+        const engine = build();
         if (!engine) return;
         engine.setVolume(state.volume, state.muted);
         const track = trackById(state.currentId);
@@ -157,6 +180,8 @@ function useAmbientSound(
     const unsubscribe = store.subscribe(sync);
     return () => {
       unsubscribe();
+      stopListening();
+      cancelWarm();
       engine?.dispose();
     };
   }, [store, createAudio]);

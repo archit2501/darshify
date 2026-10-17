@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import type { CoverArt } from "../content/artwork";
 import type { PlayContext } from "../player/tracks";
 import { Cover } from "../shell/Cover";

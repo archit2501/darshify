@@ -1,9 +1,8 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router";
 import { usePlayer } from "../player/hooks";
 import { PlayerProvider } from "../player/PlayerProvider";
-import { MotionProvider } from "../motion/MotionProvider";
 import { ToastProvider } from "../shell/Toast";
 import { ArtistPage } from "./ArtistPage";
 import { Home } from "./Home";
@@ -26,12 +25,10 @@ function RuntimeProbe() {
 function TestRuntime({ children }: { children: React.ReactNode }) {
   return (
     <PlayerProvider createAudio={() => null}>
-      <MotionProvider>
-        <ToastProvider>
-          {children}
-          <RuntimeProbe />
-        </ToastProvider>
-      </MotionProvider>
+      <ToastProvider>
+        {children}
+        <RuntimeProbe />
+      </ToastProvider>
     </PlayerProvider>
   );
 }

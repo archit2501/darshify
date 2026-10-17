@@ -1,5 +1,5 @@
 import { useRef, type CSSProperties } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { ContactActions } from "../components/ContactActions";
 import { MediaCard } from "../components/MediaCard";
 import { Shelf } from "../components/Shelf";

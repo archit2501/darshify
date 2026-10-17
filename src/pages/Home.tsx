@@ -1,5 +1,5 @@
 import { useCallback, useRef, type CSSProperties } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { MediaCard } from "../components/MediaCard";
 import { QuickPicks, type QuickPick } from "../components/QuickPicks";
 import { RecruiterHero } from "../components/RecruiterHero";
@@ -93,7 +93,7 @@ export function Home() {
 
           <Link
             to="/rewind"
-            className="group relative flex items-center justify-between gap-4 overflow-hidden rounded-panel bg-linear-to-br from-[#e8115b] via-[#1e3264] to-[#0d73ec] p-5 transition-transform duration-(--dur-hover) motion-safe:hover:scale-[1.01] md:p-7"
+            className="group relative flex items-center justify-between gap-4 overflow-hidden rounded-panel bg-linear-to-br from-[#da1056] via-[#1e3264] to-[#0c6cde] p-5 transition-transform duration-(--dur-hover) motion-safe:hover:scale-[1.01] md:p-7"
           >
             <span>
               <span className="block text-sm font-bold text-white/85">

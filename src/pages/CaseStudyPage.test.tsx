@@ -7,7 +7,6 @@ import {
   within,
 } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { MemoryRouter as DomMemoryRouter } from "react-router-dom";
 import { PlayerProvider } from "../player/PlayerProvider";
 import { ToastProvider } from "../shell/Toast";
 import {
@@ -81,21 +80,16 @@ const loaderArgs = (slug: string) =>
 
 function renderCaseStudy(slug: string) {
   const path = `/case-studies/${slug}`;
-  // The page's links come from react-router-dom, so a DOM router sits inside
-  // the data router that runs the loader, as in the app.
+  // The page renders inside the data router that runs its loader.
   const router = createMemoryRouter(
     [
       {
         path: "/case-studies/:slug",
         loader,
         element: createElement(
-          DomMemoryRouter,
-          { initialEntries: [path] },
-          createElement(
-            PlayerProvider,
-            { createAudio: () => null, children: null },
-            createElement(ToastProvider, null, createElement(CaseStudyRoute)),
-          ),
+          PlayerProvider,
+          { createAudio: () => null, children: null },
+          createElement(ToastProvider, null, createElement(CaseStudyRoute)),
         ),
       },
     ],

@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { ChevronLeftIcon, ChevronRightIcon } from "../icons/icons";
 import { useReducedMotion } from "../lib/useReducedMotion";
 

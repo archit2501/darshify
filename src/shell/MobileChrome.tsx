@@ -1,6 +1,6 @@
-import { Drawer } from "@base-ui/react/drawer";
-import { useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { Suspense, useRef, useState, type RefObject } from "react";
+import { NavLink, useLocation } from "react-router";
+import { playerSurface } from "../content/color";
 import { portfolio } from "../content/portfolio";
 import {
   CheckCircleIcon,
@@ -16,7 +16,7 @@ import { usePlaybackClock, usePlayer, usePlayerActions } from "../player/hooks";
 import { durationOf } from "../player/reducer";
 import { trackById } from "../player/tracks";
 import { Cover } from "./Cover";
-import { FullScreenPlayer } from "./FullScreenPlayer";
+import { PhonePlayer, preloadPhonePlayer } from "./popups/lazy";
 import { useToggleSave } from "./songActions";
 
 /**
@@ -28,6 +28,9 @@ import { useToggleSave } from "./songActions";
  */
 export function MobileChrome() {
   const [open, setOpen] = useState(false);
+  // The player's code loads on the first press and stays for the next.
+  const [mounted, setMounted] = useState(false);
+  const opener = useRef<HTMLButtonElement>(null);
   const { pathname } = useLocation();
   const [shownPath, setShownPath] = useState(pathname);
   if (pathname !== shownPath) {
@@ -36,15 +39,38 @@ export function MobileChrome() {
   }
 
   return (
-    <Drawer.Root open={open} onOpenChange={setOpen}>
-      <MiniPlayer />
+    <>
+      <MiniPlayer
+        open={open}
+        opener={opener}
+        onOpen={() => {
+          setMounted(true);
+          setOpen(true);
+        }}
+      />
       <TabBar />
-      <FullScreenPlayer onClose={() => setOpen(false)} />
-    </Drawer.Root>
+      {mounted ? (
+        <Suspense fallback={null}>
+          <PhonePlayer
+            open={open}
+            onOpenChange={setOpen}
+            returnFocus={opener}
+          />
+        </Suspense>
+      ) : null}
+    </>
   );
 }
 
-function MiniPlayer() {
+function MiniPlayer({
+  open,
+  opener,
+  onOpen,
+}: {
+  open: boolean;
+  opener: RefObject<HTMLButtonElement | null>;
+  onOpen: () => void;
+}) {
   const currentId = usePlayer((state) => state.currentId);
   const playing = usePlayer((state) => state.status === "playing");
   const saved = usePlayer((state) => state.saved.includes(state.currentId));
@@ -61,10 +87,17 @@ function MiniPlayer() {
     <section aria-label="Now playing" className="px-2">
       <div
         className="relative flex h-14 items-center overflow-hidden rounded-art pr-1 pl-2 shadow-card"
-        style={{ backgroundColor: track.art.color }}
+        style={{ backgroundColor: playerSurface(track.art.color) }}
       >
-        <Drawer.Trigger
+        <button
+          ref={opener}
+          type="button"
           aria-label={`Open player: ${track.title}`}
+          aria-haspopup="dialog"
+          aria-expanded={open}
+          onPointerDown={preloadPhonePlayer}
+          onFocus={preloadPhonePlayer}
+          onClick={onOpen}
           className="flex h-full min-w-0 flex-1 items-center gap-2 text-left"
         >
           <Cover art={track.art} size="xs" />
@@ -72,11 +105,11 @@ function MiniPlayer() {
             <span className="block truncate text-sm font-bold">
               {track.title}
             </span>
-            <span className="block truncate text-sm text-white/75">
+            <span className="block truncate text-sm text-white/80">
               {portfolio.candidate.name}
             </span>
           </span>
-        </Drawer.Trigger>
+        </button>
         <button
           type="button"
           aria-label={

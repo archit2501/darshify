@@ -83,6 +83,7 @@ export class FakeAudioContext {
   oscillators: FakeOscillator[] = [];
   gains: FakeGain[] = [];
   resumed = 0;
+  suspended = 0;
 
   createGain() {
     const gain = new FakeGain();
@@ -125,6 +126,11 @@ export class FakeAudioContext {
   resume() {
     this.resumed += 1;
     this.state = "running";
+    return Promise.resolve();
+  }
+  suspend() {
+    this.suspended += 1;
+    this.state = "suspended";
     return Promise.resolve();
   }
   close() {

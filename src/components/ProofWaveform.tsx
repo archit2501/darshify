@@ -1,5 +1,4 @@
 import { useId } from "react";
-import { m } from "motion/react";
 import type { ProofPoint } from "../content/types";
 import { buildWaveformData } from "../content/waveform";
 import { useReducedMotion } from "../lib/useReducedMotion";
@@ -74,18 +73,18 @@ export function ProofWaveform({
           stroke="var(--color-line)"
           strokeWidth="1"
         />
-        <m.path
+        {/* Draws itself once (CSS), unless motion is reduced. */}
+        <path
           data-testid="proof-waveform-path"
           data-draw-state={reducedMotion ? "final" : "draw-once"}
+          className={reducedMotion ? undefined : "waveform-draw"}
+          pathLength={1}
           d={path}
           fill="none"
           stroke="var(--color-signal)"
           strokeWidth="3"
           strokeLinecap="round"
           strokeLinejoin="round"
-          initial={reducedMotion ? false : { pathLength: 0 }}
-          animate={{ pathLength: 1 }}
-          transition={{ duration: 0.7, ease: "easeOut" }}
         />
         {data.map((point, index) => {
           const lastIndex = data.length - 1;

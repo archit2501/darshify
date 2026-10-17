@@ -26,6 +26,20 @@ export default defineConfig([
     languageOptions: {
       globals: globals.browser,
     },
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "react-router-dom",
+              message:
+                "Import from react-router. react-router-dom pulls react-router/dom into the server function, which Vercel's file tracing leaves out (FUNCTION_INVOCATION_FAILED on every server-rendered request).",
+            },
+          ],
+        },
+      ],
+    },
   },
   {
     files: ["app/**/*.{ts,tsx}"],

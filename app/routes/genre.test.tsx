@@ -5,7 +5,6 @@ import {
   RouterProvider,
   type LoaderFunctionArgs,
 } from "react-router";
-import { MemoryRouter as DomMemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { portfolio } from "../../src/content/portfolio";
 import { PlayerProvider } from "../../src/player/PlayerProvider";
@@ -27,13 +26,9 @@ function renderGenre(slug: string) {
         path: "/genre/:slug",
         loader,
         element: createElement(
-          DomMemoryRouter,
-          { initialEntries: [path] },
-          createElement(
-            PlayerProvider,
-            { createAudio: () => null, children: null },
-            createElement(ToastProvider, null, createElement(GenreRoute)),
-          ),
+          PlayerProvider,
+          { createAudio: () => null, children: null },
+          createElement(ToastProvider, null, createElement(GenreRoute)),
         ),
       },
     ],

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { portfolio } from "../content/portfolio";
 import {
   CheckCircleIcon,
@@ -62,13 +62,13 @@ function NowPlayingSummary() {
       <div className="min-w-0">
         <Link
           to={track.href}
-          className="block truncate text-sm text-fg hover:underline"
+          className="block truncate text-sm leading-6 text-fg hover:underline"
         >
           {track.title}
         </Link>
         <Link
           to="/artist"
-          className="block truncate text-xs text-subdued hover:text-fg hover:underline"
+          className="block truncate text-xs leading-6 text-subdued hover:text-fg hover:underline"
         >
           {portfolio.candidate.name}
         </Link>

@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter } from "react-router";
 import { usePlayer } from "../player/hooks";
 import { PlayerProvider } from "../player/PlayerProvider";
 import { Home } from "./Home";

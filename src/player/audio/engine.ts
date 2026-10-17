@@ -104,6 +104,12 @@ export interface AmbientEngine {
   /** True while the score is being scheduled (playing). */
   readonly active: boolean;
   setVolume(volume: number, muted: boolean): void;
+  /**
+   * Builds the audio graph ahead of the first Play, suspended and silent.
+   * Creating an AudioContext can block the main thread for ~200 ms, so the
+   * player calls this in idle time rather than inside the Play click.
+   */
+  warm(): void;
   dispose(): void;
 }
 
@@ -350,6 +356,10 @@ export function createAmbientEngine(
     },
     get active() {
       return scheduler !== null;
+    },
+    warm() {
+      if (context) return;
+      void ensureGraph().suspend?.();
     },
     setVolume(volume, muted) {
       level = perceptualGain(volume, muted);

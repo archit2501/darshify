@@ -1,11 +1,8 @@
-import { Menu } from "@base-ui/react/menu";
-import { useMemo, useRef, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { Suspense, useMemo, useRef, useState } from "react";
+import { NavLink } from "react-router";
 import {
   ArrowLeftIcon,
-  CheckIcon,
   CloseIcon,
-  CompactListIcon,
   LibraryIcon,
   ListIcon,
   PinIcon,
@@ -19,12 +16,9 @@ import {
   type LibraryFilter,
   type LibrarySort,
 } from "./library";
-import {
-  menuItemClass,
-  menuPopupClass,
-  menuSeparatorClass,
-} from "./menuStyles";
 import { Cover } from "./Cover";
+import { LibrarySortPopup } from "./popups/lazy";
+import { useMenuButton } from "./popups/triggers";
 import { ReleaseContextMenu } from "./ReleaseMenu";
 
 const FILTERS: LibraryFilter[] = ["Playlists", "Albums", "Artists"];
@@ -44,6 +38,7 @@ export function LibraryPanel({
   const [filter, setFilter] = useState<LibraryFilter | null>(null);
   const [sort, setSort] = useState<LibrarySort>("recents");
   const [compact, setCompact] = useState(false);
+  const sortMenu = useMenuButton();
   const [searching, setSearching] = useState(false);
   const [query, setQuery] = useState("");
   const searchInput = useRef<HTMLInputElement>(null);
@@ -155,57 +150,28 @@ export function LibraryPanel({
                 <SearchIcon size={16} />
               </button>
             )}
-            <Menu.Root>
-              <Menu.Trigger className="ml-auto flex h-8 items-center gap-2 rounded-full px-2 text-sm text-subdued transition-colors hover:text-fg">
-                {SORT_LABELS[sort]}
-                <ListIcon size={16} />
-              </Menu.Trigger>
-              <Menu.Portal>
-                <Menu.Positioner
-                  sideOffset={6}
-                  align="end"
-                  className="z-50 outline-none"
-                >
-                  <Menu.Popup className={menuPopupClass}>
-                    <Menu.RadioGroup
-                      value={sort}
-                      onValueChange={(value) => setSort(value as LibrarySort)}
-                    >
-                      <Menu.GroupLabel className="px-3 pt-2 pb-1 text-xs font-bold text-subdued">
-                        Sort by
-                      </Menu.GroupLabel>
-                      {(Object.keys(SORT_LABELS) as LibrarySort[]).map(
-                        (option) => (
-                          <Menu.RadioItem
-                            key={option}
-                            value={option}
-                            closeOnClick
-                            className={`${menuItemClass} data-checked:text-green`}
-                          >
-                            {SORT_LABELS[option]}
-                            <Menu.RadioItemIndicator className="ml-auto">
-                              <CheckIcon size={16} />
-                            </Menu.RadioItemIndicator>
-                          </Menu.RadioItem>
-                        ),
-                      )}
-                    </Menu.RadioGroup>
-                    <Menu.Separator className={menuSeparatorClass} />
-                    <Menu.Item
-                      onClick={() => setCompact((value) => !value)}
-                      className={menuItemClass}
-                    >
-                      {compact ? (
-                        <ListIcon size={16} />
-                      ) : (
-                        <CompactListIcon size={16} />
-                      )}
-                      {compact ? "List view" : "Compact view"}
-                    </Menu.Item>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.Root>
+            <button
+              {...sortMenu.buttonProps}
+              className="ml-auto flex h-8 items-center gap-2 rounded-full px-2 text-sm text-subdued transition-colors hover:text-fg"
+            >
+              {SORT_LABELS[sort]}
+              <ListIcon size={16} />
+            </button>
+            {sortMenu.mounted ? (
+              <Suspense fallback={null}>
+                <LibrarySortPopup
+                  open={sortMenu.open}
+                  onOpenChange={sortMenu.setOpen}
+                  anchor={sortMenu.ref}
+                  finalFocus={sortMenu.ref}
+                  highlight={sortMenu.highlight}
+                  sort={sort}
+                  onSortChange={setSort}
+                  compact={compact}
+                  onCompactChange={setCompact}
+                />
+              </Suspense>
+            ) : null}
           </div>
         </>
       )}

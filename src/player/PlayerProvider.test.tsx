@@ -1,9 +1,5 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
-import {
-  createMemoryRouter,
-  RouterProvider,
-  useNavigate,
-} from "react-router-dom";
+import { createMemoryRouter, RouterProvider, useNavigate } from "react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { portfolio } from "../content/portfolio";
 import {
@@ -393,6 +389,9 @@ describe("ambient sound", () => {
       setVolume: vi.fn((volume: number, muted: boolean) => {
         calls.push(`volume:${volume}:${muted}`);
       }),
+      warm: vi.fn(() => {
+        calls.push("warm");
+      }),
       dispose: vi.fn(),
       get active() {
         return active;
@@ -436,6 +435,57 @@ describe("ambient sound", () => {
 
     view.unmount();
     expect(engine.dispose).toHaveBeenCalledTimes(1);
+  });
+
+  it("builds the sound in idle time after the first click or key press, so Play only resumes it", () => {
+    vi.useFakeTimers();
+    try {
+      const { engine, calls } = fakeEngine();
+      const createAudio = vi.fn(() => engine);
+      const { store } = manualClockStore();
+      const view = render(
+        <PlayerProvider store={store} createAudio={createAudio}>
+          <button type="button">Elsewhere</button>
+        </PlayerProvider>,
+      );
+      fireEvent.pointerDown(screen.getByRole("button", { name: "Elsewhere" }));
+      // Not inside the press itself: once the page is idle.
+      expect(createAudio).not.toHaveBeenCalled();
+      act(() => vi.advanceTimersByTime(300));
+      expect(createAudio).toHaveBeenCalledTimes(1);
+      expect(calls).toEqual(["warm"]);
+
+      // It listens for the first interaction only.
+      fireEvent.keyDown(window, { key: "a" });
+      act(() => vi.advanceTimersByTime(300));
+      expect(engine.warm).toHaveBeenCalledTimes(1);
+
+      act(() => store.send({ type: "PLAY_CONTEXT", context: experience }));
+      expect(createAudio).toHaveBeenCalledTimes(1);
+      expect(calls.at(-1)).toBe("play:r1:experience");
+      view.unmount();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("drops a pending warm-up when the player goes away", () => {
+    vi.useFakeTimers();
+    try {
+      const createAudio = vi.fn(() => fakeEngine().engine);
+      const { store } = manualClockStore();
+      const view = render(
+        <PlayerProvider store={store} createAudio={createAudio}>
+          <p>player</p>
+        </PlayerProvider>,
+      );
+      fireEvent.keyDown(window, { key: "a" });
+      view.unmount();
+      act(() => vi.advanceTimersByTime(1000));
+      expect(createAudio).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("stays silent where no engine can be built", () => {

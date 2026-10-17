@@ -35,3 +35,10 @@ export function darken(hex: string, amount: number): string {
     )
     .join("")}`;
 }
+
+/**
+ * Players (mini player, phone player, lyrics) draw a song's colour this much
+ * darker, so 80% white secondary text and 55% white upcoming lyric lines
+ * stay readable on every song. src/content/contrast.test.ts holds the rule.
+ */
+export const playerSurface = (hex: string) => darken(hex, 0.2);

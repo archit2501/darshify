@@ -1,9 +1,5 @@
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
-import {
-  createMemoryRouter,
-  MemoryRouter,
-  RouterProvider,
-} from "react-router-dom";
+import { createMemoryRouter, MemoryRouter, RouterProvider } from "react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { portfolio } from "../content/portfolio";
 import { PlayerProvider } from "../player/PlayerProvider";
@@ -107,7 +103,12 @@ describe("MobileChrome", () => {
   it("opens a full-screen player with transport, scrubber and lyrics, and closes it", async () => {
     const { store } = setup();
     act(() => store.send({ type: "PLAY_CONTEXT", context: experience }));
-    fireEvent.click(screen.getByRole("button", { name: /^Open player:/ }));
+    const opener = screen.getByRole("button", { name: /^Open player:/ });
+    expect(opener).toHaveAttribute("aria-haspopup", "dialog");
+    expect(opener).toHaveAttribute("aria-expanded", "false");
+    // A press starts loading the player before the tap completes.
+    fireEvent.pointerDown(opener);
+    fireEvent.click(opener);
 
     const sheet = await screen.findByRole("dialog");
     expect(within(sheet).getByText("Playing from EP")).toBeVisible();

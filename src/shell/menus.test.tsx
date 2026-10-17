@@ -6,7 +6,7 @@ import {
   waitFor,
   within,
 } from "@testing-library/react";
-import { createMemoryRouter, RouterProvider } from "react-router-dom";
+import { createMemoryRouter, RouterProvider } from "react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { portfolio } from "../content/portfolio";
 import { PlayerProvider } from "../player/PlayerProvider";
@@ -228,6 +228,57 @@ describe("song menus", () => {
     expect(
       await screen.findByRole("dialog", { name: "Credits" }),
     ).toBeVisible();
+  });
+});
+
+describe("opening menus from the keyboard", () => {
+  const moreOptions = () =>
+    screen.getByRole("button", { name: `More options for ${song.title}` });
+
+  it("starts on the first item for ArrowDown, Enter and Space, and on the last for ArrowUp", async () => {
+    setup();
+    fireEvent.keyDown(moreOptions(), { key: "ArrowDown" });
+    await waitFor(() =>
+      expect(screen.getByRole("menuitem", { name: "Play" })).toHaveFocus(),
+    );
+    fireEvent.keyDown(screen.getByRole("menu"), { key: "Escape" });
+    await waitFor(() => expect(moreOptions()).toHaveFocus());
+
+    fireEvent.keyDown(moreOptions(), { key: "ArrowUp" });
+    await waitFor(() =>
+      expect(
+        screen.getByRole("menuitem", { name: "Download CV" }),
+      ).toHaveFocus(),
+    );
+    fireEvent.keyDown(screen.getByRole("menu"), { key: "Escape" });
+    await waitFor(() => expect(moreOptions()).toHaveFocus());
+
+    // Enter and Space reach the button as a click with no pointer (detail 0).
+    fireEvent.click(moreOptions(), { detail: 0 });
+    await waitFor(() =>
+      expect(screen.getByRole("menuitem", { name: "Play" })).toHaveFocus(),
+    );
+  });
+
+  it("highlights nothing when the pointer opens a menu", async () => {
+    setup();
+    fireEvent.click(moreOptions(), { detail: 1 });
+    const menu = await screen.findByRole("menu");
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(within(menu).queryAllByRole("menuitem")).not.toContain(
+      document.activeElement,
+    );
+  });
+
+  it("opens a row's menu on its first item from the Menu key", async () => {
+    setup();
+    fireEvent.contextMenu(screen.getByText("Song row"), {
+      clientX: 0,
+      clientY: 0,
+    });
+    await waitFor(() =>
+      expect(screen.getByRole("menuitem", { name: "Play" })).toHaveFocus(),
+    );
   });
 });
 
