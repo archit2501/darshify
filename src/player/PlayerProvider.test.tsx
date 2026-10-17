@@ -370,3 +370,80 @@ describe("NowPlayingTitle", () => {
     expect(document.title).toBe("Operations Intern at Figmenta • Darshil Jain");
   });
 });
+
+describe("ambient sound", () => {
+  function fakeEngine() {
+    const calls: string[] = [];
+    let active = false;
+    const engine = {
+      play: vi.fn((id: string, kind: string) => {
+        active = true;
+        calls.push(`play:${id}:${kind}`);
+      }),
+      pause: vi.fn(() => {
+        active = false;
+        calls.push("pause");
+      }),
+      setVolume: vi.fn((volume: number, muted: boolean) => {
+        calls.push(`volume:${volume}:${muted}`);
+      }),
+      dispose: vi.fn(),
+      get active() {
+        return active;
+      },
+    };
+    return { engine, calls };
+  }
+
+  it("creates the engine on the first play and follows the transport", () => {
+    const { engine, calls } = fakeEngine();
+    const createAudio = vi.fn(() => engine);
+    const { store } = manualClockStore();
+    const view = render(
+      <PlayerProvider store={store} createAudio={createAudio}>
+        <p>player</p>
+      </PlayerProvider>,
+    );
+
+    act(() => store.send({ type: "SET_VOLUME", volume: 0.5 }));
+    expect(createAudio).not.toHaveBeenCalled();
+
+    act(() => store.send({ type: "PLAY_CONTEXT", context: experience }));
+    expect(createAudio).toHaveBeenCalledTimes(1);
+    expect(calls).toEqual(["volume:0.5:false", "play:r1:experience"]);
+
+    act(() => store.send({ type: "TOGGLE_MUTE" }));
+    expect(engine.play).toHaveBeenCalledTimes(1);
+    expect(calls.at(-1)).toBe("volume:0.5:true");
+
+    act(() => store.send({ type: "NEXT" }));
+    expect(calls.at(-1)).toBe("play:r2:experience");
+
+    act(() => store.send({ type: "PAUSE" }));
+    expect(calls.at(-1)).toBe("pause");
+    act(() => store.send({ type: "SET_VOLUME", volume: 0.2 }));
+    expect(engine.pause).toHaveBeenCalledTimes(1);
+
+    act(() => store.send({ type: "PLAY" }));
+    expect(calls.at(-1)).toBe("play:r2:experience");
+    expect(createAudio).toHaveBeenCalledTimes(1);
+
+    view.unmount();
+    expect(engine.dispose).toHaveBeenCalledTimes(1);
+  });
+
+  it("stays silent where no engine can be built", () => {
+    const createAudio = vi.fn(() => null);
+    const { store } = manualClockStore();
+    render(
+      <PlayerProvider store={store} createAudio={createAudio}>
+        <p>player</p>
+      </PlayerProvider>,
+    );
+    act(() => store.send({ type: "PLAY" }));
+    act(() => store.send({ type: "PAUSE" }));
+    act(() => store.send({ type: "PLAY" }));
+    expect(createAudio).toHaveBeenCalledTimes(1);
+    expect(store.getState().status).toBe("playing");
+  });
+});
