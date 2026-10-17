@@ -1,1 +1,10 @@
-{ "framework": "react-router" }
+{
+  "framework": "react-router",
+  "redirects": [
+    {
+      "source": "/playlist/achievements",
+      "destination": "/liked",
+      "permanent": true
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 import { songArt, type CoverArt } from "../content/artwork";
 import { portfolio } from "../content/portfolio";
+import { releaseHref } from "../content/selectors";
 import type { CaseStudy, Collection, Genre, SongKind } from "../content/types";
 
 /** One lyric line and when it starts, in ms from the top of the song. */
@@ -93,7 +94,7 @@ export const releaseContext = (release: Collection): PlayContext => ({
   id: `release:${release.id}`,
   kind: "release",
   title: release.title,
-  href: release.id === "achievements" ? "/liked" : `/playlist/${release.id}`,
+  href: releaseHref(release),
   trackIds: release.caseStudyIds,
 });
 

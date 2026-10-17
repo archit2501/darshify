@@ -38,10 +38,16 @@ export function TrackTable({
 }) {
   return (
     <div role="table" aria-label={label} className="@container">
-      <div role="rowgroup">
+      {/* The rowgroup sticks (not the row), so it can travel the whole table.
+          Narrow lists drop the visible header, as the mobile app does; the
+          column names stay for screen readers. */}
+      <div
+        role="rowgroup"
+        className="sticky top-16 z-10 bg-surface @max-2xl:sr-only"
+      >
         <div
           role="row"
-          className={`sticky top-16 z-10 grid h-9 items-center gap-4 border-b border-white/10 bg-surface px-4 text-sm text-subdued ${columns}`}
+          className={`grid h-9 items-center gap-4 border-b border-white/10 px-4 text-sm text-subdued ${columns}`}
         >
           <span role="columnheader" className="text-right">
             #

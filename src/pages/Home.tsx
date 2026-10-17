@@ -6,6 +6,7 @@ import {
   caseStudyById,
   collectionById,
   collections,
+  releaseHref,
 } from "../content/selectors";
 
 const essentialReferences = [
@@ -59,11 +60,7 @@ export function Home({ initialGreeting }: { initialGreeting: string }) {
         {collections.map((collection) => (
           <MediaCard
             key={collection.id}
-            to={
-              collection.id === "achievements"
-                ? "/liked"
-                : `/playlist/${collection.id}`
-            }
+            to={releaseHref(collection)}
             title={collection.title}
             subtitle={collection.description}
             eyebrow="Evidence category"

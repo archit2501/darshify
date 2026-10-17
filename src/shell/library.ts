@@ -1,6 +1,7 @@
 import { artistArt, releaseArt, type CoverArt } from "../content/artwork";
 import { portfolio } from "../content/portfolio";
 import type { ReleaseType } from "../content/types";
+import { LIKED_RELEASE_ID, releaseHref } from "../content/selectors";
 
 export type LibraryFilter = "Playlists" | "Albums" | "Artists";
 export type LibrarySort = "recents" | "alphabetical" | "type";
@@ -45,19 +46,18 @@ export const libraryItems: LibraryItem[] = [
   ...portfolio.collections.map((release): LibraryItem => {
     const type = release.releaseType;
     const subtitle =
-      release.id === "achievements"
+      release.id === LIKED_RELEASE_ID
         ? `${type} • ${songCount(release.caseStudyIds.length)}`
         : `${type} • Darshil Jain`;
     return {
       id: release.id,
       title: release.title,
       subtitle,
-      href:
-        release.id === "achievements" ? "/liked" : `/playlist/${release.id}`,
+      href: releaseHref(release),
       art: releaseArt(release),
       type,
       filter: filterFor(type),
-      pinned: release.id === "achievements",
+      pinned: release.id === LIKED_RELEASE_ID,
       recency: RECENCY.indexOf(release.id) + 1 || RECENCY.length + 1,
       contextId: `release:${release.id}`,
       searchText:

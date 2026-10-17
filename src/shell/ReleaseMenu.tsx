@@ -82,18 +82,20 @@ function ReleaseActions({
 /** The "…" button for a playlist, EP, album or single. */
 export function ReleaseMenu({
   releaseId,
+  size = "sm",
   className = "",
 }: {
   releaseId: string;
+  size?: "sm" | "lg";
   className?: string;
 }) {
   return (
     <Menu.Root>
       <Menu.Trigger
         aria-label={`More options for ${releaseById(releaseId).title}`}
-        className={`grid size-8 shrink-0 place-items-center rounded-full text-subdued transition-[color,opacity] hover:text-fg data-popup-open:text-fg ${className}`}
+        className={`grid shrink-0 place-items-center rounded-full text-subdued transition-[color,opacity] hover:text-fg data-popup-open:text-fg ${size === "lg" ? "size-10" : "size-8"} ${className}`}
       >
-        <MoreIcon size={16} />
+        <MoreIcon size={size === "lg" ? 28 : 16} />
       </Menu.Trigger>
       <Menu.Portal>
         <Menu.Positioner

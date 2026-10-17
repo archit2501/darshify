@@ -51,7 +51,7 @@ export function StickyHeader({
       data-visible={visible}
       aria-hidden={!visible}
       inert={!visible}
-      className="pointer-events-none sticky top-0 z-30 -mb-16 flex h-16 items-center gap-3 px-(--content-x) opacity-0 transition-opacity duration-(--dur-hover) data-[visible=true]:pointer-events-auto data-[visible=true]:opacity-100"
+      className="pointer-events-none sticky top-0 z-30 -mx-(--content-x) -mb-16 flex h-16 items-center gap-3 px-(--content-x) max-md:pr-36 max-md:pl-16 opacity-0 transition-opacity duration-(--dur-hover) data-[visible=true]:pointer-events-auto data-[visible=true]:opacity-100"
       style={{
         backgroundColor: color,
         backgroundImage: "linear-gradient(rgb(0 0 0 / 0.5), rgb(0 0 0 / 0.5))",

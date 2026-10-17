@@ -1,11 +1,11 @@
 import { releaseArt } from "../content/artwork";
 import { Link } from "react-router-dom";
+import { releaseHref } from "../content/selectors";
 import type { Collection } from "../content/types";
 import { Art } from "../shell/Art";
 
 export function ReleaseCard({ collection }: { collection: Collection }) {
-  const href =
-    collection.id === "achievements" ? "/liked" : `/playlist/${collection.id}`;
+  const href = releaseHref(collection);
 
   return (
     <article className="min-w-0">

@@ -6,6 +6,7 @@ import { join } from "node:path";
 import sharp from "sharp";
 import { describe, expect, it } from "vitest";
 import { prerenderPaths } from "../../react-router.config";
+import { portfolio } from "../content/portfolio";
 import {
   CANONICAL_SITE_ORIGIN,
   buildRouteMeta,
@@ -22,7 +23,11 @@ const descriptor = (
 
 describe("canonical route metadata", () => {
   it("gives every prerendered document unique absolute discovery metadata", () => {
-    expect(canonicalRouteInventory.length).toBeGreaterThanOrEqual(30);
+    // Five fixed routes, every release except the awards (canonical at
+    // /liked) and every song.
+    expect(canonicalRouteInventory.length).toBe(
+      5 + portfolio.collections.length - 1 + portfolio.caseStudies.length,
+    );
     expect(canonicalRouteInventory.map(({ path }) => path)).toEqual(
       prerenderPaths,
     );

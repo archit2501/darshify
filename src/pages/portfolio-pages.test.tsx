@@ -213,7 +213,7 @@ describe("routed portfolio pages without the legacy player runtime", () => {
     expect(screen.getByLabelText("Player state")).toHaveTextContent("playing");
   });
 
-  it("renders a collection without PlayerProvider, playback, likes, or queue", () => {
+  it("renders a release with honest columns, real playback and a real song menu", async () => {
     const view = render(
       <MemoryRouter initialEntries={["/playlist/experience"]}>
         <TestRuntime>
@@ -224,16 +224,36 @@ describe("routed portfolio pages without the legacy player runtime", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole("heading", { name: "Experience" })).toBeVisible();
-    expect(screen.getByText("Figmenta · Jan 2026 – Feb 2026")).toBeVisible();
-    expectNoSimulatedMetadata(view.container, ["500,000", "4:20", "12:20"]);
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Experience" }),
+    ).toBeVisible();
+    const table = screen.getByRole("table", { name: "Experience songs" });
+    const figmenta = within(table)
+      .getByRole("link", { name: "Operations Intern at Figmenta" })
+      .closest('[role="row"]') as HTMLElement;
+    expect(figmenta).toHaveTextContent("Figmenta");
+    expect(figmenta).toHaveTextContent("500+ résumés screened");
+    expect(figmenta).toHaveTextContent("Jan 2026");
+    expect(figmenta).toHaveTextContent("2 mo");
+    expectNoSimulatedMetadata(view.container, [
+      "500,000",
+      "4:20",
+      "12:20",
+      ...routedPlaybackFictions,
+    ]);
     expect(screen.queryByText("Plays")).not.toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: /Like|Unlike/ }),
     ).not.toBeInTheDocument();
-    fireEvent.contextMenu(screen.getByText("Operations Intern at Figmenta"));
-    expect(screen.queryByText("Add to queue")).not.toBeInTheDocument();
-    fireEvent.click(screen.getAllByRole("button", { name: /^Play / })[0]!);
+
+    fireEvent.contextMenu(figmenta);
+    fireEvent.click(
+      await screen.findByRole("menuitem", { name: "Add to queue" }),
+    );
+    expect(
+      screen.getByRole("status", { name: "Notifications" }),
+    ).toHaveTextContent("Added to queue");
+    fireEvent.click(screen.getByRole("button", { name: "Play Experience" }));
     expect(screen.getByLabelText("Player state")).toHaveTextContent("playing");
   });
 
@@ -285,22 +305,27 @@ describe("routed portfolio pages without the legacy player runtime", () => {
     expect(screen.getByRole("heading", { name: "Experience" })).toBeVisible();
   });
 
-  it("renders the liked alias as truthful selected evidence without playback framing", () => {
+  it("renders the awards as Liked Songs with honest facts", () => {
     const view = renderPage(<LikedSongs />, "/liked");
 
     expect(
-      screen.getByRole("heading", { name: "Selected achievements" }),
+      screen.getByRole("heading", { level: 1, name: "Selected achievements" }),
     ).toBeVisible();
     expect(
       screen.getByText(
         "A business plan win, a national championship final, 4th at IIM Calcutta and top 10% at IIT Guwahati.",
       ),
     ).toBeVisible();
+    expect(
+      screen.getByRole("table", { name: "Selected achievements songs" }),
+    ).toBeVisible();
     expectNoSimulatedMetadata(view.container, routedPlaybackFictions);
     expect(
       screen.queryByRole("button", { name: /Like|Unlike/ }),
     ).not.toBeInTheDocument();
-    fireEvent.click(screen.getAllByRole("button", { name: /^Play / })[0]!);
+    fireEvent.click(
+      screen.getByRole("button", { name: "Play Selected achievements" }),
+    );
     expect(screen.getByLabelText("Player state")).toHaveTextContent("playing");
   });
 });
