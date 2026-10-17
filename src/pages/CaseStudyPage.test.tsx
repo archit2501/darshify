@@ -6,7 +6,10 @@ import {
   waitFor,
   within,
 } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { MemoryRouter as DomMemoryRouter } from "react-router-dom";
+import { PlayerProvider } from "../player/PlayerProvider";
+import { ToastProvider } from "../shell/Toast";
 import {
   createMemoryRouter,
   RouterProvider,
@@ -73,12 +76,22 @@ const loaderArgs = (slug: string) =>
 
 function renderCaseStudy(slug: string) {
   const path = `/case-studies/${slug}`;
+  // The page's links come from react-router-dom, so a DOM router sits inside
+  // the data router that runs the loader, as in the app.
   const router = createMemoryRouter(
     [
       {
         path: "/case-studies/:slug",
         loader,
-        element: createElement(CaseStudyRoute),
+        element: createElement(
+          DomMemoryRouter,
+          { initialEntries: [path] },
+          createElement(
+            PlayerProvider,
+            { createAudio: () => null, children: null },
+            createElement(ToastProvider, null, createElement(CaseStudyRoute)),
+          ),
+        ),
       },
     ],
     { initialEntries: [path] },
@@ -87,8 +100,32 @@ function renderCaseStudy(slug: string) {
   return render(createElement(RouterProvider, { router }));
 }
 
+function memoryStorage(): Storage {
+  const values = new Map<string, string>();
+  return {
+    get length() {
+      return values.size;
+    },
+    clear: () => values.clear(),
+    getItem: (key) => values.get(key) ?? null,
+    key: (index) => [...values.keys()][index] ?? null,
+    removeItem: (key) => values.delete(key),
+    setItem: (key, value) => values.set(key, String(value)),
+  };
+}
+
 describe("case-study pages", () => {
-  beforeEach(() => trackOutcome.mockClear());
+  beforeEach(() => {
+    trackOutcome.mockClear();
+    vi.stubGlobal("localStorage", memoryStorage());
+    vi.stubGlobal("matchMedia", (query: string) => ({
+      matches: false,
+      media: query,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }));
+  });
+  afterEach(() => vi.unstubAllGlobals());
 
   it("reports a case open and a source-evidence open using typed IDs only", async () => {
     const caseStudy = portfolio.caseStudies.find(({ id }) => id === "r1")!;
@@ -202,7 +239,7 @@ describe("case-study pages", () => {
         name: caseStudy.title,
       });
       const related = screen.getByRole("region", {
-        name: "Related case studies",
+        name: "More like this",
       });
       const expectedIds = expectedRelatedCaseIds[caseStudy.id];
       expect(expectedIds.length).toBeGreaterThan(0);

@@ -18,11 +18,14 @@ import { useToggleSave } from "../shell/songActions";
  */
 export function ActionBar({
   context,
+  trackId,
   label,
   saveId,
   menu,
 }: {
   context: PlayContext;
+  /** Start the list from this song (song pages). */
+  trackId?: string;
   /** What Play plays, e.g. "Experience". */
   label: string;
   /** The id saved to Your Library; omit to hide Save. */
@@ -38,7 +41,7 @@ export function ActionBar({
 
   return (
     <div className="flex items-center gap-4 py-6">
-      <PlayButton context={context} label={label} size={56} />
+      <PlayButton context={context} trackId={trackId} label={label} size={56} />
       <IconButton
         label={shuffle ? "Disable shuffle" : "Enable shuffle"}
         pressed={shuffle}

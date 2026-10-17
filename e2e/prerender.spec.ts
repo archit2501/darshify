@@ -217,9 +217,16 @@ test.describe("production HTML without JavaScript", () => {
         { exact: true },
       ),
     ).toBeVisible();
+    // The song's release is linked from the header; the old hard-coded
+    // "Back to Projects" link (wrong for most songs) is gone.
+    await expect(
+      page
+        .locator("article > header")
+        .getByRole("link", { name: "Experience", exact: true }),
+    ).toHaveAttribute("href", "/playlist/experience");
     await expect(
       page.getByRole("link", { name: "Back to Projects" }),
-    ).toHaveAttribute("href", "/playlist/projects");
+    ).toHaveCount(0);
   });
 
   test("liked alias regression: slash variants serve selected achievements with non-duplicate metadata", async ({

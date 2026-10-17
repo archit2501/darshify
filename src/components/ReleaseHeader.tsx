@@ -19,7 +19,9 @@ export function ReleaseHeader({
   art,
   portrait = null,
   round = false,
+  compact = false,
   meta,
+  children,
 }: {
   type: string;
   title: string;
@@ -27,8 +29,12 @@ export function ReleaseHeader({
   art: CoverArt;
   portrait?: Portrait | null;
   round?: boolean;
+  /** Smaller artwork, for headers that carry more text (song pages). */
+  compact?: boolean;
   /** Facts after the artist's name: years, song count and length. */
   meta: readonly ReactNode[];
+  /** Anything that belongs in the header under the meta line. */
+  children?: ReactNode;
 }) {
   const color = portrait?.dominantColor ?? art.color;
   return (
@@ -42,7 +48,7 @@ export function ReleaseHeader({
         round={round}
         size="fill"
         priority
-        className="w-[min(60vw,14.5rem)] shadow-art md:w-[clamp(8rem,22cqi,14.5rem)]"
+        className={`shadow-art ${compact ? "w-[min(40vw,9rem)] md:w-[clamp(8rem,18cqi,12rem)]" : "w-[min(60vw,14.5rem)] md:w-[clamp(8rem,22cqi,14.5rem)]"}`}
       />
       <div className="flex w-full min-w-0 flex-col gap-2 md:gap-3">
         <p className="text-sm font-semibold max-md:hidden">{type}</p>
@@ -71,6 +77,7 @@ export function ReleaseHeader({
             <span key={index}>· {item}</span>
           ))}
         </p>
+        {children}
       </div>
     </header>
   );
@@ -84,20 +91,18 @@ export function ReleaseBody({
   color: string;
   children: ReactNode;
 }) {
+  // One background: the colour under a gradient that ends in the page
+  // colour, which then carries on (no seam between two layers).
   return (
     <div
-      className="relative -mx-(--content-x) bg-(--release) px-(--content-x)"
-      style={{ "--release": color } as CSSProperties}
+      className="relative -mx-(--content-x) px-(--content-x)"
+      style={{
+        backgroundColor: color,
+        backgroundImage:
+          "linear-gradient(rgb(0 0 0 / 0.6), var(--color-surface) 15rem)",
+      }}
     >
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-60 bg-linear-to-b from-black/60 to-surface"
-      />
-      <div
-        className="absolute inset-x-0 top-60 bottom-0 bg-surface"
-        aria-hidden="true"
-      />
-      <div className="relative">{children}</div>
+      {children}
     </div>
   );
 }
