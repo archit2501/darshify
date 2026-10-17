@@ -19,7 +19,8 @@
     "pretest:e2e": "npm run build",
     "test:e2e": "playwright test",
     "check": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
-    "generate:crawl": "vite-node scripts/generate-crawl-files.ts"
+    "generate:crawl": "vite-node scripts/generate-crawl-files.ts",
+    "generate:covers": "vite-node scripts/generate-covers.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

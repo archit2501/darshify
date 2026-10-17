@@ -1,14 +1,10 @@
 import type { CandidateProfile, CaseStudy } from "../content/types";
-import { artifactById } from "../content/selectors";
 import { CANONICAL_SITE_ORIGIN } from "./meta";
 
 export function buildPersonJsonLd(candidate: CandidateProfile) {
-  const profileArtwork = artifactById(candidate.profileArtwork.artifactId);
-  if (!profileArtwork?.image) {
-    throw new Error(
-      `Person profile artwork ${candidate.profileArtwork.artifactId} could not resolve`,
-    );
-  }
+  // Google asks for a real photo here, never a placeholder, so the image is
+  // only published once a portrait exists.
+  const photo = candidate.portrait?.variants.at(-1)?.jpg;
   return {
     "@context": "https://schema.org",
     "@type": "Person",
@@ -17,7 +13,7 @@ export function buildPersonJsonLd(candidate: CandidateProfile) {
     description: candidate.summary,
     jobTitle: candidate.headline,
     url: `${CANONICAL_SITE_ORIGIN}/artist`,
-    image: `${CANONICAL_SITE_ORIGIN}${profileArtwork.image.src}`,
+    ...(photo ? { image: `${CANONICAL_SITE_ORIGIN}${photo}` } : {}),
     sameAs: [candidate.linkedInUrl],
     knowsAbout: candidate.skills,
   } as const;

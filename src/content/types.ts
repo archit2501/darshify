@@ -41,6 +41,12 @@ export interface ProfileLink {
   url: string;
 }
 
+/** A real photo of Darshil, processed at build time into responsive files. */
+export interface Portrait {
+  dominantColor: string;
+  variants: Array<{ width: number; avif: string; webp: string; jpg: string }>;
+}
+
 export interface CandidateProfile {
   name: string;
   givenName: string;
@@ -59,10 +65,8 @@ export interface CandidateProfile {
     start: number;
     end: number;
   };
-  profileArtwork: {
-    artifactId: string;
-    proofId: string;
-  };
+  /** Real photo when one has been supplied; otherwise generated artwork stands in. */
+  portrait: Portrait | null;
   email: string;
   phone: string;
   linkedInUrl: string;
@@ -149,8 +153,6 @@ export interface Collection {
   title: string;
   releaseType: ReleaseType;
   description: string;
-  cover: string;
-  gradient: string;
   color: string;
   caseStudyIds: string[];
 }

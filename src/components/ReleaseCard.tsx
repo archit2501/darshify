@@ -1,3 +1,4 @@
+import { releaseArt } from "../content/artwork";
 import { Link } from "react-router-dom";
 import type { Collection } from "../content/types";
 import { Art } from "../shell/Art";
@@ -14,8 +15,8 @@ export function ReleaseCard({ collection }: { collection: Collection }) {
         className="group flex h-full flex-col rounded-lg border border-line bg-elevated p-4 transition-colors duration-[var(--transition-hover)] hover:border-muted hover:bg-card-hi"
       >
         <Art
-          src={collection.cover}
-          gradient={collection.gradient}
+          src={releaseArt(collection).src}
+          gradient={releaseArt(collection).gradient}
           alt=""
           className="mb-4 aspect-square rounded-md shadow-lg"
         />

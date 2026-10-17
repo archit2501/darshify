@@ -80,34 +80,12 @@ export const validatePortfolio = (value: Portfolio): string[] => {
     errors.push(`Duplicate collection slug: ${slug}`);
   }
 
-  const profileArtwork = value.candidate.profileArtwork;
-  const profileArtworkArtifact = artifactById.get(profileArtwork.artifactId);
-  const profileArtworkProof = proofById.get(profileArtwork.proofId);
-
-  if (!profileArtworkArtifact) {
-    errors.push(
-      `Candidate profile artwork references unknown artifact ${profileArtwork.artifactId}`,
-    );
-  } else if (!profileArtworkArtifact.image) {
-    errors.push(
-      `Candidate profile artwork artifact ${profileArtwork.artifactId} must be image-backed`,
-    );
-  }
-  if (!profileArtworkProof) {
-    errors.push(
-      `Candidate profile artwork references unknown proof ${profileArtwork.proofId}`,
-    );
-  }
-  if (
-    profileArtworkArtifact &&
-    profileArtworkProof &&
-    !profileArtworkArtifact.sourceIds.some((sourceId) =>
-      profileArtworkProof.sourceIds.includes(sourceId),
-    )
-  ) {
-    errors.push(
-      `Candidate profile artwork ${profileArtworkArtifact.id} and proof ${profileArtworkProof.id} must share an evidence source`,
-    );
+  const portrait = value.candidate.portrait;
+  if (portrait) {
+    if (portrait.variants.length === 0) {
+      errors.push("Candidate portrait has no image variants");
+    }
+    errors.push(...colorErrors("Candidate portrait", portrait.dominantColor));
   }
 
   for (const proof of value.proofPoints) {

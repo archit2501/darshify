@@ -10,6 +10,8 @@ import { formatProofValue } from "../content/waveform";
 import { PlayIcon } from "../icons/icons";
 import { ContactActions } from "./ContactActions";
 import { EvidenceCover } from "./EvidenceCover";
+import { Cover } from "../shell/Cover";
+import { artistArt } from "../content/artwork";
 import { ProofWaveform } from "./ProofWaveform";
 
 const {
@@ -17,16 +19,12 @@ const {
   source: featuredSource,
   caseStudy: featuredCaseStudy,
   artifact: resumeArtifact,
-  profileArtwork,
   waveformProofs,
 } = (() => {
-  const proof = proofById(portfolio.candidate.profileArtwork.proofId);
+  const proof = proofById("figmenta-resumes");
   const source = sourceById(proof?.sourceIds[0] ?? "");
   const caseStudy = caseStudyById(proof?.caseStudyIds[0] ?? "");
   const artifact = artifactById("darshil-resume-pdf");
-  const profileArtwork = artifactById(
-    portfolio.candidate.profileArtwork.artifactId,
-  );
   const waveformProofs = [
     "figmenta-projects",
     "figmenta-resumes",
@@ -38,7 +36,6 @@ const {
     !source ||
     !caseStudy ||
     !artifact ||
-    !profileArtwork ||
     waveformProofs.some((candidate) => candidate === undefined)
   ) {
     throw new Error("Recruiter hero evidence must resolve from typed content");
@@ -48,7 +45,6 @@ const {
     source,
     caseStudy,
     artifact,
-    profileArtwork,
     waveformProofs: waveformProofs.filter(
       (candidate) => candidate !== undefined,
     ),
@@ -130,7 +126,13 @@ export function RecruiterHero({
         </div>
 
         <div className="absolute right-0 top-0 w-20 overflow-hidden rounded-lg border border-line shadow-xl sm:w-24 lg:static lg:w-full">
-          <EvidenceCover artifact={profileArtwork} aspect="1:1" priority />
+          <Cover
+            art={artistArt}
+            portrait={portfolio.candidate.portrait}
+            label="Darshil Jain"
+            eyebrow="This is"
+            priority
+          />
           <div className="hidden border-t border-line lg:block">
             <EvidenceCover artifact={resumeArtifact} aspect="row" priority />
           </div>

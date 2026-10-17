@@ -1,3 +1,4 @@
+import { releaseArt } from "../content/artwork";
 import { useCareerMix } from "../career-mix/CareerMixContext";
 import { ProofTrackRow } from "../components/ProofTrackRow";
 import { caseStudyEvidenceById, collectionById } from "../content/selectors";
@@ -24,8 +25,8 @@ export function LikedSongs() {
     <div className="pb-12">
       <header className="-mx-4 flex flex-col gap-5 border-b border-line bg-elevated px-4 pb-6 pt-4 md:-mx-6 md:flex-row md:items-end md:gap-6 md:px-6">
         <Art
-          src={achievements.cover}
-          gradient={achievements.gradient}
+          src={releaseArt(achievements).src}
+          gradient={releaseArt(achievements).gradient}
           alt=""
           className="h-40 w-40 shrink-0 rounded-md shadow-2xl md:h-52 md:w-52"
         />

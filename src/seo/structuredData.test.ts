@@ -17,7 +17,6 @@ describe("supported structured data", () => {
       description: portfolio.candidate.summary,
       jobTitle: portfolio.candidate.headline,
       url: `${CANONICAL_SITE_ORIGIN}/artist`,
-      image: `${CANONICAL_SITE_ORIGIN}/artifacts/profile-square.svg`,
       sameAs: ["https://www.linkedin.com/in/darshil-jain-611a3332b"],
       knowsAbout: portfolio.candidate.skills,
     });
@@ -50,17 +49,26 @@ describe("supported structured data", () => {
     });
   });
 
-  it("rejects Person markup when its typed profile artwork cannot resolve", () => {
-    expect(() =>
-      buildPersonJsonLd({
-        ...portfolio.candidate,
-        profileArtwork: {
-          ...portfolio.candidate.profileArtwork,
-          artifactId: "missing-profile-artifact",
-        },
-      }),
-    ).toThrow(
-      "Person profile artwork missing-profile-artifact could not resolve",
+  it("adds the Person image only from a real portrait, never a placeholder", () => {
+    expect(buildPersonJsonLd(portfolio.candidate)).not.toHaveProperty("image");
+
+    const withPortrait = buildPersonJsonLd({
+      ...portfolio.candidate,
+      portrait: {
+        dominantColor: "#2e3b4b",
+        variants: [
+          {
+            width: 1200,
+            avif: "/photos/generated/darshil-jain-1200.avif",
+            webp: "/photos/generated/darshil-jain-1200.webp",
+            jpg: "/photos/generated/darshil-jain-1200.jpg",
+          },
+        ],
+      },
+    });
+    expect(withPortrait).toHaveProperty(
+      "image",
+      `${CANONICAL_SITE_ORIGIN}/photos/generated/darshil-jain-1200.jpg`,
     );
   });
 });

@@ -1,19 +1,19 @@
+import { artistArt, releaseArt } from "../content/artwork";
 import { NavLink, useLocation } from "react-router-dom";
 import { HomeIcon, SearchIcon, LibraryIcon } from "../icons/icons";
 import { Art } from "./Art";
 import { ContactActions } from "../components/ContactActions";
 import { portfolio } from "../content/portfolio";
-import { artifactById, collectionById } from "../content/selectors";
+import { collectionById } from "../content/selectors";
 
-const { profileArtworkSrc, achievements } = (() => {
-  const artwork = artifactById(portfolio.candidate.profileArtwork.artifactId);
+const achievements = (() => {
   const collection = collectionById("achievements");
-  if (!artwork?.image || !collection) {
+  if (!collection) {
     throw new Error(
       "Sidebar portfolio artwork must resolve from typed content",
     );
   }
-  return { profileArtworkSrc: artwork.image.src, achievements: collection };
+  return collection;
 })();
 const sidebarCollections = portfolio.collections.filter(
   (collection) => collection.id !== "achievements",
@@ -63,8 +63,8 @@ export function Sidebar() {
             }
           >
             <Art
-              src={profileArtworkSrc}
-              gradient="linear-gradient(135deg,#1ed760,#0a5)"
+              src={artistArt.src}
+              gradient={artistArt.gradient}
               className="w-11 h-11 rounded-full shrink-0"
             />
             <span>
@@ -81,8 +81,8 @@ export function Sidebar() {
             }
           >
             <Art
-              src={achievements.cover}
-              gradient={achievements.gradient}
+              src={releaseArt(achievements).src}
+              gradient={releaseArt(achievements).gradient}
               className="w-11 h-11 rounded shrink-0"
             />
             <span>
@@ -101,8 +101,8 @@ export function Sidebar() {
               }
             >
               <Art
-                src={collection.cover}
-                gradient={collection.gradient}
+                src={releaseArt(collection).src}
+                gradient={releaseArt(collection).gradient}
                 className="w-11 h-11 rounded shrink-0"
               />
               <span className="min-w-0">
