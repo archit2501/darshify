@@ -1,5 +1,6 @@
 // Renders .claude-protocol/plan.json into the self-contained plan/plan.html tracker.
 // Usage: node .claude-protocol/render-plan.mjs
+import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -251,5 +252,10 @@ const html = `<!doctype html>
 </html>
 `;
 
-writeFileSync(join(root, "plan/plan.html"), html);
+const out = join(root, "plan/plan.html");
+writeFileSync(out, html);
+execFileSync("npx", ["prettier", "--write", out], {
+  cwd: root,
+  stdio: "ignore",
+});
 console.log("plan/plan.html written", generatedAt);

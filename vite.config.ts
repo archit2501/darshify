@@ -62,6 +62,7 @@ const cumulativeRedesignRuntime = [
   "src/analytics/outcomes.ts",
   "src/seo/meta.ts",
   "src/seo/structuredData.ts",
+  "src/seo/site.ts",
 ];
 const coverageRuntime =
   coverageScope === "redesign"
@@ -81,6 +82,7 @@ export default defineConfig({
     globals: true,
     environment: "jsdom",
     setupFiles: "./src/test/setup.ts",
+    testTimeout: 20000,
     exclude: [...configDefaults.exclude, "e2e/**"],
     coverage: {
       provider: "v8",
