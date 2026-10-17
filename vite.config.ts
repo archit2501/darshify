@@ -52,6 +52,8 @@ const semanticShellRuntime = [
   "src/components/titleSize.ts",
   "src/content/songFacts.ts",
   "src/pages/ReleaseView.tsx",
+  "src/pages/GenrePage.tsx",
+  "app/routes/genre.tsx",
   "src/shell/RouteFocus.tsx",
   "src/shell/SkipLink.tsx",
 ];

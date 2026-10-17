@@ -40,7 +40,7 @@ const titleFor = (meta: RouteMetaInput): string => {
 };
 
 const fixedCategories: Record<
-  Exclude<RouteMetaInput["kind"], "collection" | "case-study">,
+  Exclude<RouteMetaInput["kind"], "collection" | "case-study" | "genre">,
   string
 > = {
   home: "Recruiter briefing",
@@ -53,6 +53,9 @@ const fixedCategories: Record<
 const categoryFor = (meta: RouteMetaInput): string => {
   if (meta.kind === "collection") {
     return `Evidence collection · ${meta.collection.title}`;
+  }
+  if (meta.kind === "genre") {
+    return `Skill · ${meta.genre.skill}`;
   }
   if (meta.kind === "case-study") {
     return `${meta.caseStudy.kind[0].toUpperCase()}${meta.caseStudy.kind.slice(1)} case study`;

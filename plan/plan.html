@@ -956,7 +956,7 @@
                     "dependencies": ["3.2.1"],
                     "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
                     "ciJobs": ["quality", "test", "build", "browser"],
-                    "status": "in_progress",
+                    "status": "done",
                     "criticalPath": true,
                     "parallelizable": false
                   }
@@ -1002,14 +1002,19 @@
                     "files": [
                       "src/pages/GenrePage.tsx",
                       "app/routes/genre.tsx",
-                      "src/seo/meta.ts"
+                      "app/routes.ts",
+                      "src/seo/meta.ts",
+                      "scripts/generate-social-cards.ts",
+                      "public/sitemap.xml",
+                      "public/social-cards/genre-*.png"
                     ],
                     "dependencies": ["3.3.1"],
                     "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
                     "ciJobs": ["quality", "test", "build", "browser"],
-                    "status": "todo",
+                    "status": "in_progress",
                     "criticalPath": false,
-                    "parallelizable": true
+                    "parallelizable": true,
+                    "notes": "Built before 3.3.1 so Search tiles link to existing pages."
                   },
                   {
                     "id": "3.3.3",
@@ -1176,7 +1181,7 @@
             ]
           }
         ],
-        "generatedAt": "2026-10-17T05:31:52.945Z"
+        "generatedAt": "2026-10-17T05:40:57.341Z"
       }
     </script>
     <script>
