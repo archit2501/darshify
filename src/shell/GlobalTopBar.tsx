@@ -59,7 +59,7 @@ export function GlobalTopBar() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [params] = useSearchParams();
-  const onSearchPage = pathname === "/search";
+  const onSearchPage = pathname.replace(/\/+$/, "") === "/search";
   const urlQuery = onSearchPage ? (params.get("q") ?? "") : "";
   const [query, setQuery] = useState(urlQuery);
   // Follow the URL when it changes underneath the field (Back, a link, leaving

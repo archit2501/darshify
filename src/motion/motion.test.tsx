@@ -91,7 +91,9 @@ afterAll(() => {
 
 const reduceMotion = (matches: boolean) => {
   vi.stubGlobal("matchMedia", (query: string) => ({
-    matches: query === "(prefers-reduced-motion: reduce)" && matches,
+    matches:
+      (query === "(prefers-reduced-motion: reduce)" && matches) ||
+      query === "(min-width: 768px)",
     media: query,
     onchange: null,
     addEventListener: vi.fn(),

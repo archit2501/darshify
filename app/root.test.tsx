@@ -6,7 +6,10 @@ import Root, { ErrorBoundary, Layout, links } from "./root";
 
 beforeEach(() => {
   vi.stubGlobal("matchMedia", (query: string) => ({
-    matches: query === "(prefers-reduced-motion: reduce)",
+    // Reduced motion on, desktop width: the shell renders its player bar.
+    matches:
+      query === "(prefers-reduced-motion: reduce)" ||
+      query === "(min-width: 768px)",
     media: query,
     onchange: null,
     addEventListener: vi.fn(),

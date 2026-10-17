@@ -6,6 +6,7 @@ import tailwindcss from "@tailwindcss/vite";
 const coverageScope = process.env.COVERAGE_SCOPE;
 const designSystemRuntime = [
   "src/lib/useReducedMotion.ts",
+  "src/lib/useMediaQuery.ts",
   "src/motion/MotionProvider.tsx",
   "src/shell/AppShell.tsx",
   "src/shell/MediaCard.tsx",
@@ -29,7 +30,12 @@ const semanticShellRuntime = [
   "src/pages/LikedSongs.tsx",
   "src/pages/PlaylistPage.tsx",
   "src/pages/Search.tsx",
-  "src/shell/BottomNav.tsx",
+  "src/shell/MobileChrome.tsx",
+  "src/shell/FullScreenPlayer.tsx",
+  "src/shell/MobileTopBar.tsx",
+  "src/shell/Scrubber.tsx",
+  "src/shell/NowPlayingCards.tsx",
+  "src/shell/Marquee.tsx",
   "src/shell/RouteFocus.tsx",
   "src/shell/SkipLink.tsx",
 ];

@@ -87,6 +87,16 @@
 
   :where(h1, h2) {
     text-wrap: balance;
+    /* A long word in a display title breaks rather than pushing a narrow
+       phone sideways ("Entrepreneurship" at 320px). */
+    overflow-wrap: break-word;
+  }
+
+  @media (max-width: 767px) {
+    :where(h1) {
+      -webkit-hyphens: auto;
+      hyphens: auto;
+    }
   }
 
   .interactive-target {
@@ -112,7 +122,8 @@
     position: relative;
     min-width: 0;
     background: var(--color-surface);
-    padding-bottom: calc(8.5rem + env(safe-area-inset-bottom));
+    /* Clears the mini player and tab bar pinned to the bottom. */
+    padding-bottom: calc(9.5rem + env(safe-area-inset-bottom));
   }
 
   .app-bar {
@@ -322,6 +333,70 @@
 
   .range:focus-visible {
     outline-offset: 4px;
+  }
+
+  /* Touch screens never hover, so the thumb shows all the time and a tap
+     doesn't leave the fill green. */
+  @media (hover: none) {
+    .range::-webkit-slider-thumb {
+      opacity: 1;
+    }
+
+    .range::-moz-range-thumb {
+      opacity: 1;
+    }
+
+    .range:hover {
+      --range-fill: var(--color-fg);
+    }
+  }
+
+  /* The phone player's scrubber: a 24px target with the thumb always on. */
+  .range-sheet {
+    block-size: 1.5rem;
+  }
+
+  .range-sheet::-webkit-slider-thumb {
+    opacity: 1;
+  }
+
+  .range-sheet::-moz-range-thumb {
+    opacity: 1;
+  }
+
+  /* Marquee: a long title drifts across and back (Marquee.tsx measures it). */
+  .marquee[data-overflow="true"] {
+    text-overflow: clip;
+    mask-image: linear-gradient(90deg, #000 calc(100% - 1rem), transparent);
+  }
+
+  .marquee[data-overflow="true"] > .marquee-text {
+    display: inline-block;
+    animation: marquee calc(4s + var(--marquee-distance) * 45ms) ease-in-out
+      1.5s infinite alternate;
+  }
+
+  @keyframes marquee {
+    0%,
+    18% {
+      transform: translateX(0);
+    }
+    82%,
+    100% {
+      transform: translateX(var(--marquee-shift));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee[data-overflow="true"] {
+      text-overflow: ellipsis;
+      mask-image: none;
+    }
+
+    .marquee[data-overflow="true"] > .marquee-text {
+      display: inline;
+      animation: none !important;
+    }
   }
 
   /* Equalizer bars for the playing row. */
