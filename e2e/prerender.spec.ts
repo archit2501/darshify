@@ -310,7 +310,7 @@ test("routing regression: internal links retain client-side navigation", async (
   });
 
   await page.goto("/");
-  await page.getByRole("link", { name: "Search", exact: true }).first().click();
+  await page.getByRole("link", { name: "Browse all" }).click();
 
   await expect(page).toHaveURL(/\/search$/);
   await expect(

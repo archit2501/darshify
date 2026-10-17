@@ -268,7 +268,7 @@
               "dependencies": ["1.4.1"],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
               "ciJobs": ["quality", "test", "build", "browser"],
-              "status": "in_progress",
+              "status": "done",
               "criticalPath": true,
               "parallelizable": false
             },
@@ -292,7 +292,7 @@
               "dependencies": ["2.1.1"],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
               "ciJobs": ["quality", "test", "build", "browser"],
-              "status": "todo",
+              "status": "in_progress",
               "criticalPath": true,
               "parallelizable": false
             }
