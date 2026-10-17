@@ -169,7 +169,7 @@
               "dependencies": ["1.3.1"],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
               "ciJobs": ["quality", "test", "build", "browser"],
-              "status": "in_progress",
+              "status": "done",
               "criticalPath": true,
               "parallelizable": false
             }
@@ -188,22 +188,24 @@
                 "Song length = sum of lyric cue durations; active lyric found by binary search",
                 "Saves, volume, mute and last context persisted with try/catch; server snapshot = defaults (hydration-safe)",
                 "Media Session metadata/actions; document.title shows the playing song while playing",
-                "Career Mix replaced by the curated 'This Is Darshil Jain' playlist; analytics allowlist extended"
+                "PlayerProvider mounted at the root beside the legacy Career Mix (no UI drives it yet); the Career Mix is retired with the player bar in 2.2.1"
               ],
               "estimateHours": 7,
               "timeComplexity": "O(1) per action, O(n) shuffle, O(log k) lyric lookup",
               "spaceComplexity": "O(n)",
               "files": [
+                "src/player/tracks.ts",
                 "src/player/reducer.ts",
                 "src/player/store.ts",
                 "src/player/hooks.ts",
-                "src/player/mediaSession.ts",
-                "src/analytics/outcomes.ts"
+                "src/player/PlayerProvider.tsx",
+                "src/player/NowPlayingTitle.tsx",
+                "app/root.tsx"
               ],
               "dependencies": ["1.3.1"],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
               "ciJobs": ["quality", "test", "build", "browser"],
-              "status": "todo",
+              "status": "in_progress",
               "criticalPath": true,
               "parallelizable": false
             },
@@ -307,7 +309,8 @@
                 "Left: art, title, artist, save toggle. Center: shuffle, previous, play/pause (black on white, visible), next, repeat + scrubber with elapsed/total times. Right: Now Playing view, lyrics, queue, Download CV, mute + volume",
                 "Always mounted; idle state is ready to play 'This Is Darshil Jain'",
                 "Native range inputs with aria-valuetext; scrubber turns green with a knob on hover; keyboard seek works",
-                "Ambient sound follows play/pause/seek/volume"
+                "Ambient sound follows play/pause/seek/volume",
+                "Retires the Career Mix context, dock and tests; every play button drives the player store ('This Is Darshil Jain' is the curated mix)"
               ],
               "estimateHours": 5,
               "timeComplexity": "n/a",

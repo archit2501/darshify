@@ -2,6 +2,7 @@
 
 import { readFileSync } from "node:fs";
 import { readStylesheet } from "../test/stylesheets";
+import { PlayerProvider } from "../player/PlayerProvider";
 import { resolve } from "node:path";
 import { useContext } from "react";
 import {
@@ -126,9 +127,11 @@ const renderShell = async (reduced: boolean) => {
   );
 
   const view = render(
-    <CareerMixProvider>
-      <RouterProvider router={router} />
-    </CareerMixProvider>,
+    <PlayerProvider>
+      <CareerMixProvider>
+        <RouterProvider router={router} />
+      </CareerMixProvider>
+    </PlayerProvider>,
   );
   await act(async () => {
     await Promise.resolve();

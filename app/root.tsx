@@ -11,6 +11,7 @@ import {
 import "../src/index.css";
 import figtreeLatin from "@fontsource-variable/figtree/files/figtree-latin-wght-normal.woff2?url";
 import { CareerMixProvider } from "../src/career-mix/CareerMixContext";
+import { PlayerProvider } from "../src/player/PlayerProvider";
 import { AppShell } from "../src/shell/AppShell";
 import { ToastProvider } from "../src/shell/Toast";
 import {
@@ -78,11 +79,13 @@ export default function Root() {
   return (
     <>
       <ProductionAnalytics />
-      <CareerMixProvider>
-        <ToastProvider>
-          <AppShell />
-        </ToastProvider>
-      </CareerMixProvider>
+      <PlayerProvider>
+        <CareerMixProvider>
+          <ToastProvider>
+            <AppShell />
+          </ToastProvider>
+        </CareerMixProvider>
+      </PlayerProvider>
       <HydrationMarker />
     </>
   );
