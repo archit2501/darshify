@@ -23,10 +23,10 @@ const descriptor = (
 
 describe("canonical route metadata", () => {
   it("gives every prerendered document unique absolute discovery metadata", () => {
-    // Five fixed routes, every release except the awards (canonical at
+    // Six fixed routes, every release except the awards (canonical at
     // /liked), every song and every skill.
     expect(canonicalRouteInventory.length).toBe(
-      5 +
+      6 +
         portfolio.collections.length -
         1 +
         portfolio.caseStudies.length +
@@ -74,6 +74,7 @@ describe("canonical route metadata", () => {
       search: "Evidence search",
       library: "Career library",
       liked: "Selected achievements",
+      rewind: "Year in review",
     } as const;
     let totalBytes = 0;
     const pixelHashes: Array<Promise<string>> = [];
