@@ -243,7 +243,7 @@ test.describe("production HTML without JavaScript", () => {
       await expect(
         page.getByRole("heading", { level: 1, name: "Selected achievements" }),
       ).toBeVisible();
-      await expect(page).toHaveTitle("Selected achievements | Darshify");
+      await expect(page).toHaveTitle("Darshil Jain's achievements | Darshify");
     }
   });
 

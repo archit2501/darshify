@@ -25,7 +25,7 @@ describe("Career Library", () => {
   it("publishes Career Library route metadata", () => {
     expect(meta({} as Parameters<typeof meta>[0])).toEqual(
       expect.arrayContaining([
-        { title: "Browse professional evidence | Darshify" },
+        { title: "Darshil Jain's releases — Your Library | Darshify" },
       ]),
     );
   });

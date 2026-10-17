@@ -5,7 +5,12 @@ import type { LoaderFunctionArgs } from "react-router";
 import { portfolio } from "../../src/content/portfolio";
 import { LIKED_RELEASE_ID } from "../../src/content/selectors";
 import { buildNotFoundMeta, buildRouteMeta } from "../../src/seo/meta";
-import { buildCreativeWorkJsonLd } from "../../src/seo/structuredData";
+import {
+  buildCreativeWorkJsonLd,
+  buildGraph,
+  buildPersonJsonLd,
+  buildWebSiteJsonLd,
+} from "../../src/seo/structuredData";
 import { meta as homeMeta } from "./home";
 import { meta as artistMeta } from "./artist";
 import { meta as searchMeta } from "./search";
@@ -25,7 +30,15 @@ const args = (params: Record<string, string | undefined>) =>
 
 describe("route metadata adapters", () => {
   it("delegates every fixed route to the canonical metadata builder", () => {
-    expect(homeMeta({} as never)).toEqual(buildRouteMeta({ kind: "home" }));
+    expect(homeMeta({} as never)).toEqual([
+      ...buildRouteMeta({ kind: "home" }),
+      {
+        "script:ld+json": buildGraph(
+          buildWebSiteJsonLd(),
+          buildPersonJsonLd(portfolio.candidate),
+        ),
+      },
+    ]);
     expect(artistMeta({} as never)).toEqual(
       expect.arrayContaining(buildRouteMeta({ kind: "artist" })),
     );
@@ -58,9 +71,10 @@ describe("route metadata adapters", () => {
       expect(caseMeta({ data: loaded } as never)).toEqual([
         ...buildRouteMeta({ kind: "case-study", caseStudy }),
         {
-          "script:ld+json": buildCreativeWorkJsonLd(
-            caseStudy,
-            portfolio.candidate,
+          "script:ld+json": buildGraph(
+            buildCreativeWorkJsonLd(caseStudy, portfolio.candidate),
+            buildPersonJsonLd(portfolio.candidate),
+            buildWebSiteJsonLd(),
           ),
         },
       ]);

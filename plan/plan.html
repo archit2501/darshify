@@ -1094,14 +1094,17 @@
                     "timeComplexity": "n/a",
                     "spaceComplexity": "n/a",
                     "files": [
-                      "src/seo/meta.ts",
                       "src/seo/structuredData.ts",
-                      "app/routes/*.tsx"
+                      "src/seo/meta.ts",
+                      "app/routes/home.tsx",
+                      "app/routes/artist.tsx",
+                      "app/routes/case-study.tsx",
+                      "public/social-cards/*"
                     ],
                     "dependencies": ["3.4.1"],
                     "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
                     "ciJobs": ["quality", "test", "build", "browser"],
-                    "status": "todo",
+                    "status": "in_progress",
                     "criticalPath": true,
                     "parallelizable": false
                   },
@@ -1188,7 +1191,7 @@
             ]
           }
         ],
-        "generatedAt": "2026-10-17T06:01:23.971Z"
+        "generatedAt": "2026-10-17T06:06:01.207Z"
       }
     </script>
     <script>

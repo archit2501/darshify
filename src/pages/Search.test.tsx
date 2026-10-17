@@ -17,7 +17,7 @@ describe("Search professional discovery", () => {
   it("publishes professional discovery route metadata", () => {
     expect(meta({} as Parameters<typeof meta>[0])).toEqual(
       expect.arrayContaining([
-        { title: "Search professional evidence | Darshify" },
+        { title: "Search Darshil Jain's work | Darshify" },
       ]),
     );
   });

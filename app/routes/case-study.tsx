@@ -8,7 +8,12 @@ import { portfolio } from "../../src/content/portfolio";
 import { caseStudyBySlug } from "../../src/content/selectors";
 import { CaseStudyPage } from "../../src/pages/CaseStudyPage";
 import { buildNotFoundMeta, buildRouteMeta } from "../../src/seo/meta";
-import { buildCreativeWorkJsonLd } from "../../src/seo/structuredData";
+import {
+  buildCreativeWorkJsonLd,
+  buildGraph,
+  buildPersonJsonLd,
+  buildWebSiteJsonLd,
+} from "../../src/seo/structuredData";
 import { NotFoundView } from "./not-found";
 
 export function loader({ params }: LoaderFunctionArgs) {
@@ -26,7 +31,11 @@ export const meta: MetaFunction<typeof loader> = ({ data: caseStudy }) => {
   return [
     ...buildRouteMeta({ kind: "case-study", caseStudy }),
     {
-      "script:ld+json": buildCreativeWorkJsonLd(caseStudy, portfolio.candidate),
+      "script:ld+json": buildGraph(
+        buildCreativeWorkJsonLd(caseStudy, portfolio.candidate),
+        buildPersonJsonLd(portfolio.candidate),
+        buildWebSiteJsonLd(),
+      ),
     },
   ];
 };

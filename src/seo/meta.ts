@@ -68,34 +68,34 @@ const fixedCopy: Record<
   { title: string; description: string }
 > = {
   home: {
-    title: "Darshil Jain — Business, strategy & operations | Darshify",
+    title: "Darshil Jain — Operations & Strategy · BBA, MSI Delhi | Darshify",
     description:
-      "Recruiter briefing for Darshil Jain with sourced operations, strategy, analytics, recruitment, and leadership evidence.",
+      "Darshil Jain is a BBA (Business & Industry) student at Maharaja Surajmal Institute, Delhi, working across operations, strategy and people: three internships, a paid startup consulting engagement and a student club built to 80+ members.",
   },
   artist: {
-    title: "Darshil Jain professional profile | Darshify",
+    title: "Darshil Jain — Profile, experience and résumé | Darshify",
     description:
-      "Review Darshil Jain's complete proposition, selected impact, education, skills, availability, and source-backed career evidence.",
+      "Who Darshil Jain is: education (BBA, MSI Delhi, CGPA 9.39), internships at Figmenta, PSR Compliance and MJ Marketing Consultancy, leadership, awards, skills and how to get in touch.",
   },
   search: {
-    title: "Search professional evidence | Darshify",
+    title: "Search Darshil Jain's work | Darshify",
     description:
-      "Search Darshil Jain's experience, projects, leadership, achievements, skills, and source-backed evidence.",
+      "Search Darshil Jain's experience, projects, leadership, achievements, skills and sources by organization, skill, action or result.",
   },
   library: {
-    title: "Browse professional evidence | Darshify",
+    title: "Darshil Jain's releases — Your Library | Darshify",
     description:
-      "Browse Darshil Jain's professional evidence categories and career releases by experience, project, skill, credential, achievement, or education.",
-  },
-  rewind: {
-    title: "Darshil's Rewind: the year in review | Darshify",
-    description:
-      "Darshil Jain's work in review, told like a music year-in-review: internships, top skills, a club built from zero, awards and grades, all from the résumé.",
+      "Every release in Darshil Jain's portfolio: experience, projects, leadership, skills, certifications, achievements and education.",
   },
   liked: {
-    title: "Selected achievements | Darshify",
+    title: "Darshil Jain's achievements | Darshify",
     description:
-      "Review Darshil Jain's selected achievements and résumé-listed competition recognition in one focused evidence view.",
+      "Darshil Jain's competition results: a business plan win, a national championship final, 4th at IIM Calcutta and top 10% at IIT Guwahati.",
+  },
+  rewind: {
+    title: "Darshil Jain's Rewind — the year in review | Darshify",
+    description:
+      "Darshil Jain's work in review, told like a music year-in-review: internships, top skills, a club built from zero, awards and grades, all from the résumé.",
   },
 };
 
@@ -109,8 +109,8 @@ const resolveRoute = (input: RouteMetaInput) => {
     return {
       id: `collection:${input.collection.id}` as RouteId,
       path: `/playlist/${input.collection.id}`,
-      title: `${input.collection.title} evidence | Darshify`,
-      description: `${input.collection.description} Browse this source-linked ${input.collection.title.toLowerCase()} collection for Darshil Jain.`,
+      title: `${input.collection.title} — Darshil Jain | Darshify`,
+      description: `${input.collection.description} A ${input.collection.releaseType === "EP" ? "EP" : input.collection.releaseType.toLowerCase()} from Darshil Jain's portfolio, sourced from the résumé.`,
       type: "website",
     };
   }
@@ -119,7 +119,7 @@ const resolveRoute = (input: RouteMetaInput) => {
     return {
       id: `case-study:${input.caseStudy.id}` as RouteId,
       path: `/case-studies/${input.caseStudy.slug}`,
-      title: `${input.caseStudy.title} | Darshify`,
+      title: `${input.caseStudy.title} — Darshil Jain | Darshify`,
       description: `${input.caseStudy.tagline} ${input.caseStudy.organization}, ${input.caseStudy.period}.`,
       type: "article",
     };
@@ -132,7 +132,7 @@ const resolveRoute = (input: RouteMetaInput) => {
     return {
       id: `genre:${input.genre.slug}` as RouteId,
       path: `/genre/${input.genre.slug}`,
-      title: `${input.genre.skill} · Darshil Jain | Darshify`,
+      title: `${input.genre.skill} — Darshil Jain | Darshify`,
       description: `${input.genre.description} Darshil Jain's ${input.genre.skill.toLowerCase()} work: ${count} ${count === 1 ? "example" : "examples"} from the résumé.`,
       type: "website",
     };
