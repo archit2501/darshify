@@ -1,10 +1,14 @@
-import { releaseArt } from "../content/artwork";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { releaseArt } from "../content/artwork";
 import { portfolio } from "../content/portfolio";
-import type { Collection } from "../content/types";
-import { Art } from "../shell/Art";
 import { releaseHref } from "../content/selectors";
+import type { Collection } from "../content/types";
+import { SearchIcon } from "../icons/icons";
+import { releaseContext } from "../player/tracks";
+import { Cover } from "../shell/Cover";
+import { PlayButton } from "../shell/PlayButton";
+import { ReleaseContextMenu } from "../shell/ReleaseMenu";
 
 type Filter = "all" | Collection["id"];
 type Sort = "portfolio" | "az";
@@ -19,47 +23,51 @@ const libraryReleases = portfolio.collections.map((collection) => ({
   ),
 }));
 
-const collectionHref = (collection: Collection) => releaseHref(collection);
+const chip = (on: boolean) =>
+  `min-h-9 rounded-full px-3 text-sm font-semibold transition-colors duration-(--dur-hover) ${on ? "bg-fg text-black" : "bg-tint text-fg hover:bg-tint-strong"}`;
 
-function LibraryRelease({ collection }: { collection: Collection }) {
+function LibraryRow({ collection }: { collection: Collection }) {
+  const art = releaseArt(collection);
   return (
-    <article className="min-w-0">
-      <Link
-        to={collectionHref(collection)}
-        aria-label={`Explore ${collection.title}`}
-        className="group grid h-full grid-cols-[5rem_minmax(0,1fr)] gap-4 rounded-lg border border-line bg-elevated p-3 transition-colors duration-[var(--transition-hover)] hover:border-muted sm:grid-cols-1 sm:p-4"
-      >
-        <Art
-          src={releaseArt(collection).src}
-          gradient={releaseArt(collection).gradient}
-          alt=""
-          className="aspect-square rounded-md shadow-lg"
-        />
-        <div className="min-w-0">
-          <p className="font-evidence text-utility uppercase tracking-wide text-signal">
-            Professional category
-          </p>
-          <h2
-            data-library-title
-            className="mt-1 text-card-title font-bold leading-tight text-text"
-          >
+    <ReleaseContextMenu
+      releaseId={collection.id}
+      render={<li className="list-none" />}
+    >
+      <article className="group relative flex items-center gap-3 rounded-art p-2 transition-colors hover:bg-tint-hover focus-within:bg-tint-hover">
+        <Cover art={art} size="fill" className="w-16 shadow-card" />
+        <div className="min-w-0 flex-1">
+          <h2 data-library-title className="truncate font-bold">
             {collection.title}
           </h2>
-          <p className="mt-1 font-evidence text-utility text-muted">
-            Release: {collection.releaseType}
+          <p className="truncate text-sm text-subdued">
+            {collection.releaseType} · {portfolio.candidate.name}
           </p>
-          <p className="mt-3 text-metadata leading-relaxed text-muted">
+          <p className="line-clamp-1 text-sm text-subdued max-sm:hidden">
             {collection.description}
           </p>
-          <span className="mt-4 inline-flex min-h-11 items-center font-bold text-text underline decoration-line underline-offset-4 group-hover:decoration-signal">
-            Explore evidence
-          </span>
+          <Link
+            to={releaseHref(collection)}
+            aria-label={`Explore ${collection.title}`}
+            className="absolute inset-0 rounded-art"
+          />
         </div>
-      </Link>
-    </article>
+        <div className="relative z-10 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-100">
+          <PlayButton
+            context={releaseContext(collection)}
+            label={collection.title}
+            size={40}
+          />
+        </div>
+      </article>
+    </ReleaseContextMenu>
   );
 }
 
+/**
+ * The full-page Your Library (what the phone's Library tab opens): filter
+ * chips, a search and A–Z sort over Darshil's releases, each one row that
+ * opens the release, plays it, or right-clicks for more.
+ */
 export function Library() {
   const [filter, setFilter] = useState<Filter>("all");
   const [sort, setSort] = useState<Sort>("portfolio");
@@ -81,104 +89,91 @@ export function Library() {
 
   return (
     <div className="pt-2">
-      <header className="max-w-3xl">
-        <p className="font-evidence text-utility uppercase tracking-wide text-signal">
-          Professional evidence categories
-        </p>
-        <h1 className="mt-2 text-3xl font-black text-text">Career Library</h1>
-        <p className="mt-3 max-w-[65ch] leading-relaxed text-muted">
-          Browse Darshil Jain’s experience, projects, skills, credentials, and
-          achievements. Spotify-style releases remain a secondary wayfinding
-          cue.
-        </p>
-      </header>
+      <h1 className="text-headline">Your Library</h1>
+      <p className="mt-2 max-w-[65ch] text-subdued">
+        Every release from Darshil&apos;s résumé: experience, projects,
+        leadership, skills, credentials, awards and education.
+      </p>
 
-      <div className="mt-8 grid gap-6 rounded-lg border border-line bg-panel p-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
-        <fieldset>
-          <legend className="mb-3 font-bold text-text">
-            Filter evidence categories
-          </legend>
-          <div className="flex flex-wrap gap-2">
+      {/* min-w-0: a fieldset is otherwise as wide as its widest row. */}
+      <fieldset className="mt-5 min-w-0">
+        <legend className="sr-only">Filter evidence categories</legend>
+        <div className="no-scrollbar -mx-(--content-x) flex gap-2 overflow-x-auto px-(--content-x) pb-1">
+          <button
+            type="button"
+            aria-pressed={filter === "all"}
+            onClick={() => setFilter("all")}
+            className={`${chip(filter === "all")} shrink-0`}
+          >
+            All categories
+          </button>
+          {portfolio.collections.map((collection) => (
             <button
+              key={collection.id}
               type="button"
-              aria-pressed={filter === "all"}
-              onClick={() => setFilter("all")}
-              className={`min-h-11 rounded-full px-4 text-metadata font-bold transition-colors duration-[var(--transition-hover)] ${filter === "all" ? "bg-text text-ink" : "bg-elevated text-text hover:bg-card-hi"}`}
+              aria-pressed={filter === collection.id}
+              onClick={() => setFilter(collection.id)}
+              className={`${chip(filter === collection.id)} shrink-0`}
             >
-              All categories
+              {collection.title}
             </button>
-            {portfolio.collections.map((collection) => (
-              <button
-                key={collection.id}
-                type="button"
-                aria-pressed={filter === collection.id}
-                onClick={() => setFilter(collection.id)}
-                className={`min-h-11 rounded-full px-4 text-metadata font-bold transition-colors duration-[var(--transition-hover)] ${filter === collection.id ? "bg-text text-ink" : "bg-elevated text-text hover:bg-card-hi"}`}
-              >
-                {collection.title}
-              </button>
-            ))}
-          </div>
-        </fieldset>
+          ))}
+        </div>
+      </fieldset>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:min-w-[28rem]">
-          <div>
-            <label
-              htmlFor="library-search"
-              className="mb-2 block font-bold text-text"
-            >
-              Search Career Library
-            </label>
-            <input
-              id="library-search"
-              name="library-search"
-              type="search"
-              autoComplete="off"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              className="min-h-11 w-full rounded-full border border-line bg-elevated px-4 text-text outline-none focus-visible:border-signal"
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="library-sort"
-              className="mb-2 block font-bold text-text"
-            >
-              Sort releases
-            </label>
-            <select
-              id="library-sort"
-              value={sort}
-              onChange={(event) => setSort(event.target.value as Sort)}
-              className="min-h-11 w-full rounded-full border border-line bg-elevated px-4 text-text outline-none focus-visible:border-signal"
-            >
-              <option value="portfolio">Portfolio order</option>
-              <option value="az">A–Z</option>
-            </select>
-          </div>
+      <div className="mt-4 flex flex-wrap items-end gap-3">
+        <div className="relative min-w-0 flex-1 basis-60">
+          <label htmlFor="library-search" className="sr-only">
+            Search Your Library
+          </label>
+          <SearchIcon
+            size={18}
+            className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-subdued"
+          />
+          <input
+            id="library-search"
+            name="library-search"
+            type="search"
+            autoComplete="off"
+            placeholder="Search in Your Library"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            className="h-11 w-full rounded-row bg-tint pr-3 pl-10 text-sm text-fg placeholder:text-subdued focus:bg-tint-strong focus:outline-none focus-visible:ring-2 focus-visible:ring-fg"
+          />
+        </div>
+        <div>
+          <label htmlFor="library-sort" className="sr-only">
+            Sort releases
+          </label>
+          <select
+            id="library-sort"
+            value={sort}
+            onChange={(event) => setSort(event.target.value as Sort)}
+            className="h-11 rounded-row bg-tint px-3 text-sm font-semibold text-fg focus:outline-none focus-visible:ring-2 focus-visible:ring-fg"
+          >
+            <option value="portfolio">Recents</option>
+            <option value="az">A–Z</option>
+          </select>
         </div>
       </div>
 
-      <div className="mt-6 flex items-center justify-between gap-4 font-evidence text-metadata text-muted">
+      <div className="mt-4 flex items-center justify-between gap-4 text-sm text-subdued">
         <p aria-live="polite">
-          {items.length} {items.length === 1 ? "category" : "categories"}
+          {items.length} {items.length === 1 ? "release" : "releases"}
         </p>
-        <p>{sort === "az" ? "Sorted A–Z" : "Portfolio order"}</p>
+        <p>{sort === "az" ? "Sorted A–Z" : "Recents"}</p>
       </div>
 
       {items.length > 0 ? (
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="mt-2 grid gap-1 lg:grid-cols-2 lg:gap-x-6">
           {items.map(({ collection }) => (
-            <LibraryRelease key={collection.id} collection={collection} />
+            <LibraryRow key={collection.id} collection={collection} />
           ))}
-        </div>
+        </ul>
       ) : (
-        <p
-          role="status"
-          className="mt-8 rounded-lg border border-line bg-elevated p-6 text-muted"
-        >
-          No evidence categories match “{query}”. Try another professional term
-          or choose All categories.
+        <p role="status" className="mt-8 rounded-panel bg-surface-hi p-6">
+          Nothing in Your Library matches “{query}”. Try another word, or choose
+          All categories.
         </p>
       )}
     </div>
