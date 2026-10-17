@@ -343,7 +343,9 @@ test("the awards' old playlist address permanently redirects to /liked", async (
   const response = await request.get("/playlist/achievements", {
     maxRedirects: 0,
   });
-  expect(response.status()).toBe(301);
+  // Permanent either way: the app's loader answers 301, and on Vercel the
+  // vercel.json redirect answers 308 before the app is reached.
+  expect([301, 308]).toContain(response.status());
   expect(response.headers()["location"]).toBe("/liked");
 
   await page.goto("/playlist/achievements");
