@@ -30,6 +30,17 @@ npm run test:e2e        # build, then Playwright + axe browser tests
 npm run build           # production build with prerendered HTML in build/client
 ```
 
+Generated files are committed. Rerun the matching generator when their inputs change:
+
+```bash
+npm run generate:crawl         # sitemap.xml, robots.txt, llms.txt, llms-full.txt (content or routes changed)
+npm run generate:social-cards  # one 1200×630 share image per route
+npm run generate:covers        # cover art and the artist image (after adding a photo)
+npm run generate:icons         # favicon.ico, app icons and manifest.webmanifest
+npm run resume:metadata        # résumé PDF title and author (after replacing the PDF)
+npm run indexnow               # after a production deploy: ask Bing and other IndexNow engines to recrawl
+```
+
 ## Where things live
 
 | Path                                          | What it holds                                                         |
@@ -51,7 +62,7 @@ Work follows the research → plan → execute protocol in `.claude-protocol/`. 
 These steps happen outside the repository, and they matter as much as the code:
 
 1. **Photo.** Add a square portrait (at least 1200 px) as `public/photos/darshil-jain.jpg`. It becomes the artist image, the structured-data image and the image search result.
-2. **Domain.** Register `darshiljain.com`, add it in Vercel, set `origin` in `src/seo/site.ts`, and permanently redirect `wrapped-portfolio.vercel.app` to it.
-3. **Search engines.** Verify the site in Google Search Console and Bing Webmaster Tools, submit `/sitemap.xml`, and request indexing for `/` and `/artist`.
+2. **Domain.** Register `darshiljain.com`, add it in Vercel, set `origin` in `src/seo/site.ts`, rerun `npm run generate:crawl` and `npm run generate:social-cards`, and permanently redirect `wrapped-portfolio.vercel.app` to it.
+3. **Search engines.** Verify the site in Google Search Console and Bing Webmaster Tools, submit `/sitemap.xml`, and request indexing for `/` and `/artist`. After each production deploy, run `npm run indexnow`.
 4. **Profiles.** Use the same headline everywhere ("Darshil Jain · Operations & Strategy · BBA, MSI Delhi · Founder, Igniters Club"), set a custom LinkedIn URL, and link the site from LinkedIn, Unstop and the résumé's Portfolio link.
 5. **Mentions.** Ask Igniters Club, Unstop and competition organizers to link to the site.

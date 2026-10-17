@@ -13,6 +13,10 @@ export const SITE = {
   language: "en",
   themeColor: "#121212",
   copyrightYear: 2026,
+  /** When the content last changed (sitemap lastmod). */
+  contentUpdated: "2026-10-17",
+  /** IndexNow key; public/<key>.txt holds the same value. */
+  indexNowKey: "374f1ba4fcb959130679a8fc95f15a04",
   /** Disambiguates Darshil from other people who share the name in search. */
   titleQualifier: "Operations & Strategy · BBA, MSI Delhi",
   nonAffiliationNote:

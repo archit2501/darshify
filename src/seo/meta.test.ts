@@ -6,6 +6,12 @@ import { join } from "node:path";
 import sharp from "sharp";
 import { describe, expect, it } from "vitest";
 import { prerenderPaths } from "../../react-router.config";
+import {
+  buildLlmsFullTxt,
+  buildLlmsTxt,
+  buildRobots,
+  buildSitemap,
+} from "./crawl";
 import { portfolio } from "../content/portfolio";
 import {
   CANONICAL_SITE_ORIGIN,
@@ -203,8 +209,14 @@ describe("canonical route metadata", () => {
       ),
     );
 
-    expect(readFileSync("public/robots.txt", "utf8")).toBe(
-      `User-agent: *\nAllow: /\n\nSitemap: ${CANONICAL_SITE_ORIGIN}/sitemap.xml\n`,
+    expect(readFileSync("public/robots.txt", "utf8")).toBe(buildRobots());
+    expect(readFileSync("public/llms.txt", "utf8")).toBe(buildLlmsTxt());
+    expect(readFileSync("public/llms-full.txt", "utf8")).toBe(
+      buildLlmsFullTxt(),
+    );
+    expect(readFileSync("public/sitemap.xml", "utf8")).toBe(buildSitemap());
+    expect(buildRobots()).toContain(
+      `Sitemap: ${CANONICAL_SITE_ORIGIN}/sitemap.xml`,
     );
   });
 });

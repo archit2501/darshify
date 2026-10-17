@@ -7,6 +7,7 @@ import {
   CANONICAL_SITE_ORIGIN,
   canonicalRouteInventory,
 } from "../src/seo/meta";
+import { buildRobots } from "../src/seo/crawl";
 
 const buildClientDirectory = join(process.cwd(), "build/client");
 
@@ -176,7 +177,7 @@ test("artifact regression: the build contains the complete independent route inv
   expect(socialCardBytes).toBeLessThan(2_500_000);
 
   expect(readFileSync(join(buildClientDirectory, "robots.txt"), "utf8")).toBe(
-    `User-agent: *\nAllow: /\n\nSitemap: ${CANONICAL_SITE_ORIGIN}/sitemap.xml\n`,
+    buildRobots(),
   );
   const sitemap = readFileSync(
     join(buildClientDirectory, "sitemap.xml"),

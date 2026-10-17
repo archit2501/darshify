@@ -643,7 +643,7 @@ export const portfolio: Portfolio = {
       {
         question: "How do I contact Darshil Jain?",
         answer:
-          "Email darshijain0809@gmail.com or connect on LinkedIn. The full résumé is a one-page PDF you can download from this site.",
+          "Use the Email or LinkedIn button on any page of this site. The one-page résumé PDF, also downloadable here, lists every way to reach Darshil.",
       },
     ],
   },
