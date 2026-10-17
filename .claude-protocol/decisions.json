@@ -1,0 +1,32 @@
+{
+  "sector": "spotify-immersion",
+  "scope": "large",
+  "v1_scope": "Full immersion + Rewind: faithful Spotify shell (top bar + centered search, resizable Your Library, Now Playing panel, always-on player bar, mobile mini-player + full-screen sheet); every page rebuilt (Home, Artist, EP/Playlist, Song pages with lyrics, Search + skill genre pages, Library, Liked, 404); real player, context menus, shortcuts; content rewrite; full SEO/AEO/GEO; opt-in Darshify Rewind story at /rewind. Out: CMS, recorded voice audio.",
+  "architecture": "Rebuild the presentation layer on the existing spine: keep URLs, prerender, typed content model (extend with colors, lyric lines, impact, curation), SEO modules, a11y plumbing. Replace shell/pages/components. New player store (useSyncExternalStore, selective subscriptions) restoring old player behaviors without fake data/60fps loop/a11y bugs. Career Mix becomes a curated playlist.",
+  "data_honesty": "Honest fidelity: every Spotify slot holds a true value (plays->impact, duration->engagement length, date added->start month, listener line->real counts). No verified tick. Provenance moves to one Credits->Source row per song + one site-wide liner note; remove per-item self-reported chips.",
+  "libraries": "@base-ui/react for context menus, menus, tooltips, mobile full-screen player drawer; hand-rolled SSR-safe resizer; native range inputs for scrubber/volume; build-time sharp color extraction; Figtree variable font; extended original icon set; Motion only; schema-dts dev-only types. Player sound: opt-in ambient soundtrack generated with Web Audio API (no audio files), starts only on user Play, real volume/mute.",
+  "ui_approach": "Faithful redesign, hybrid layout: >=1280 resizable Library + main + docked Now Playing + always-on 72px player bar; 1024-1279 Now Playing overlay + Library icon rail; <768 Spotify mobile app pattern (edge-to-edge, colored mini-player, full-screen player sheet, gradient tab bar). Retire Proof Waveform and monospace; Figtree; original Darshify brand/icons; non-affiliation note.",
+  "front_loaded_ux_wins": [
+    "Always-on player + Now Playing + synced lyrics (green equalizer, play this list)",
+    "Artwork color + original colorful covers + real photo (photo pending from owner)",
+    "56px track tables with hover play-swap, sticky header, context menu; card rising play button"
+  ],
+  "test_coverage": ">=90% aggregate coverage on new and modified code (all new runtime files added to the vite.config.ts gated allowlist + coverage-scope regression test), plus route, keyboard, axe, responsive and critical-flow Playwright tests (play, seek, queue, mobile sheet, search, no-JS content).",
+  "release_strategy": "Integration branch feature/spotify-immersion: task branches PR into it with green CI required; Vercel previews per push; final atomic PR feature/spotify-immersion -> build/darshify for production cutover; rollback point 3dfae91. Canonical origin is a single config value (stays wrapped-portfolio.vercel.app until owner registers darshiljain.com).",
+  "performance_contract": "Time: O(1) lookups via precomputed maps; O(n) search/filter over precomputed normalized fields; sorts precomputed at build; O(log k) binary search for active lyric cue; player clock never re-renders the tree (CSS-driven progress, time-display subscribers only, <=4 Hz); scroll effects via CSS/IntersectionObserver without React state; interactions <50ms. Space: O(n) indexes, no runtime image processing, audio nodes disposed on stop. Budgets: <=170KB gzip initial JS, <=15KB CSS, one font file; CWV LCP<=2.5s, INP<=200ms, CLS<=0.1.",
+  "accessibility_target": "WCAG 2.2 AA: automated axe + manual keyboard, screen reader, 400% zoom, contrast, target size (24px min, 44px on coarse pointers), reduced motion. Every drag has a keyboard/button alternative; playback, Rewind and visualizer pausable; single-key shortcuts can be turned off; focus never obscured by player bar or top bar.",
+  "conflict_resolutions": {
+    "C1_truth_vs_slots": "honest fidelity (Q3)",
+    "C2_recruiter_vs_immersion": "full Spotify IA; CV/Email/LinkedIn one click away everywhere; answer-first facts in SSR (Q2/Q5)",
+    "C3_career_mix_scope": "full real transport incl. volume because ambient sound exists (Q4)",
+    "C4_libraries": "Base UI + own icons + hand-rolled resizer + Web Audio (Q4)",
+    "C5_typography": "Figtree only; drop Archivo + Plex Mono (Q5)",
+    "C6_signature": "retire Proof Waveform; lyrics-mode songs + Rewind (Q1/Q5)",
+    "C7_ip": "clone layout/behavior; original logo/font/icons/name; non-affiliation note; keep facsimile guard test (Q5)",
+    "C8_domain": "single config origin; switch when darshiljain.com registered (Q8)",
+    "C9_search_state": "query in URL ?q= with noindex on query pages (Q1 scope)",
+    "C10_duplicate_routes": "/liked canonical, 301 /playlist/achievements (Q1 scope)",
+    "C11_default_branch": "PRs target integration branch then build/darshify; CI triggers fixed in 1.1.1 (Q8)"
+  },
+  "approved": true
+}
