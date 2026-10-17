@@ -168,7 +168,7 @@ test.describe("shareable evidence-rich case studies", () => {
     for (const caseStudy of portfolio.caseStudies) {
       await page.goto(caseStudyPath(caseStudy.slug));
       const related = page.getByRole("region", {
-        name: "Related case studies",
+        name: "More like this",
       });
       const expectedIds = expectedRelatedCaseIds[caseStudy.id];
       await expect(related.getByRole("link")).toHaveCount(expectedIds.length);

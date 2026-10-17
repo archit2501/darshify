@@ -66,7 +66,7 @@ const cumulativeRedesignRuntime = [
   ...designSystemRuntime,
   ...semanticShellRuntime,
   "src/components/EvidenceCover.tsx",
-  "src/components/CaseStudyHeader.tsx",
+  "src/components/SongLyrics.tsx",
   "src/components/EvidencePanel.tsx",
   "src/components/OutcomeLink.tsx",
   "src/components/ProofTrackRow.tsx",
