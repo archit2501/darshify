@@ -87,6 +87,9 @@ describe("supported structured data", () => {
     expect((faq!.mainEntity as unknown[]).length).toBe(
       portfolio.candidate.faq.length,
     );
+    // Machine-readable data points to the contact buttons, never the address.
+    expect(JSON.stringify(graph)).not.toContain(portfolio.candidate.email);
+    expect(JSON.stringify(graph)).not.toContain(portfolio.candidate.phone);
   });
 
   it("builds CreativeWork JSON-LD from one typed case study without inventing authority", () => {

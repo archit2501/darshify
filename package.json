@@ -20,7 +20,10 @@
     "test:e2e": "playwright test",
     "check": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
     "generate:crawl": "vite-node scripts/generate-crawl-files.ts",
-    "generate:covers": "vite-node scripts/generate-covers.ts"
+    "generate:covers": "vite-node scripts/generate-covers.ts",
+    "generate:icons": "vite-node scripts/generate-icons.ts",
+    "resume:metadata": "vite-node scripts/set-resume-metadata.ts",
+    "indexnow": "vite-node scripts/indexnow.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
@@ -54,6 +57,7 @@
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.6.0",
     "jsdom": "^29.1.1",
+    "pdf-lib": "^1.17.1",
     "prettier": "^3.9.6",
     "sharp": "^0.35.4",
     "tailwindcss": "^4.3.1",

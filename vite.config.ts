@@ -113,6 +113,7 @@ const cumulativeRedesignRuntime = [
   "src/analytics/outcomes.ts",
   "src/seo/meta.ts",
   "src/seo/structuredData.ts",
+  "src/seo/crawl.ts",
   "src/seo/site.ts",
 ];
 const coverageRuntime =

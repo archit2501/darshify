@@ -55,7 +55,10 @@ describe("route root", () => {
         type: "font/woff2",
         crossOrigin: "anonymous",
       },
+      { rel: "icon", href: "/favicon.ico", sizes: "32x32 48x48" },
       { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
+      { rel: "apple-touch-icon", href: "/icons/apple-touch-icon.png" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
     ]);
     const view = render(<ErrorBoundary error={new Error("boom")} />);
     expect(
