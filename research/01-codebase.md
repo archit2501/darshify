@@ -1,443 +1,619 @@
-# Codebase research — Darshify recruiter-portfolio redesign
+# Codebase research: Darshify "Spotify immersion" + name-search SEO
 
-**Scope:** Large redesign, with the Spotify/music-streaming theme preserved as a non-negotiable constraint.
+**Sector:** make every page feel near-indistinguishable from the real Spotify app, and make searches for "Darshil Jain" / "Darshil" surface this site first (SEO + AEO + GEO).
+**Scope:** Large. **Stack:** React Router 7 framework mode (SSR + static prerender) on Vite 8, React 19, Tailwind 4, Motion 13, TypeScript 6.
+**Inspected:** branch `feature/spotify-immersion` at `3dfae91` (same commit as `origin/build/darshify`, the default branch), 2026-10-17.
+**Previous version of this file:** the recruiter-first research written at `60fd7a2` (describes the pre-redesign app at `d340f31`); it remains in git history.
 
-**Repository state inspected:** branch `build/darshify`, commit `d340f31` (`feat: cover art in Home quick-pick tiles`). This report describes the current codebase and migration seams; it does not score the design or prescribe a final visual direction.
+Every claim below cites `file:line`. `git show <sha>:<path>` retrieves anything marked "removed".
 
-## Executive summary
+---
 
-Darshify is a small, client-only React application that translates Darshil Jain's résumé into streaming-app vocabulary. It has a clean source-of-truth data module, route-level code splitting, a persistent three-part shell, a pure queue/shuffle engine, local persistence, and a compact passing test suite. Those are strong foundations for a large redesign.
+## 0. Decision-relevant summary
 
-The central technical problem is not framework quality; it is that the current domain model makes the metaphor the product. `Track` requires invented duration and play-count fields, the global provider simulates continuous playback, and the shell gives permanent space to controls that do not help a recruiter evaluate or contact the candidate (`src/data/library.ts:1-3`, `src/player/PlayerContext.tsx:38-115`, `src/shell/PlayerBar.tsx:16-83`). The migration should invert that relationship: verified career evidence becomes the domain model, while Spotify-inspired presentation becomes an adapter over it.
+1. **The Spotify player was deliberately removed and the removal is guarded by tests.** The persistent player bar, scrubber, volume, shuffle/repeat, likes, queue panel, now-playing panel, mobile now-playing sheet, track context menu, hover play-number swap, card hover play buttons, keyboard shortcuts, Web Audio ambient sound, recent searches and the AI cover art all existed before `60fd7a2`. They were deleted in `a154bd1`, `fd6de35` and `517623c`. The best restore sources are `a154bd1^` and `fd6de35^`, because the Codex pass had already migrated those files to Motion 13 and the 44 px targets before deleting them (§4.3).
+2. **What remains is a 60-second "silent Career Mix" with 3 chapters** (`src/career-mix/*`). The dock exists only after the user clicks "Start Career Mix" (`CareerMixDock.tsx:27`). It has no seek, volume, queue or tracks.
+3. **Content is accurate but heavily hedged.** "self-reported" is shown on every proof. All 17 case-study results are framed as "The résumé reports…", "Listed … in the résumé" or "self-reported through the résumé". Three achievements are dated "Date not listed in résumé". There are also unit-formatting bugs: "4 position", "10 top percent", "50,000+ INR". Several résumé facts are missing from the site: "Paid" engagement, "IIHMR Saamarthya 5.0", "13th" championship, "0 → 80+ members in 10 months", "largest management fest", "A/B testing", the LOR link and the Janakpuri, Delhi location (§5).
+4. **There is no photo of Darshil anywhere** (repo, git history or résumé). The Person JSON-LD image is a text-only SVG.
+5. **SEO basics are good, but entity SEO is weak.** All 28 routes are prerendered with unique title, canonical, OG and Twitter tags, and the main content is in the static HTML. However:
+   - the canonical origin is `wrapped-portfolio.vercel.app`, so the domain does not contain his name;
+   - the Home page has **no JSON-LD**, and Person markup lives only on `/artist`;
+   - only the Home and Artist titles contain his name (none of the 23 collection or case-study titles do);
+   - there is no `WebSite`/`ProfilePage` graph, `alumniOf`, `award` or `alternateName`;
+   - the résumé PDF's own metadata says **Title "Copy of Resume", Author "Harish jaiswal"**;
+   - there is no `llms.txt`;
+   - `/liked` and `/playlist/achievements` duplicate each other in the sitemap (§6).
+6. **Quality gates are green and fast.** lint 4 s, type-check 3 s, 296 unit tests 10 s, coverage 11 s, format 2 s, build + 28-route prerender 2 s. The 90 % coverage gate is an **aggregate** over an explicit 51-file allowlist. Branch coverage, at 91.05 %, has only **about 6 branches of headroom**. Any new runtime file must be added to `vite.config.ts:29-65` or it goes unmeasured.
+7. **About 15 unit and e2e tests encode the recruiter-first stance and must be rewritten.** Examples: no `plays`/`durationSec`/`monthlyListeners`, Volume control count 0, no play buttons on cards, no persisted recents, profile art must be a proof SVG. One test should be **kept**: the guard against a Spotify-logo facsimile in social cards (§3.7).
+8. **Perf traps to fix before building a richer player:**
+   - the Career Mix context re-renders every consumer 4×/s while playing;
+   - the shell re-renders on every scroll event (TopBar tint);
+   - the old player re-rendered at 60 fps through a `requestAnimationFrame` progress state.
 
-The safest path is evolutionary rather than a rewrite. Preserve the palette/tokens, wordmark, cover/card/playlist grammar, lazy routes, pure utilities, reduced-motion hook, and content taxonomy. Replace the Home and Artist information hierarchy first; introduce an evidence-first content schema beside the legacy `Track` schema; then adapt the shared row/card/player surfaces. This keeps every stage buildable and allows the theme to remain visible throughout.
+---
 
 ## 1. Architecture map
 
-### Runtime entry and provider tree
+### 1.1 Routes (`app/routes.ts:3-16`) and prerender
 
-```text
-index.html
-  -> src/main.tsx
-      -> React StrictMode
-      -> BrowserRouter
-          -> src/App.tsx
-              -> PlayerProvider
-              -> ToastProvider
-              -> Suspense
-              -> AppShell route
-                  -> Sidebar / TopBar
-                  -> <Outlet> page
-                  -> QueuePanel / NowPlayingPanel
-                  -> PlayerBar / BottomNav
+| Path                  | Route module                                                      | Page component                | Loader                                                                                                  | `meta` / JSON-LD                                                |
+| --------------------- | ----------------------------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| `/`                   | `app/routes/home.tsx`                                             | `src/pages/Home.tsx`          | `{ initialGreeting: currentGreeting() }`, evaluated **at build time** during prerender (`home.tsx:6-8`) | `buildRouteMeta({kind:"home"})` (`home.tsx:10`), **no JSON-LD** |
+| `/artist`             | `app/routes/artist.tsx`                                           | `src/pages/ArtistPage.tsx`    | none                                                                                                    | route meta + `Person` (`artist.tsx:7-10`)                       |
+| `/search`             | `app/routes/search.tsx`                                           | `src/pages/Search.tsx`        | none                                                                                                    | route meta                                                      |
+| `/library`            | `app/routes/library.tsx`                                          | `src/pages/Library.tsx`       | none                                                                                                    | route meta                                                      |
+| `/playlist/:id`       | `app/routes/collection.tsx` (id `routes/collection-playlist`)     | `src/pages/PlaylistPage.tsx`  | `collectionById` or `data(null,{status:404})` (`collection.tsx:22-41`)                                  | per-collection meta (`:43-57`)                                  |
+| `/liked`              | same module (id `routes/collection-liked`, `app/routes.ts:11-13`) | `src/pages/LikedSongs.tsx`    | static object                                                                                           | liked meta                                                      |
+| `/case-studies/:slug` | `app/routes/case-study.tsx`                                       | `src/pages/CaseStudyPage.tsx` | `caseStudyBySlug` or 404 (`:14-17`)                                                                     | meta + `CreativeWork` (`:19-32`)                                |
+| `*`                   | `app/routes/not-found.tsx`                                        | `src/pages/NotFound.tsx`      | 404 (`:10-12`)                                                                                          | `noindex, nofollow` (`src/seo/meta.ts:140-144`)                 |
+
+- **Prerender list** = `canonicalRouteInventory` (`src/seo/meta.ts:37-49`). That is 5 fixed routes + 6 collections + 17 case studies = **28 documents**, wired in `react-router.config.ts:5,10` with `ssr: true` and `vercelPreset()`.
+- The build writes `build/client/**/index.html` plus `.data` files for 28 routes. Every route has `routeDiscovery: { mode: "initial" }` (`react-router.config.ts:11`).
+- `/playlist/achievements` and `/liked` render the same collection through two different pages, with two canonicals. **Both URLs are in the sitemap** (`public/sitemap.xml:7,12`). In-app links always use `/liked` (`Home.tsx:64-67`, `ReleaseCard.tsx:6-7`, `Library.tsx:20-21`).
+
+### 1.2 Provider / shell tree
+
+```
+app/root.tsx  Layout (html/head/Meta/Links/ScrollRestoration/Scripts)  :50-67
+  Root  :69-81
+    ProductionAnalytics (Vercel <Analytics>, only on canonical or *.vercel.app)  :34-48
+    CareerMixProvider  (src/career-mix/CareerMixContext.tsx:84-141)
+      ToastProvider    (src/shell/Toast.tsx:9-32; nothing calls useToast)
+        AppShell       (src/shell/AppShell.tsx:12-44)
+          MotionProvider (LazyMotion domAnimation strict + MotionConfig reducedMotion="user")
+          SkipLink
+          Sidebar (md+, fixed w-56)   TopBar (sticky, scroll tint)   <main overflow-y-auto><Outlet/></main>
+          RouteFocus (focus h1 + scroll main to top on pathname change)
+          CareerMixDock (null unless open)
+          BottomNav (md:hidden)
+    HydrationMarker (sets html[data-hydrated])  :24-32
+  ErrorBoundary (generic "Something went wrong")  :83-102
 ```
 
-- `index.html` defines the root element, social metadata, favicon, theme color, and the `/src/main.tsx` module entry (`index.html:3-21`).
-- `src/main.tsx` mounts React in `StrictMode`, installs `BrowserRouter`, imports global styles, and renders `App` (`src/main.tsx:1-13`).
-- `src/App.tsx` installs `PlayerProvider` and `ToastProvider`, then lazy-loads every page behind one `Suspense` boundary (`src/App.tsx:1-19`).
-- The route tree has Home `/`, Search `/search`, Library `/library`, dynamic playlist `/playlist/:id`, Artist `/artist`, Liked `/liked`, and a catch-all NotFound route (`src/App.tsx:20-30`).
-- `src/shell/AppShell.tsx` owns responsive shell composition, main-scroll tracking, right-panel state, mobile now-playing sheet state, focus movement on navigation, and global player keyboard shortcuts (`src/shell/AppShell.tsx:18-93`).
-- Vercel rewrites extensionless paths to `index.html`, enabling client-side routing in production (`vercel.json:1-3`).
+### 1.3 Directory responsibilities
 
-### Directory and module responsibilities
+| Path                               | Responsibility                                                                                                                                                                                                                  | Notes                                                                           |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `app/`                             | Route modules: loaders, `meta`, 404s, root layout and error boundary                                                                                                                                                            | thin adapters over `src/pages`                                                  |
+| `src/pages/`                       | Home, ArtistPage, PlaylistPage, LikedSongs, Search, Library, CaseStudyPage, NotFound                                                                                                                                            | page modules resolve content IDs at module load and `throw` if they are missing |
+| `src/shell/`                       | AppShell, Sidebar, TopBar, BottomNav, MediaCard, Shelf, PlayButton, Art, Toast, RouteFocus, SkipLink                                                                                                                            | Spotify chrome                                                                  |
+| `src/components/`                  | RecruiterHero, ContactActions, OutcomeLink, ProofTrackRow, ProofWaveform, EvidenceCover, EvidencePanel, CaseStudyHeader, ReleaseCard, SearchField, SearchResults                                                                | recruiter / evidence UI                                                         |
+| `src/content/`                     | `types.ts`, `portfolio.ts` (single source of truth, 741 lines), `selectors.ts` (O(1) maps + search), `validate.ts` (referential/provenance validator), `waveform.ts` (`formatProofValue`, waveform data), `artifactFallback.ts` | typed static content, no CMS                                                    |
+| `src/career-mix/`                  | `reducer.ts` (pure state machine), `CareerMixContext.tsx` (provider + `useCareerMix`), `CareerMixDock.tsx` (UI)                                                                                                                 | the only "player"                                                               |
+| `src/motion/`                      | `MotionProvider.tsx`                                                                                                                                                                                                            | Motion 13, `m.*` components only (LazyMotion `strict`)                          |
+| `src/lib/`                         | `useReducedMotion` (useSyncExternalStore, SSR-safe), `useLocalStorage` (hydration-safe; **only tests use it**), `greeting.ts`                                                                                                   |                                                                                 |
+| `src/seo/`                         | `meta.ts` (route inventory, canonical origin, meta builder), `structuredData.ts` (Person, CreativeWork)                                                                                                                         |                                                                                 |
+| `src/analytics/`                   | `outcomes.ts` (allowlisted Vercel custom events + URL redaction)                                                                                                                                                                |                                                                                 |
+| `src/icons/icons.tsx`              | inline SVG icons                                                                                                                                                                                                                | 7 exports unused (§7)                                                           |
+| `src/styles/`                      | `tokens.css` (CSS vars + Tailwind `@theme inline`), `base.css` (fonts, globals, focus, reduced-motion)                                                                                                                          |                                                                                 |
+| `scripts/generate-social-cards.ts` | writes 28 SVG card sources to `scripts/generated-social-card-sources/`, then renders them with sharp to `public/social-cards/*.png` (1200×630)                                                                                  | run with `npm run generate:social-cards`; PNGs are committed                    |
+| `public/`                          | `Darshil_Jain_Resume.pdf`, `artifacts/*.svg` (8 text-only cover cards, about 1.3 KB each), `social-cards/*.png` (28), `favicon.svg`, `og.png` (unreferenced), `robots.txt`, `sitemap.xml`                                       |                                                                                 |
+| `e2e/`                             | 7 Playwright specs with axe, run against `react-router-serve` on :3000                                                                                                                                                          |                                                                                 |
 
-```text
-src/
-├── App.tsx, main.tsx, index.css    application composition, routing, global tokens
-├── data/
-│   └── library.ts                  all portfolio content and music-domain mapping
-├── player/
-│   ├── engine.ts                   pure next/previous/shuffle functions
-│   ├── PlayerContext.tsx           global playback/queue/like/persistence state
-│   └── useAmbient.ts               optional Web Audio oscillator pad
-├── pages/
-│   ├── Home.tsx                    quick picks and three shelves
-│   ├── Search.tsx                  client-side content search and recents
-│   ├── Library.tsx                 filtering, sorting, local search
-│   ├── PlaylistPage.tsx            data-driven playlist detail
-│   ├── ArtistPage.tsx              candidate profile, popular tracks, CTAs
-│   ├── LikedSongs.tsx              achievements plus locally liked items
-│   └── NotFound.tsx                catch-all UI
-├── shell/
-│   ├── AppShell.tsx                responsive chrome and routed content outlet
-│   ├── Sidebar/TopBar/BottomNav     primary navigation and CV access
-│   ├── PlayerBar/Queue/NowPlaying   simulated playback presentation
-│   ├── TrackRow/MediaCard/Shelf     reusable content presentation
-│   └── Art/PlayButton/Toast         visual and feedback primitives
-├── lib/
-│   ├── useLocalStorage.ts           JSON-backed browser persistence
-│   ├── useReducedMotion.ts          live media-query preference
-│   └── format.ts                    time and number formatting
-├── icons/icons.tsx                 inline SVG icon components
-└── test/setup.ts                   Testing Library DOM matchers
+### 1.4 Content model (`src/content/types.ts`)
+
+- **Entities:**
+  - `CandidateProfile` (:3-16);
+  - `EvidenceSource` (1: the résumé);
+  - `ProofPoint` (**19**, all `status: "self-reported"` via the `resumeProof` helper, `portfolio.ts:7-25`);
+  - `Artifact` (2: the résumé PDF and `profile-square.svg`);
+  - `CaseStudy` (**17**: r1-r3 experience, p1-p4 projects, l1 leadership, a1-a4 achievements, e1-e2 education, c1-c3 certifications);
+  - `Collection` (6: experience, projects, skills, certs, achievements, education);
+  - `CareerMixChapter` (3: Operate / Analyze / Lead, `portfolio.ts:721-740`).
+- `EvidenceStatus = "verified" | "self-reported" | "redacted"` (`types.ts:1`). `validate.ts` rejects `verified` when the only source is the résumé (`content.test.ts:203`).
+- **Selectors** (`selectors.ts:203-243`): `caseStudyById/BySlug`, `proofById`, `sourceById`, `artifactById`, `collectionById`, `caseStudyEvidenceById`, `relatedCaseStudies`, `searchPortfolio` (normalized substring + category aliases), `searchSkills`.
+- **Presentation formatting:** `formatProofValue` (`waveform.ts:20-24`) concatenates `value` + `unit`. Every proof's display string comes from it.
+
+### 1.5 Motion
+
+- Motion 13 is used through `LazyMotion features={domAnimation} strict` (`MotionProvider.tsx:9`). Only `m.*` components work; using `motion.*` throws in strict mode.
+- Reduced motion is honored three ways:
+  - `MotionConfig reducedMotion="user" skipAnimations` (`:10`);
+  - a CSS kill switch (`base.css:100-118`);
+  - `[data-motion-transform]` transform reset (`base.css:115-122`).
+- Current Motion uses:
+  - CareerMixDock enter animation (`CareerMixDock.tsx:37-42`);
+  - ProofWaveform path draw (`ProofWaveform.tsx:77-89`).
+- `src/motion/motion.test.tsx` (441 lines) asserts the policy.
+
+---
+
+## 2. Tech stack (installed versions from `node_modules/*/package.json`)
+
+| Package                          | Version |     | Package                      | Version |
+| -------------------------------- | ------- | --- | ---------------------------- | ------- |
+| react / react-dom                | 19.2.7  |     | vitest / @vitest/coverage-v8 | 4.1.11  |
+| react-router / react-router-dom  | 7.18.3  |     | @testing-library/react       | 16.3.2  |
+| @react-router/dev, /node, /serve | 7.18.3  |     | @testing-library/jest-dom    | 6.9.1   |
+| @vercel/react-router             | 1.3.6   |     | jsdom                        | 29.1.1  |
+| @vercel/analytics                | 2.0.1   |     | @playwright/test             | 1.62.1  |
+| motion (+ framer-motion dep)     | 13.1.1  |     | @axe-core/playwright         | 4.13.0  |
+| vite                             | 8.0.16  |     | eslint                       | 10.5.0  |
+| @vitejs/plugin-react             | 6.0.2   |     | typescript-eslint            | 8.61.1  |
+| tailwindcss / @tailwindcss/vite  | 4.3.1   |     | eslint-plugin-react-hooks    | 7.1.1   |
+| typescript                       | 6.0.3   |     | prettier                     | 3.9.6   |
+| isbot                            | 5.2.2   |     | sharp                        | 0.35.4  |
+| @fontsource-variable/archivo     | 5.3.0   |     | @fontsource/ibm-plex-mono    | 5.3.0   |
+
+- **Node:** local `v25.9.0` (npm 11.12.1). `.node-version` = `24` and CI uses Node 24 (`.github/workflows/ci.yml`).
+- **Fonts:** Archivo Variable (UI) and IBM Plex Mono 500 (evidence/metadata), Latin subsets only, `font-display: swap`, not preloaded (`base.css:1-17`). Spotify's own faces (Spotify Mix / Circular) are proprietary.
+- **Client JS (build output):**
+
+  | Chunk                | Raw     | Gzip    | Contents                |
+  | -------------------- | ------- | ------- | ----------------------- |
+  | `entry.client`       | 186 KB  | 58.7 KB | client entry            |
+  | `jsx-runtime`        | 130 KB  | 43 KB   | React DOM               |
+  | `root`               | 52.7 KB | 19.3 KB | root route              |
+  | `useReducedMotion-*` | 38.5 KB | 13.9 KB | Motion                  |
+  | `meta-*`             | 22.5 KB | 6.3 KB  | portfolio content + SEO |
+  | CSS                  | 39.5 KB | 8 KB    | styles                  |
+
+---
+
+## 3. Conventions, tests and quality gates
+
+### 3.1 Naming and structure
+
+- Components and files use PascalCase. Hooks use `useX`. Content IDs are short codes (`r1`, `p2`, `a3`, `c1`, `e1`, `l1`). Proof IDs are kebab-case (`figmenta-resumes`). Slugs are SEO-style (`figmenta-operations-intern`).
+- Props are typed inline. Pages export named components. Route modules export `loader`, `meta` and a default component; ESLint allows only those names in `app/**` (`eslint.config.js` react-refresh rule).
+- Styling is Tailwind utilities on top of semantic tokens:
+  - colors: `--color-ink/panel/elevated/line/text/muted/signal` (`tokens.css:4-10`);
+  - compatibility aliases: `bg`, `card`, `card-hi`, `accent`, `sub` (`tokens.css:60-65`);
+  - type scale: `text-utility … text-hero-desktop` (`tokens.css:21-27,70-76`).
+- Imports are mixed: 30 files import from `react-router-dom` and 15 from `react-router`.
+
+### 3.2 State management
+
+- **Global:** React context only.
+  - `CareerMixProvider` uses `useReducer` over a pure reducer (`CareerMixContext.tsx:85`).
+  - `ToastProvider` uses `useState` (unused).
+- **Local:** `useState`/`useMemo` in Search (`Search.tsx:9-12`) and Library (`Library.tsx:63-79`).
+- **Persistence:** nothing persists at runtime. `useLocalStorage` exists but no runtime code uses it. The e2e suite forbids persisting search queries (§3.7).
+- **Derived data:** computed once at module load (maps in `selectors.ts:7-22`, search index `:132-186`).
+
+### 3.3 Error handling
+
+- **Fail-fast on content drift.** Pages resolve hard-coded content IDs inside module-level IIFEs and `throw` if any is missing. Examples: `Sidebar.tsx:8-17`, `RecruiterHero.tsx:15-56`, `ArtistPage.tsx:18-52`, `Home.tsx:17-26`, `LikedSongs.tsx:7-18`, `CaseStudyPage.tsx:21-30,59-61`.
+- **404s:** handled with `data(null, {status: 404})` plus an in-route `NotFoundView` (`collection.tsx:33,61`, `case-study.tsx:16,36`). The root `ErrorBoundary` is generic (`root.tsx:83-102`).
+- **Analytics never blocks navigation.** `OutcomeLink` swallows tracker errors (`OutcomeLink.tsx:40-47`). The tracker itself throws on non-allowlisted input (`outcomes.ts:73-107`) so that tests catch it.
+
+### 3.4 How tests are written
+
+- **Totals:** Vitest globals + jsdom + `@testing-library/jest-dom` (`src/test/setup.ts`). 35 files, 296 tests, co-located `*.test.ts(x)`.
+- **Component tests** render with `MemoryRouter` + providers and stub `matchMedia`/`localStorage` using `vi.stubGlobal` (`src/pages/Home.test.tsx:16-43`). Queries are role-based (`getByRole("heading", {level: 1})`).
+- **Content invariants** run through `validatePortfolio` (`src/content/content.test.ts`, 288 lines). Several tests start with "Regression:" comments that explain why they exist.
+- **Node-environment tests** cover config and files (`// @vitest-environment node`, `src/test/coverage-scope.test.ts:1`). Examples: sitemap sync, social-card byte budget and hashes, SVG artifact text.
+- **e2e** (Playwright + axe) covers:
+  - "core content without JavaScript" checks of the prerendered HTML (`e2e/case-studies.spec.ts:48`, `e2e/prerender.spec.ts:183`);
+  - a hydration-stability check (`e2e/prerender.spec.ts:261`);
+  - keyboard and landmark checks (`e2e/shell-accessibility.spec.ts`).
+
+### 3.5 The 90 % coverage gate (`vite.config.ts`)
+
+**How the gate works:**
+
+- `npm run test:coverage` sets `COVERAGE_SCOPE=redesign`.
+- `coverage.include` becomes the explicit allowlist `cumulativeRedesignRuntime` (`vite.config.ts:29-65`), and thresholds are 90 for statements, branches, functions and lines (`:89-96`).
+- Thresholds are **aggregate**: there is no `perFile`. That is why `app/routes/home.tsx` at 25 % lines and `artist.tsx` at 50 % pass today.
+- Plain `npm test` enforces no threshold.
+
+**Files in scope (51):**
+
+- `app/root.tsx`, `app/routes/{artist,collection,case-study,home,not-found,library,search}.tsx`
+- design-system list (`:7-15`): `src/lib/useReducedMotion.ts`, `src/motion/MotionProvider.tsx`, `src/shell/{AppShell,MediaCard,PlayButton,Sidebar,TopBar}.tsx`
+- semantic-shell list (`:16-28`): `src/components/ContactActions.tsx`, `src/icons/icons.tsx`, `src/pages/{ArtistPage,Home,Library,LikedSongs,PlaylistPage,Search}.tsx`, `src/shell/{BottomNav,RouteFocus,SkipLink}.tsx`
+- `src/career-mix/{CareerMixContext.tsx,CareerMixDock.tsx,reducer.ts}`
+- `src/components/{EvidenceCover,CaseStudyHeader,EvidencePanel,OutcomeLink,ProofTrackRow,ProofWaveform,RecruiterHero,ReleaseCard,SearchField,SearchResults}.tsx`
+- `src/content/{artifactFallback,portfolio,selectors,validate,waveform}.ts`
+- `src/shell/{Art,Shelf}.tsx`, `src/pages/{CaseStudyPage,NotFound}.tsx`
+- `src/analytics/outcomes.ts`, `src/seo/{meta,structuredData}.ts`
+
+**Runtime files outside the scope:** `src/shell/Toast.tsx`, `src/lib/useLocalStorage.ts`, `src/lib/greeting.ts`, `app/routes.ts`, `scripts/generate-social-cards.ts`, and `src/content/types.ts` (types only).
+
+**Regression lock:** `src/test/coverage-scope.test.ts:5-35,44-57` asserts that 29 specific modules stay in `include`.
+
+**Current numbers and headroom:**
+
+| Metric     | Covered / total | %         | Headroom over 90 % |
+| ---------- | --------------- | --------- | ------------------ |
+| Statements | 846 / 883       | 95.8      | about 51           |
+| Branches   | 550 / 604       | **91.05** | **about 6**        |
+| Functions  | 293 / 305       | 96.06     | about 18           |
+| Lines      | 796 / 823       | 96.71     | about 55           |
+
+**Weakest files:**
+
+| File                                | Coverage gap                  |
+| ----------------------------------- | ----------------------------- |
+| `app/routes/home.tsx`               | 25 % lines                    |
+| `app/routes/artist.tsx`             | 50 % lines                    |
+| `src/icons/icons.tsx`               | 61 % functions (unused icons) |
+| `EvidencePanel.tsx`                 | 64 % branches                 |
+| `ArtistPage.tsx` / `LikedSongs.tsx` | 50 % branches                 |
+| `PlaylistPage.tsx`                  | 57 % branches                 |
+
+**Implication:** every new or modified runtime file (player store, new panels, new pages, `llms.txt` generator and so on) must be appended to `cumulativeRedesignRuntime`, ideally also to the regression list, and covered well. Otherwise it is either unmeasured or drags the branch metric under 90 %.
+
+### 3.6 Commands run now (2026-10-17, this branch)
+
+| Command                                       | Result                                                                                         | Wall time           |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------------- | ------------------- |
+| `npm run lint` (`eslint .`)                   | pass, 0 problems                                                                               | 4 s                 |
+| `npm run type-check` (`tsc -b`)               | pass                                                                                           | 3 s                 |
+| `npm test` (`vitest run`)                     | **35 files / 296 tests pass**                                                                  | 10 s (vitest 9.3 s) |
+| `npm run test:coverage`                       | pass (numbers above)                                                                           | 11 s                |
+| `npm run format:check` (`prettier --check .`) | pass                                                                                           | 2 s                 |
+| `npm run build` (`react-router build`)        | pass; client 363 ms, SSR 318 ms, 28 routes prerendered                                         | 2 s                 |
+| `npm run test:e2e`                            | **skipped** per instructions; `pretest:e2e` runs the build, then `react-router-serve` on :3000 | n/a                 |
+
+- **Build warnings:** 5 React Router v8 future-flag warnings: `v8_middleware`, `v8_splitRouteModules`, `v8_viteEnvironmentApi`, `v8_passThroughRequests`, `v8_trailingSlashAwareDataRequests`.
+- **`npm run check`** chains format, lint, type-check, coverage and build.
+- **CI** (`.github/workflows/ci.yml`) runs `quality` → `test` (coverage) → `build` → `browser` (Playwright chromium).
+
+### 3.7 Tests that encode the recruiter-first stance (must change for this sector)
+
+| Test                                                                                                                                                                    | What it forbids or requires                                                                                                                                                            |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/content/content.test.ts:76-81`                                                                                                                                     | content JSON may not contain `monthlyListeners`, `plays`, `durationSec` or `verifiedCandidate`                                                                                         |
+| `e2e/baseline.spec.ts:19-37`                                                                                                                                            | a "silent" Career Mix with total 60000 ms; **`getByLabel("Volume")` count 0** (`:33`); status text "Operate. Playing."                                                                 |
+| `e2e/recruiter-home.spec.ts:22-85`                                                                                                                                      | recruiter briefing and conversions above the fold; exactly 3 "Recruiter Essentials" articles; **no `/play/i` buttons in cards**; the text "Made for Recruiters" must not exist (`:84`) |
+| `e2e/discovery.spec.ts:94-102`                                                                                                                                          | the query must not be persisted and `dx_recents` must not exist, which blocks restoring "Recent searches" as it was                                                                    |
+| `e2e/discovery.spec.ts:3`                                                                                                                                               | the search field must not steal focus (the old Search used `autoFocus`)                                                                                                                |
+| `src/content/artifact-assets.test.ts:26-46`                                                                                                                             | profile artwork must be an SVG whose text contains the canonical proof value, label, period, status and source. A photo would fail this test                                           |
+| `src/seo/meta.test.ts:24-25,114-120`                                                                                                                                    | hard-coded **28** routes and 28 distinct social cards (< 2.5 MB total, `:121`)                                                                                                         |
+| `src/seo/meta.test.ts:124-144`                                                                                                                                          | social cards must use `data-motif="proof-wave"` and must not combine a green circle with a three-curve mark. **Keep this.** It guards against a Spotify-logo facsimile                 |
+| `src/seo/meta.test.ts:179-194`                                                                                                                                          | the checked-in sitemap and robots must match the inventory exactly                                                                                                                     |
+| `src/seo/structuredData.test.ts:30`                                                                                                                                     | the phone number must not appear in JSON-LD                                                                                                                                            |
+| `src/lib/hydration.test.tsx`, `e2e/prerender.spec.ts:261`                                                                                                               | timezone, localStorage and reduced motion may not change the hydrated tree. This matters for a visible "Good evening" greeting                                                         |
+| Page tests (`Home.test.tsx`, `ArtistPage.test.tsx`, `portfolio-pages.test.tsx`, `Search.test.tsx`, `Library.test.tsx`, `CaseStudyPage.test.tsx`, `CareerMix*.test.tsx`) | assert current recruiter copy, headings and Career Mix labels (26 references to "Recruiter briefing" or "Career Mix" across page tests and e2e)                                        |
+
+The previous spec's non-goals also forbade "generic AI artwork … or trademarked Spotify logo/assets" (`docs/superpowers/specs/2026-08-31-darshify-recruiter-first-redesign.md:31`). The prior owner chose to stay "Spotify-themed" but never a facsimile. A near-indistinguishable clone raises trade-dress and trademark questions: the name, the logo mark, the Circular/Spotify Mix fonts, the exact icons. Phase 2 should decide where the line is. A suggested baseline: keep the "Darshify" wordmark, original icons, no Spotify logo, and a "not affiliated with Spotify" note.
+
+---
+
+## 4. Overlap with the "feels like the real Spotify app" goal
+
+### 4.1 What exists today
+
+| Piece                                                  | File                                                     | Spotify fidelity today                                                                                                                                                                                                                                                      |
+| ------------------------------------------------------ | -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 3-pane shell (rounded panels on black, sidebar + main) | `AppShell.tsx:17-41`, `Sidebar.tsx:28-123`               | layout is right. The sidebar is fixed at `w-56` (`Sidebar.tsx:31`), cannot be resized or collapsed, and is labeled "Overview" / "Portfolio" (`:45,56`), not Home / Your Library                                                                                             |
+| Sticky TopBar with back/forward and scroll tint        | `TopBar.tsx:16-57`                                       | tint is a hard-coded gradient per route (`:6-14`), not sampled from artwork. Back/forward are text glyphs `‹ ›`. The "D Darshil" chip is a non-interactive span (`:49-54`)                                                                                                  |
+| Bottom nav (mobile)                                    | `BottomNav.tsx:7-24`                                     | Overview / Search / Portfolio labels                                                                                                                                                                                                                                        |
+| Player                                                 | `CareerMixDock.tsx:22-133`                               | appears only after "Start Career Mix" (`:27` returns `null`). It shows chapter title, an evidence link, a non-interactive `<progress>` (`:68-78`) and prev / play / next / close. No artwork, seek, volume, queue, like or now-playing view. Fixed "x / 1:00" timer (`:65`) |
+| PlayButton (green circle)                              | `PlayButton.tsx:3-29`                                    | used on Playlist and Liked headers to open the Career Mix (`PlaylistPage.tsx:53-57`)                                                                                                                                                                                        |
+| MediaCard / Shelf                                      | `MediaCard.tsx:4-60`, `Shelf.tsx:4-48`                   | cards have no hover play button. Shelves render as a responsive **grid** (`Shelf.tsx:43`), not horizontal rows. Card art alt duplicates the title (`MediaCard.tsx:30-35`)                                                                                                   |
+| Track-like rows                                        | `ProofTrackRow.tsx:5-76`                                 | large evidence cards with a static index. No hover play swap, duration or context menu                                                                                                                                                                                      |
+| Playlist / Liked headers                               | `PlaylistPage.tsx:27-50`, `LikedSongs.tsx:25-47`         | flat `bg-elevated` header. No gradient from the cover and no "Darshil Jain • N songs, M min" line                                                                                                                                                                           |
+| Proof Waveform                                         | `ProofWaveform.tsx:37-159`                               | original signature viz. Links are raw `<a href>` and reload the page (`:130-134`)                                                                                                                                                                                           |
+| Covers                                                 | `Art.tsx`, `EvidenceCover.tsx`, `public/artifacts/*.svg` | typographic SVG cards (category / organization / value / "self-reported"). No imagery                                                                                                                                                                                       |
+| Toast                                                  | `Toast.tsx`                                              | mounted, **never used** (`useToast` has no callers)                                                                                                                                                                                                                         |
+| Search                                                 | `Search.tsx`, `SearchField.tsx`, `SearchResults.tsx`     | grouped results by category. Browse uses `ReleaseCard`s, not colored genre tiles                                                                                                                                                                                            |
+| Library                                                | `Library.tsx:62-185`                                     | filter buttons + `<select>` sort + local search. Not the compact Spotify list                                                                                                                                                                                               |
+
+### 4.2 Gap matrix against real Spotify
+
+| Spotify pattern                                                                                        | Status                                                        | Where it lived / restore source                                                                                                                         |
+| ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Always-visible bottom player bar with preloaded track                                                  | **removed**                                                   | `PlayerBar` (`d340f31:src/shell/PlayerBar.tsx:10-85`; Motion-migrated version at `a154bd1^`). "Press play" nudge + preloaded track came from `388f7ed`  |
+| Scrubbable progress with elapsed/total and `aria-valuetext`                                            | **removed**                                                   | `PlayerBar` range input (`d340f31` `:62-69`)                                                                                                            |
+| Volume slider (persisted)                                                                              | **removed**                                                   | `PlayerBar` `:73-82` + `dx_vol` in `PlayerContext`                                                                                                      |
+| Shuffle / repeat (off/all/one)                                                                         | **removed** (icons still exported, unused: `icons.tsx:40-62`) | `src/player/engine.ts` (seeded mulberry32 shuffle), `fd6de35^`                                                                                          |
+| Like / heart + Liked Songs that grows                                                                  | **removed**                                                   | `toggleLike`/`dx_likes` in `PlayerContext`, union list in old `LikedSongs.tsx:10`                                                                       |
+| Queue panel (Now playing / Next up, jump-to)                                                           | **removed**                                                   | `QueuePanel.tsx` (`d340f31:5-36`; `a154bd1^`)                                                                                                           |
+| Now Playing right panel (art, title, details, "About the artist")                                      | **removed**                                                   | `NowPlayingPanel.tsx` (`d340f31:6-41`; `a154bd1^`)                                                                                                      |
+| Mobile mini-player + full-screen now-playing sheet                                                     | **removed**                                                   | slide-up sheet in old `AppShell` (`d340f31:83-92`; Motion version at `a154bd1^`), added in `2a3b3f3`                                                    |
+| Track table (# / Title / Plays / ⏱ header, hover number→play swap, current track in green)             | **removed**                                                   | `TrackRow.tsx` (`d340f31:33-60`), header row in old `PlaylistPage.tsx:38-40`, `fd6de35^`                                                                |
+| Right-click context menu (Add to queue, Copy link, Go to artist) + toast                               | **removed**                                                   | `TrackRow.tsx` (`d340f31:68-78`), from `2a3b3f3`                                                                                                        |
+| Expandable track detail                                                                                | **removed**                                                   | `TrackRow` (`388f7ed`)                                                                                                                                  |
+| Card hover green play button                                                                           | **removed**                                                   | old `MediaCard.tsx` (`d340f31:14-21`)                                                                                                                   |
+| Home greeting H1 + 2×3 quick-pick tiles + "Made for Recruiters / Your Top Hits / Jump back in" shelves | **removed** (greeting now `sr-only`, `RecruiterHero.tsx:74`)  | old `Home.tsx` (`d340f31:20-73`)                                                                                                                        |
+| Artist hero banner + big name + monthly listeners + Follow + Popular + Discography                     | **removed**                                                   | old `ArtistPage.tsx` (`d340f31:21-49`). Note the fabricated `monthlyListeners: 98_400` and "✓ Verified Candidate" (`:25,27`)                            |
+| Playlist header gradient + "Darshil Jain · N songs · total time"                                       | **removed**                                                   | old `PlaylistPage.tsx:22-30`                                                                                                                            |
+| Search "Browse all" colored genre tiles + "Recent searches"                                            | **removed**                                                   | old `Search.tsx:45-66` (`ba5d3b3`), `genres` in old `library.ts:60-66`                                                                                  |
+| Library sort menu (Recents / A–Z, menuitemradio)                                                       | replaced by `<select>`                                        | old `Library.tsx` (`d340f31:50-66`, from `6abfef2`)                                                                                                     |
+| Keyboard shortcuts (Space play/pause, Shift+←/→ prev/next, ←/→ seek ±5 s)                              | **removed**                                                   | old `AppShell.tsx:36-48`                                                                                                                                |
+| Ambient sound (Web Audio chord per item kind, opt-in, volume-linked)                                   | **removed**                                                   | `src/player/useAmbient.ts` + `CHORDS` (`d340f31:PlayerContext.tsx:29-36`), from `ba5d3b3`                                                               |
+| AI cover art (playlists, liked, artist hero, avatar)                                                   | **removed**                                                   | 7 PNGs in `public/covers/` (`5da6abc`, deleted in `517623c`), **12.7 MB total**, 1024² (hero 1536×640). Abstract images, no likeness of Darshil         |
+| Dynamic header colour sampled from artwork                                                             | partial (hard-coded per-route gradients, `TopBar.tsx:6-14`)   | never sampled                                                                                                                                           |
+| Resizable / collapsible library sidebar                                                                | never built                                                   | —                                                                                                                                                       |
+| Lyrics view                                                                                            | never built                                                   | —                                                                                                                                                       |
+| Wrapped-style stories                                                                                  | **spec only**, never built                                    | `docs/superpowers/specs/2026-06-17-wrapped-portfolio-design.md:50-61` (10-slide deck), plan in `docs/superpowers/plans/2026-06-17-wrapped-portfolio.md` |
+| Canvas (looping visual behind now playing), device picker, friend activity                             | never built                                                   | —                                                                                                                                                       |
+
+### 4.3 Removal archaeology (where to restore from)
+
+| Commit                | What it did                                                                                                                                                                                                                                                | Files                                                      |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| `c5f929f` / `c9aff9e` | PlayerContext + Web Audio ambient; library data, engine, format (TDD)                                                                                                                                                                                      | `src/player/*`, `src/data/library.ts`, `src/lib/format.ts` |
+| `393cf22` / `c735994` | shell primitives (TrackRow, MediaCard, Shelf, PlayButton, Toast); assembled shell, PlayerBar, Queue/NowPlaying panels, all pages                                                                                                                           | `src/shell/*`, `src/pages/*`                               |
+| `0b24910`             | wired the Now-Playing panel to the player bar                                                                                                                                                                                                              | `AppShell`, `PlayerBar`                                    |
+| `070f257`             | mobile bottom nav + responsive player bar                                                                                                                                                                                                                  | `BottomNav`, `PlayerBar`                                   |
+| `388f7ed`             | expandable track detail, preloaded track + "Press play" nudge, favicon + `og.png`, a11y valuetext                                                                                                                                                          | `TrackRow`, `PlayerBar`, `PlayerContext`                   |
+| `2a3b3f3`             | top-bar scroll tint, animated Queue/NowPlaying panels, track context menu, mobile now-playing sheet                                                                                                                                                        | `AppShell`, `TopBar`, `TrackRow`, `NowPlayingPanel`        |
+| `ba5d3b3`             | per-kind ambient chords + recent searches + richer empty states                                                                                                                                                                                            | `useAmbient`, `PlayerContext`, `Search`                    |
+| `6abfef2`             | functional "Show all" + Library sort menu                                                                                                                                                                                                                  | `Library`, `Shelf`, `Home`                                 |
+| `5da6abc` / `d340f31` | AI cover art everywhere + quick-pick tile covers                                                                                                                                                                                                           | `public/covers/*.png`, `Art`, pages                        |
+| **Deletions**         | `1646591` (index.html, App, main → framework mode); `66c9264` (`public/fonts/Display.ttf`); `517623c` (covers); `a154bd1` (PlayerBar, QueuePanel, NowPlayingPanel); `fd6de35` (library.ts, format.ts, PlayerContext, engine, useAmbient, TrackRow + tests) |                                                            |
+
+**Best restore sources:** `git show a154bd1^:src/shell/{PlayerBar,QueuePanel,NowPlayingPanel,AppShell}.tsx` and `git show fd6de35^:src/{player/*,shell/TrackRow.tsx,data/library.ts,lib/format.ts}`. These versions are newer than `d340f31`: PlayerBar +110/−26, PlayerContext +131/−31, TrackRow +74/−41 lines. They already use `m`/`AnimatePresence` from `motion/react`, `MotionProvider`, `data-motion-transform`, 44 px targets and Prettier formatting.
+
+**Restore caveats:**
+
+- **Fabricated metrics.**
+  - The old `Track` had invented `durationSec` and `plays` (e.g. Market Research `plays: 920000`), plus `monthlyListeners: 98_400` and "Verified Candidate" (`d340f31:src/data/library.ts:2,14,19-38`; `ArtistPage.tsx:25,27`).
+  - `content.test.ts:76-81` bans these fields.
+  - Phase 2 must decide between (a) clearly playful/fictional numbers, (b) numbers derived from real résumé metrics ("500+ résumés screened" as the "plays"), or (c) none.
+- **60 fps re-render.** The old ticker drove `setProgress` from `requestAnimationFrame` (`d340f31:PlayerContext.tsx:82-100`), re-rendering every consumer at 60 fps. Prefer a CSS-animated progress bar, or a store with selective subscription (`useSyncExternalStore`).
+- **Space shortcut bug.** The old Space handler skipped only INPUT, TEXTAREA and contentEditable (`d340f31:AppShell.tsx:13-16,40`). Space on a focused button or link would also toggle playback, so other interactive targets need the same guard.
+- **Accessibility bugs in the old code:**
+  - quick-pick tiles were `div onClick` (not keyboard-operable, `d340f31:Home.tsx:38-39`);
+  - MediaCard nested a `<button>` inside a `<Link>` (`d340f31:MediaCard.tsx:8-21`);
+  - Search used `autoFocus` (`Search.tsx:36`);
+  - the "Link copied" toast fired even when the clipboard write failed (`TrackRow.tsx:74`).
+- **SSR safety.** The AudioContext must be created lazily after a user gesture, on the client only. Under SSR, any `window` access must be guarded.
+- **Cover sizes.** The PNGs need conversion (AVIF/WebP, about 30–80 KB each, with responsive variants) before re-adding.
+- **Wrong LinkedIn URL.** The old data used `https://www.linkedin.com/in/darshil-jain08/` (`d340f31:library.ts:71`). The résumé link is `…/darshil-jain-611a3332b`, enforced by `content.test.ts:88-92`.
+
+---
+
+## 5. Content inventory
+
+### 5.1 Identity and contact
+
+| Field                               | Résumé (PDF, `pdftotext`)                                                                      | Site (`src/content/portfolio.ts`)                                                                                  |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Name                                | Darshil Jain                                                                                   | `candidate.name` (:421)                                                                                            |
+| Phone                               | +91 9268264843                                                                                 | `candidate.phone` (:430). **Never rendered**, and deliberately excluded from JSON-LD (`structuredData.test.ts:30`) |
+| Email                               | darshijain0809@gmail.com (mailto link)                                                         | `:429`, rendered as a mailto link in `ContactActions.tsx:53-63`                                                    |
+| LinkedIn                            | `https://www.linkedin.com/in/darshil-jain-611a3332b` (link annotation)                         | `:431` (matches)                                                                                                   |
+| "Portfolio" link                    | Google Drive folder `https://drive.google.com/drive/folders/1TaO_Ggtc4JIu13Yt7YhrM8I91NtYLlkM` | not on site. The résumé does not link to this website                                                              |
+| LOR link (on the MJ Marketing line) | Google Drive file `https://drive.google.com/file/d/1BeJ0wgzNu1sNGpR0O2BXYtCBamCOrne4/view`     | **missing** from the site                                                                                          |
+| Headline / summary                  | (none in résumé)                                                                               | "Business, strategy, and operations undergraduate"; summary "…with résumé-listed experience…" (:422-424)           |
+| Location                            | only via college: "Janakpuri, Delhi"                                                           | **missing**                                                                                                        |
+| Photo                               | none (the PDF holds 3 tiny icon images: 16×31, 30×22, 33×33)                                   | **none** in repo or git history (§5.5)                                                                             |
+| PDF metadata                        | **Title "Copy of Resume", Author "Harish jaiswal"**, Creator Word 2013, 1 page A4, 255 KB      | served at `/Darshil_Jain_Resume.pdf` and indexable                                                                 |
+
+### 5.2 Fact-by-fact comparison
+
+| Résumé fact                                                                                                                                                                                                                                                                                                                             | Site entry                                                                           | Discrepancy / omission                                                                                                                   |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| BBA (B&I) 2024–27, Maharaja Surajmal Institute, GGSIPU, Janakpuri, Delhi, **9.39 CGPA**                                                                                                                                                                                                                                                 | `e1` (:328-344), proof `bba-cgpa` (:611-619)                                         | location omitted                                                                                                                         |
+| XII 2024, Lovely Public Sr. Sec. School, Priyadarshini Vihar, **88 %**                                                                                                                                                                                                                                                                  | `e2` (:345-361), `class-xii-percentage`                                              | ok                                                                                                                                       |
+| Figmenta, Operations Intern, Jan–Feb 2026: Notion+Excel dashboard, **35+ projects, 15+ members** (Asia team); **500+ résumés screened, 100+ shortlisted, 5+ hires** onboarded; hiring workflows, reusable onboarding decks                                                                                                              | `r1` (:39-72), 5 proofs (:458-502)                                                   | complete; result hedged (:56)                                                                                                            |
+| PSR Compliance, Operations Intern, June–Aug 2025: **70+ clients** during team transition, coordinated with leadership, mentored interns; compliance consulting, upsell, renewals, service expansion → retention and monetization                                                                                                        | `r2` (:73-99), `psr-clients` (:503-511)                                              | "Drove customer and revenue outcomes" softened to "supported commercial outcomes"                                                        |
+| MJ Marketing Consultancy (résumé typo "Markeing"), Human Resource Intern, Mar–Jun 2025, **LOR**: **500+ profiles, 100+ interviews, 300+ assessments**; funnel efficiency, faster hiring decisions                                                                                                                                       | `r3` (:100-122), 3 proofs (:512-538)                                                 | LOR link missing; "faster hiring decisions" dropped                                                                                      |
+| **Paid** Strategy Consulting Engagement, ZautoAI (team), Nov–Dec 2025: AI healthcare startup; market + competitive analysis; GTM, pricing, positioning; presented to founder; startup became **finalist at IIHMR Saamarthya 5.0**                                                                                                       | `p1` (:123-150) "ZautoAI Strategy Consulting Engagement"                             | **"Paid" and "IIHMR Saamarthya 5.0" dropped** ("a competition finalist", :140); no proof                                                 |
+| Consulting & Analytics Capstone, IIT Guwahati C&A Club, **Top 10 %**, Dec 2025–Jan 2026: telemedicine no-shows; phased product+process intervention; onboarding, nudges, **A/B testing**                                                                                                                                                | `p2` (:151-173), `iitg-participant-percentile` (:539-547)                            | "A/B testing" → "experimentation framework"; "Top 10 %" → "upper participant cohort" (:168, :322); proof renders **"10 top percent"**    |
+| Haldiram's International Expansion Strategy (team), Apr–May 2025: tariffs, supply chain, localization; **publication-ready business case**                                                                                                                                                                                              | `p3` (:174-196)                                                                      | ok (organization shown as "Academic team project")                                                                                       |
+| Zomato Metrics & Trends Dashboard (individual), Sep–Oct 2024: Looker Studio, **5+ metrics**                                                                                                                                                                                                                                             | `p4` (:197-219), `zomato-metrics`                                                    | ok                                                                                                                                       |
+| Founder & President, Igniters Club (Powered by Unstop), Sep 2025–May 2026: **0 → 80+ members within 10 months**, **17-member** leadership across **4 departments**; led **Converge 2026, the institute's largest management fest**, **1,000+ participants**, hosted **industry leaders and startup founders**, **₹50,000+** sponsorship | `l1` (:220-252), 5 proofs (:557-601)                                                 | "0 →" growth framing, "10 months", "largest management fest", "industry leaders and startup founders" dropped; renders **"50,000+ INR"** |
+| Finalist, **13th** National Business Plan Championship, IIM Bangalore × MakeIntern                                                                                                                                                                                                                                                      | `a1` (:253-271)                                                                      | "13th" dropped; period **"Date not listed in résumé"** (:259)                                                                            |
+| **4th Position**, Product Decode, IIM Calcutta                                                                                                                                                                                                                                                                                          | `a2` (:272-289), `product-decode-rank` (:602-610)                                    | renders **"4 position"**; period "Date not listed…" (:278, :608)                                                                         |
+| Top 10 %, IIT-G Winter Consulting Program                                                                                                                                                                                                                                                                                               | `a4` (:308-327)                                                                      | same program also appears as `p2` and `c2` (3 entries share one proof)                                                                   |
+| Winner, BPlan Showdown Business Plan Competition                                                                                                                                                                                                                                                                                        | `a3` (:290-307)                                                                      | period "Date not listed…" (:296)                                                                                                         |
+| Skills (12): Market Research, Competitive Analysis, Strategic Analysis, Business Development, Stakeholder Management, Project Management, Product Analysis, Process Optimization, Microsoft Excel, Google Sheets, Canva, Notion                                                                                                         | `candidate.skills` (:433-446)                                                        | exact match (résumé typo "Strategic Analysis)")                                                                                          |
+| Certifications: Global Entrepreneurship Bootcamp – Hult Prize IIT Bombay **2026**; Winter Consulting Program **2025**; Business Intelligence & Data Analysis – IIM Bangalore **2024**                                                                                                                                                   | `c1` (:362-379), `c2` (:380-397, issuer inferred as IIT-G C&A Club), `c3` (:398-416) | results say "no separate certificate is stored in the repository" (:374,392,411)                                                         |
+
+### 5.3 Copy that reads badly in a Spotify metaphor
+
+- **Dates.** `period: "Date not listed in résumé"` (`portfolio.ts:259,278,296,608`) would show as a release date.
+- **"self-reported" status on every proof.**
+  - Source: `portfolio.ts:22`, the source note at `:454`, and baked into `public/artifacts/profile-square.svg:14`.
+  - Rendered in `RecruiterHero.tsx:104`, `ProofTrackRow.tsx:64`, `CaseStudyHeader.tsx:64`, `CaseStudyPage.tsx:111` ("Verification: self-reported"), `ArtistPage.tsx:124` and `ProofWaveform.tsx:148-150`.
+  - `EvidencePanel.tsx:16-24` adds "has not been independently verified".
+  - The prerendered `/` HTML contains "self-reported" 12×; `/artist` contains it 17×.
+- **Hedged results.**
+  - "The résumé reports…" / "according to the résumé" / "Listed as … in the résumé": `portfolio.ts:56,90,117,140,168,191,214,237,266,284,302,322,339,356`.
+  - "Completion is self-reported through the résumé…": `:374,392,411`.
+  - "Résumé-listed …" takeaways: `:262,281,298,317,370,388,407`.
+- **Recruiter-speak labels.**
+  - "Recruiter briefing" (`RecruiterHero.tsx:76`, `meta.ts:57-58`, social card `home.png`)
+  - "Recruiter Essentials" (`Home.tsx:36`)
+  - "Recruiter takeaway" (`CaseStudyHeader.tsx:39`)
+  - "Priority evidence ordered for a fast recruiter review." (`ArtistPage.tsx:147`)
+  - "Candidate profile" (`Sidebar.tsx:72`)
+  - "Overview" / "Portfolio" navigation (`Sidebar.tsx:45,56`, `BottomNav.tsx:14,20`)
+- **Disclaimers.**
+  - "Peak height is not popularity or ranking." (`ArtistPage.tsx:166-167`, `ProofWaveform.tsx:66-67`)
+  - "Current availability is not stated in the candidate-provided résumé." (`ArtistPage.tsx:245-249`)
+  - "Spotify-style releases remain a secondary wayfinding cue." (`Library.tsx:88-92`)
+  - "résumé-listed recognition items" (`LikedSongs.tsx:44`)
+- **Unit grammar** from `formatProofValue` (`waveform.ts:20-24`): "4 position", "10 top percent", "50,000+ INR", "9.39 CGPA", "17 members", "4 departments".
+
+### 5.4 Site-only content (editorial, not in résumé)
+
+- Headline and summary (`portfolio.ts:422-424`).
+- All `recruiterTakeaway` / `situation` / `actions` phrasing.
+- Collection themed labels: "Career EP", "Case-study LP", "Evidence mix", "Credential EP", "Recognition EP", "Academic EP" (`:658-719`).
+- Career Mix chapters (`:721-740`).
+- The pre-redesign tagline "Strategy & Operations · BBA (B&I) · CGPA 9.39" and the about text ("Three internships, four consulting/analytics projects, founder of an 80+ member club…", `d340f31:src/data/library.ts:13-15`) are good Spotify-bio copy to reconsider.
+
+### 5.5 Imagery
+
+- **No real photo of Darshil exists** in the working tree, git history or the résumé PDF.
+- `public/artifacts/*.svg` are 8 typographic cards. `profile-square.svg` is text: "EVIDENCE PORTFOLIO / Darshil / Jain / 500+ résumés / … / self-reported".
+- The removed AI covers are abstract: `avatar.png` is a green/gold emblem, `artist-hero.png` a green light-wave field.
+- `public/og.png` (unreferenced) is the old "DARSHIFY · Darshil Jain · Press play on a career" card.
+- A real headshot needs owner input. It would also unlock better Person/ProfilePage image markup and a Spotify-style artist hero. It requires changing `artifact-assets.test.ts:26-46` and the `Art` dimension map (`Art.tsx:1-10`).
+
+---
+
+## 6. Integration surface
+
+### 6.1 SEO layer
+
+- **Canonical origin:** `CANONICAL_SITE_ORIGIN = "https://wrapped-portfolio.vercel.app"` (`src/seo/meta.ts:5-6`). It is also hard-coded in `public/robots.txt:4`, `public/sitemap.xml`, the tests (`meta.test.ts:179-194`, `e2e/prerender.spec.ts:171-180`) and the analytics host check (`outcomes.ts:129,170-172`).
+- **`buildRouteMeta(input)`** (`meta.ts:114-138`) returns:
+  - `title`, `description` and the canonical `<link>`;
+  - `og:title`, `og:description`, `og:url`, `og:type` (`website`, or `article` for case studies), `og:image` + type, width, height and alt;
+  - `twitter:card`, `twitter:title`, `twitter:description`, `twitter:image` + alt.
+
+  Each route's `meta` export calls it.
+
+- **Titles:** fixed in `meta.ts:55-79`; collections use `"<Title> evidence | Darshify"` (`:93`) and case studies use `"<Title> | Darshify"` (`:103`). Only Home ("Darshil Jain — Business, strategy & operations | Darshify") and Artist ("Darshil Jain professional profile | Darshify") include the name.
+- **JSON-LD** is attached as a `{ "script:ld+json": object }` meta descriptor (`artist.tsx:9`, `case-study.tsx:28-30`). React Router renders it into `<head>`.
+  - `buildPersonJsonLd` (`structuredData.ts:5-24`) has `@id …/artist#person`, name, description, jobTitle (the headline), url, image (`profile-square.svg`), `sameAs: [LinkedIn]` and `knowsAbout: skills`.
+  - `buildCreativeWorkJsonLd` (`:26-47`) has name, takeaway description, `genre: kind`, `temporalCoverage: period`, keywords and a creator → person reference.
+- **Social cards:** `scripts/generate-social-cards.ts` builds SVG then PNG (sharp) for each of the 28 inventory routes. Changing any title, adding a route, or removing one requires re-running `npm run generate:social-cards` and updating the hard-coded 28s in tests.
+- **Sitemap and robots** are static files kept in sync by tests. Robots is `Allow: /` + Sitemap, so AI crawlers are allowed. The sitemap has no `lastmod`.
+
+### 6.2 Prerendered HTML (checked in `build/client` after `npm run build`)
+
+| Route                                      | Bytes  | H1 in static HTML                   | JSON-LD      |
+| ------------------------------------------ | ------ | ----------------------------------- | ------------ |
+| `/`                                        | 34,464 | "Darshil Jain"                      | **none**     |
+| `/artist`                                  | 46,531 | "Darshil Jain"                      | Person       |
+| `/search`                                  | 25,238 | "Search portfolio"                  | none         |
+| `/library`                                 | 27,848 | "Career Library"                    | none         |
+| `/liked`                                   | 26,208 | "Selected achievements"             | none         |
+| `/playlist/experience`                     | 24,717 | "Experience"                        | none         |
+| `/case-studies/figmenta-operations-intern` | 33,000 | "Operations Internship at Figmenta" | CreativeWork |
+
+- **Main content is server-rendered** into static HTML on all 28 routes (good for Googlebot and LLM crawlers that do not run JS).
+- `<head>` includes a `preload` of `/artifacts/profile-square.svg` (`fetchPriority=high`), the theme colour and a single `rel=icon` SVG.
+- It has **no** `og:site_name`, `og:locale`, `profile:*`, `twitter:creator`, `apple-touch-icon`, web manifest, PNG or ICO favicon, or `meta author`.
+- The Home loader's greeting is computed at **build time**. This build says "Good morning". On Vercel it will reflect the build server's clock. It is `sr-only` today.
+
+### 6.3 SEO / AEO / GEO gaps (for "Darshil Jain" / "Darshil")
+
+1. **Domain.** The name is not in the domain (`wrapped-portfolio.vercel.app`). A custom domain (e.g. `darshiljain.com` / `.in`) with a 301 from vercel.app is the biggest single lever. It touches `meta.ts:5-6`, robots, sitemap, the tests and the analytics host check.
+2. **Home has no structured data.**
+   - Add a `@graph` on `/` with:
+     - `WebSite` (name "Darshify", alternateName "Darshil Jain");
+     - `ProfilePage` (mainEntity → Person);
+     - an enriched `Person`: `givenName`, `familyName`, `alternateName: ["Darshil"]`, `alumniOf` (Maharaja Surajmal Institute / GGSIPU; Lovely Public School), `address` (Delhi, IN), `award` (the 4 competition results), `hasCredential` (3 certifications), `hasOccupation` / `affiliation` (Figmenta, PSR Compliance, MJ Marketing Consultancy, Igniters Club), `email`, `knowsAbout`, `image` (needs a real photo), and `sameAs` (LinkedIn plus any other real profiles, owner to supply).
+   - Keep one `@id` for the Person, reused across pages.
+3. **Titles and descriptions.** Put "Darshil Jain" in every title and description (e.g. "Operations Intern at Figmenta — Darshil Jain | Darshify"). Use `og:type=profile` with `profile:first_name` / `profile:last_name` on `/` and `/artist`.
+4. **Résumé PDF.** Fix the metadata Title ("Darshil Jain — Résumé") and Author ("Darshil Jain"). Ideally change the résumé's "Portfolio" link from the Drive folder to the site domain (a consistent backlink and entity signal).
+5. **Duplicate URL.** `/liked` vs `/playlist/achievements`: canonicalize one, drop the other from the sitemap. Also consider dropping `/search` and `/library` from the sitemap and adding `lastmod`.
+6. **AEO / GEO.**
+   - Add `/llms.txt` (and optionally `/llms-full.txt`) with a factual bio and links.
+   - Add an unhedged, entity-dense "About Darshil Jain" paragraph in static HTML on `/` and `/artist` (college, city, roles with dates, numbers).
+   - Consider a short Q&A block ("Who is Darshil Jain?") with `FAQPage` markup.
+   - The current hedged copy ("self-reported", "The résumé reports…") would be repeated verbatim by answer engines.
+7. **Icons.** Add PNG favicons (48/192/512), `apple-touch-icon.png` and `site.webmanifest`. `favicon.svg` is a green circle + play triangle.
+8. **Images.** No raster profile image means nothing can show in image results or a knowledge panel for the name.
+
+### 6.4 Analytics (`src/analytics/outcomes.ts`)
+
+- **Events:** `trackOutcome(name, props)` (`:174-179`). Events are allowlisted (`:11-17,41-48`): `cv_download`, `email_open`, `linkedin_open`, `case_study_open`, `evidence_open`, `career_mix_complete`.
+- **Properties:** limited to `routeId | caseStudyId | evidenceId | placement`, validated against the inventory and content IDs (`:49-71,73-107`). Placements are a closed set (`:19-27`).
+- **Adding events** (e.g. `track_play`, `queue_add`, `like`, `share`) requires extending the unions, sets and `outcomes.test.ts`.
+- **Mounting:** Vercel `<Analytics>` is mounted only when the hostname is the canonical host or `*.vercel.app` (`root.tsx:34-48`). `beforeSend: redactAnalyticsEvent` rewrites URLs to canonical paths and drops anything outside the inventory (`:181-209`).
+- **Domain change:** a new domain must update `shouldEnableAnalytics` (`:170-172`).
+
+### 6.5 Career Mix API: the seam a richer player would extend
+
+```ts
+useCareerMix(): {                                   // CareerMixContext.tsx:76-82
+  open(trigger?: HTMLElement | null): void          // OPEN → playing from chapter 0; remembers trigger (:108-111)
+  toggle(): void; next(): void; previous(): void
+  close(): void                                     // CLOSE + restores focus to trigger (:115-120)
+  state: { status: "closed"|"paused"|"playing"|"complete"; chapterIndex: number; elapsedMs: number }
+  activeChapter: { id; title; takeaway; durationMs; evidence: { label; href; caseStudyTitle } }
+  progressRatio: number
+}
 ```
 
-The original approved design specification describes this same architecture and deliberately centralizes all content in `data/library.ts` (`docs/superpowers/specs/2026-06-17-darshify-design.md:64-94`). The current implementation still follows it closely.
-
-### Page data flow
-
-- `src/data/library.ts` exports the artist, 20 tracks, four playlists, five genres, a seeded achievement list, cover selectors, a constant-time ID lookup, and contact details (`src/data/library.ts:12-71`).
-- Pages import those arrays directly. There is no API client, loader, backend, CMS, schema validation, or remote error state.
-- The player also imports the same `tracks`, `trackById`, and `likedTrackIds`, so portfolio content and playback state are tightly coupled (`src/player/PlayerContext.tsx:1-5`).
-- `Home` derives quick picks locally and derives “Top Hits” by sorting the hard-coded play values (`src/pages/Home.tsx:20-29`).
-- `PlaylistPage` resolves the dynamic route ID against `playlists`, then maps its track IDs through `trackById` (`src/pages/PlaylistPage.tsx:10-18`).
-- `Search` filters all tracks and playlists in memory and persists up to six entered terms (`src/pages/Search.tsx:13-31`).
-- `Library` reconstructs its own view model from the artist, Liked Songs, and playlists, then filters and sorts it in a `useMemo` (`src/pages/Library.tsx:23-34`).
-
-## 2. Exact technology stack
-
-The lockfile, not the semver ranges in `package.json`, is authoritative for installed versions.
-
-| Layer                 | Installed version | Evidence                 |
-| --------------------- | ----------------: | ------------------------ |
-| React                 |            19.2.7 | `package-lock.json:3555` |
-| React DOM             |            19.2.7 | `package-lock.json:3564` |
-| React Router DOM      |            7.18.0 | `package-lock.json:3606` |
-| Framer Motion         |           12.40.0 | `package-lock.json:2634` |
-| Tailwind CSS          |             4.3.1 | `package-lock.json:3789` |
-| Tailwind Vite plugin  |             4.3.1 | `package-lock.json:1381` |
-| TypeScript            |             6.0.3 | `package-lock.json:3932` |
-| Vite                  |            8.0.16 | `package-lock.json:4028` |
-| Vitest                |             4.1.9 | `package-lock.json:4106` |
-| ESLint                |            10.5.0 | `package-lock.json:2339` |
-| Testing Library React |            16.3.2 | `package-lock.json:1444` |
-| jsdom                 |            29.1.1 | `package-lock.json:2833` |
-
-Local runtime observed during this research: Node `v25.9.0`, npm `11.12.1`. The repository does not pin Node through `.nvmrc`, `.node-version`, Volta, or a `package.json#engines` field, so CI and local reproducibility are currently under-specified.
-
-Build and configuration details:
-
-- ESM package (`"type": "module"`) with Vite scripts (`package.json:2-12`).
-- Tailwind v4 is loaded through `@tailwindcss/vite`; Vitest runs in jsdom with one setup file (`vite.config.ts:1-8`).
-- App TypeScript targets ES2023, uses bundler resolution, React JSX transform, no emit, forced module detection, no unused locals/parameters, erasable syntax, and no fallthrough (`tsconfig.app.json:3-24`).
-- Root TypeScript config uses project references for the app and Vite config (`tsconfig.json:1-7`).
-- ESLint uses the recommended JavaScript, TypeScript, React Hooks, and React Refresh flat configurations, but it is not type-aware (`eslint.config.js:1-22`; the generated README itself notes the missing type-aware setup at `README.md:16-43`).
-- The single variable TTF is bundled and loaded with `font-display: swap` (`src/index.css:9-11`).
-- Production deployment is a static Vite bundle with SPA rewrites; there is no server runtime (`vercel.json:1-3`).
-
-## 3. Code conventions and implementation patterns
-
-### Naming and structure
-
-- React components and their files use PascalCase: `PlayerBar`, `TrackRow`, `ArtistPage`.
-- Hooks use a `use` prefix and camelCase: `usePlayer`, `useAmbient`, `useLocalStorage`, `useReducedMotion`.
-- Data exports and functions use camelCase; true module constants use uppercase names such as `ALL`, `CHORDS`, `LIKED_COVER`, and `ARTIST_HERO` (`src/player/PlayerContext.tsx:27-35`; `src/data/library.ts:48-58`).
-- Domain IDs encode kind with short prefixes (`s1`, `r1`, `p1`, `a1`, `c1`) and playlists use semantic slugs (`experience`, `projects`, `skills`, `certs`) (`src/data/library.ts:18-46`).
-- Components mostly co-locate prop types inline rather than defining shared prop interfaces (`src/shell/MediaCard.tsx:4-6`, `src/shell/PlayButton.tsx:3-5`).
-- Styling is almost entirely Tailwind utility strings, with only theme tokens, font setup, scrollbar styling, and minimal global rules in `src/index.css` (`src/index.css:1-17`).
-
-### State management
-
-- Global cross-route state is limited to React context: playback/queue/likes in `PlayerProvider` and transient notifications in `ToastProvider` (`src/App.tsx:17-18`).
-- Page-local UI uses `useState`, e.g. Search query/recents, Library filter/sort/menu, Artist follow state, and TrackRow details/context menu (`src/pages/Search.tsx:13-16`; `src/pages/Library.tsx:8-12`; `src/pages/ArtistPage.tsx:11-16`; `src/shell/TrackRow.tsx:9-18`).
-- Browser persistence uses a generic JSON hook that gracefully falls back on read or write errors. It currently stores `dx_vol`, `dx_likes`, `dx_audio`, and `dx_recents` (`src/lib/useLocalStorage.ts:3-16`; `src/player/PlayerContext.tsx:44-48`; `src/pages/Search.tsx:15`).
-- Derived lists use `useMemo` in Search, Library, and the context value. Small lists are also re-sorted inline on render (`src/pages/Search.tsx:18-25`; `src/pages/Library.tsx:23-34`; `src/player/PlayerContext.tsx:109-113`; `src/pages/Home.tsx:29`).
-
-### Error and edge-state handling
-
-- `usePlayer` fails fast when used outside its provider (`src/player/PlayerContext.tsx:19-24`).
-- Invalid playlist IDs render the branded `NotFound` component, and unmatched routes also resolve to it (`src/pages/PlaylistPage.tsx:10-14`; `src/App.tsx:25-28`).
-- `Art` keeps a CSS gradient behind every image and hides a failed image, so the layout survives missing cover art (`src/shell/Art.tsx:1-15`).
-- Local-storage parse, quota, and availability errors are intentionally swallowed with a safe initial-value fallback (`src/lib/useLocalStorage.ts:4-14`).
-- Clipboard failure is silently ignored; success feedback is still shown regardless because the promise is not awaited before calling the toast (`src/shell/TrackRow.tsx:73-74`). This is a correctness defect for future evidence/share actions.
-- There is no application-level error boundary, asynchronous route error UI, analytics failure handling, schema validation, or network retry because the current site has no network data dependency.
-- `Suspense` has one generic full-screen “Loading…” state (`src/App.tsx:19`), but no skeletons aligned with page layouts.
-
-### Testing pattern and current coverage
-
-- Vitest globals plus jsdom and `@testing-library/jest-dom` are configured centrally (`vite.config.ts:5-8`; `src/test/setup.ts:1`).
-- Pure logic tests cover time/number formatting, next/previous/repeat behavior, and deterministic shuffling (`src/lib/format.test.ts:1-12`; `src/player/engine.test.ts:1-20`).
-- Data tests verify candidate presence, minimum catalogue size, playlist referential integrity, and genre availability (`src/data/library.test.ts:1-15`).
-- One component test renders `TrackRow` with a mocked player, checks title/duration, and verifies that Play calls the context action (`src/shell/TrackRow.test.tsx:1-21`).
-- One hook test stubs `matchMedia` and checks the initial reduced-motion result (`src/lib/useReducedMotion.test.ts:1-12`).
-- Current total: 5 files / 10 tests. There are no route tests, end-to-end tests, accessibility assertions, mobile tests, image-performance budgets, visual regression tests, contact/download tests, or coverage reporting threshold.
-- The original spec promised broader resilience coverage, Home tests, like persistence, and Lighthouse >=90 (`docs/superpowers/specs/2026-06-17-darshify-design.md:110-124`); those checks are not all represented in the present suite.
-
-## 4. Existing functionality that overlaps the redesign
-
-The following is already valuable and can be retained or adapted rather than rebuilt.
-
-### Spotify/music-streaming identity
-
-- A stable Darshify wordmark and play-glyph treatment exist in the Sidebar (`src/shell/Sidebar.tsx:13-19`).
-- Near-black surfaces, card elevation, muted text, and green accent are centralized as theme tokens (`src/index.css:2-10`).
-- Reusable `Shelf`, `MediaCard`, `TrackRow`, `PlayButton`, and `Art` components already encode the main music-app visual grammar (`src/shell/Shelf.tsx:4-20`; `src/shell/MediaCard.tsx:4-24`; `src/shell/TrackRow.tsx:9-80`; `src/shell/PlayButton.tsx:3-16`; `src/shell/Art.tsx:1-19`).
-- Playlist, Artist, Liked Songs, Search, Library, now-playing, and queue views are already routed and responsive (`src/App.tsx:20-29`; `src/shell/AppShell.tsx:52-92`).
-
-### Recruiter-relevant content and conversion
-
-- The data already includes quantified internship, project, competition, certification, CGPA, leadership, and contact claims (`src/data/library.ts:12-38`, `src/data/library.ts:71`).
-- CV, email, and LinkedIn actions are implemented. The CV is downloadable from the Sidebar, TopBar, and Artist About section; email and LinkedIn are on Artist (`src/shell/Sidebar.tsx:47-50`; `src/shell/TopBar.tsx:29-32`; `src/pages/ArtistPage.tsx:51-59`).
-- Search covers titles, subtitles, and details across the complete catalogue (`src/pages/Search.tsx:18-25`).
-- Dynamic playlist pages mean Experience, Projects, Skills, and Certifications can keep their album/playlist wrappers while receiving richer recruiter content (`src/pages/PlaylistPage.tsx:10-45`).
-- `NowPlayingPanel` already has a detail region and an About card. It can become a “now viewing” evidence drawer without requiring a new responsive panel primitive (`src/shell/NowPlayingPanel.tsx:14-39`).
-
-### Interaction and resilience primitives
-
-- Route changes deliberately reset scroll and move focus to an H1 (`src/shell/AppShell.tsx:27-34`). The behavior needs refinement, but the concern already has a dedicated seam.
-- `useReducedMotion` listens for live preference changes and already gates Framer Motion panels/sheets (`src/lib/useReducedMotion.ts:3-15`; `src/shell/AppShell.tsx:50-50`, `src/shell/AppShell.tsx:84-89`).
-- Route-level code splitting keeps page chunks small (`src/App.tsx:7-13`).
-- `Art` provides an image-failure fallback (`src/shell/Art.tsx:7-15`).
-- Pure `trackById`, formatting, and queue helpers are isolated and tested (`src/data/library.ts:68-69`; `src/lib/format.ts:1-5`; `src/player/engine.ts:1-27`).
-
-## 5. Integration surfaces to reuse
-
-### Content/data layer
-
-The current `library.ts` is the main integration point. It should remain the single import boundary for pages during migration, but its underlying data should be separated into truthful career entities and themed projections.
-
-Recommended migration seam:
-
-```text
-CareerItem / Proof / Contact / Profile  (truthful source model)
-                    |
-                    v
-        streaming presentation adapter
-          Album / TrackView / ShelfView
-                    |
-                    v
-        existing routes and shell components
-```
-
-This permits pages to keep consuming music-shaped view models while fabricated `plays`, `monthlyListeners`, and `durationSec` disappear from the source facts. Current coupling is visible in the mandatory `Track` fields and hard-coded artist listener field (`src/data/library.ts:1-3`, `src/data/library.ts:12-15`).
-
-The `Map` behind `trackById` is the right lookup pattern and can be generalized to `itemById` or kept behind a compatibility adapter (`src/data/library.ts:68-69`).
-
-### Routing
-
-- Keep `BrowserRouter`, the lazy-route pattern, and the shared shell route (`src/main.tsx:3-11`; `src/App.tsx:7-29`).
-- Preserve existing public URLs initially to avoid breaking links: `/`, `/search`, `/library`, `/playlist/:id`, `/artist`, `/liked`.
-- `PlaylistPage` is already data-driven; richer content can be introduced without proliferating separate section pages (`src/pages/PlaylistPage.tsx:10-18`).
-- If project case studies need dedicated URLs, add a route such as `/track/:id` or `/project/:id` beside the existing playlist route rather than overloading `TrackRow` local disclosure.
-
-### Context and hooks
-
-- `usePlayer` is used across Home, playlist/artist/liked pages, rows, player chrome, and panels. It is therefore a high-blast-radius interface and should be adapted behind its existing API before wholesale removal (`src/player/PlayerContext.tsx:7-17`).
-- A transitional provider can reinterpret `play(track)` as “select/open item” while retaining a restrained preview/player affordance. Later, split selection (`PortfolioSelectionContext`) from optional audio playback to stop all content interactions from causing timer and queue work.
-- Continue using `useLocalStorage` for visitor preferences such as muted audio, theme density, or saved shortlist, but version stored schemas/keys before changing `likes` semantics (`src/lib/useLocalStorage.ts:3-16`; `src/player/PlayerContext.tsx:44-48`).
-- Reuse `useReducedMotion` throughout new motion; extend global CSS to disable nonessential CSS animations and transitions as well (`src/lib/useReducedMotion.ts:3-15`; current limited rule at `src/index.css:17`).
-- Keep Toast as an integration surface only after adding semantic status announcement and promise-aware success/failure behavior (`src/shell/Toast.tsx:8-27`).
-
-### Shared UI components
-
-- `Art` should become the only image-delivery boundary. That makes it the correct place to add `picture`, responsive sources, intrinsic dimensions/aspect ratio, eager/high-priority hero behavior, and decoding hints (`src/shell/Art.tsx:3-15`).
-- `MediaCard` and `TrackRow` are ideal adaptation points for proof-rich cards/rows. Their public props are small, so they can accept a richer view model without rewriting every page (`src/shell/MediaCard.tsx:4-6`; `src/shell/TrackRow.tsx:9-11`).
-- `Shelf` is reusable for “Selected work,” “Experience,” or “Evidence playlists,” but it needs accessible carousel controls or a responsive grid when clipping occurs (`src/shell/Shelf.tsx:4-18`).
-- `NowPlayingPanel` can display case-study evidence, role, date, outputs, tools, proof links, and recruiter takeaways while preserving the now-playing metaphor (`src/shell/NowPlayingPanel.tsx:20-34`).
-- `TopBar` is the natural persistent conversion surface; it already owns CV access and route-aware tinting (`src/shell/TopBar.tsx:4-18`, `src/shell/TopBar.tsx:20-36`).
-
-### No current external APIs
-
-There are no fetches or API clients. All content is compiled into the bundle, audio is generated locally, and persistence is browser-only (`docs/superpowers/specs/2026-06-17-darshify-design.md:29-34`; `src/player/useAmbient.ts:10-35`). A CMS, analytics, contact backend, or credential-verification service would be a new subsystem rather than an extension of an existing integration.
-
-## 6. Adjacent technical debt and redesign risks
-
-### Domain honesty and information architecture
-
-- `monthlyListeners`, per-track `plays`, and `durationSec` are hard-coded presentation fiction required by the current data model (`src/data/library.ts:2`, `src/data/library.ts:14`, `src/data/library.ts:18-39`).
-- Artist displays a hard-coded “Verified Candidate” badge and listener count with no source (`src/pages/ArtistPage.tsx:25-27`).
-- Home computes “Top Hits” from fabricated play values (`src/pages/Home.tsx:29`, `src/pages/Home.tsx:59-63`).
-- Follow is ephemeral component state; it has no persistence or recruiter meaning (`src/pages/ArtistPage.tsx:11-16`, `src/pages/ArtistPage.tsx:34-37`).
-- “Recents” does not sort by time; it means declaration order (`src/pages/Library.tsx:21-34`).
-- Track “Copy link” always copies `/artist`, not a track URL, and announces success even if the clipboard write rejects (`src/shell/TrackRow.tsx:68-76`).
-- The static audit counted 207 canonical desktop authored interactions around a simple evaluation task (`DESIGN-IS-2026-08-29/01-structural-copy.md:28-52`). This indicates orchestration complexity even though the source tree is small.
-
-### Accessibility and semantics
-
-- Six primary Home tiles are clickable `div`s with no link semantics or keyboard handler (`src/pages/Home.tsx:35-49`).
-- Their child Play buttons are focusable but visually hidden at opacity zero until pointer hover (`src/pages/Home.tsx:42-47`).
-- `MediaCard` nests a button inside a link, which is invalid interactive nesting and produces redundant focus stops (`src/shell/MediaCard.tsx:8-22`).
-- TrackRow hover-only actions are also opacity-zero without focus-visible/focus-within equivalents (`src/shell/TrackRow.tsx:35-56`).
-- Route focus jumps directly to the page H1. Because global navigation precedes main content in the DOM, forward Tab after navigation skips Back/Forward, desktop CV, and Sidebar until focus wraps (`src/shell/AppShell.tsx:27-34`, `src/shell/AppShell.tsx:52-81`).
-- There is no skip link; visible nav landmarks are unnamed; Toast is not an aria-live/status region (`src/shell/Sidebar.tsx:11`; `src/shell/BottomNav.tsx:9`; `src/shell/Toast.tsx:19-24`; corroborated by `DESIGN-IS-2026-08-29/01-visual-accessibility.md:97-103`).
-- The Search input and Library search input rely on placeholders rather than labels (`src/pages/Search.tsx:35-40`; `src/pages/Library.tsx:47-48`).
-- Reduced motion gates Framer Motion panel movement but not the perpetual player pulse, toast keyframe, or general transitions (`src/shell/AppShell.tsx:50`, `src/shell/AppShell.tsx:84-89`; `src/shell/PlayerBar.tsx:44-53`; `src/shell/Toast.tsx:19-26`; `src/index.css:17`).
-
-### Responsive conversion and layout
-
-- Sidebar is hidden below `md`; TopBar's CV button is hidden below `sm`. Mobile therefore has no Home-level CV/contact action (`src/shell/Sidebar.tsx:11`, `src/shell/Sidebar.tsx:47-50`; `src/shell/TopBar.tsx:29-32`).
-- Mobile retains a 64px player plus BottomNav. The audit measured 122px/14.5% of a 390x844 viewport consumed by persistent bottom chrome (`src/shell/PlayerBar.tsx:17`; `src/shell/BottomNav.tsx:9`; `DESIGN-IS-2026-08-29/01-visual-accessibility.md:105-110`).
-- Shelves are unlabelled horizontal scrollers with no previous/next controls; 176px fixed cards truncate long labels and clip at desktop edges (`src/shell/Shelf.tsx:17`; `src/shell/MediaCard.tsx:9-13`).
-- The “Press play” callout is absolutely positioned above the player without reserving layout space (`src/shell/PlayerBar.tsx:44-54`).
-
-### Performance and assets
-
-- Route splitting works, but Framer Motion is imported by the always-loaded AppShell (`src/App.tsx:7-13`; `src/shell/AppShell.tsx:3`). The prior production audit measured the shared shell at 385,845 raw / 123.92kB gzip (`DESIGN-IS-2026-08-29/01-weight-friction.md:49`).
-- The real failure is imagery: the cold Home transferred 10.946MiB total; six PNG covers were 95.9% of the decoded initial payload (`DESIGN-IS-2026-08-29/01-weight-friction.md:18-47`).
-- `Art` emits only a single `<img src>` with `loading="lazy"`; there are no AVIF/WebP variants, responsive sizes, or `srcset` (`src/shell/Art.tsx:3-15`).
-- Quick-pick art renders at 64x64 CSS pixels while downloading 1024–1254px masters (`src/pages/Home.tsx:36-45`; `DESIGN-IS-2026-08-29/01-weight-friction.md:53-78`).
-- Home creates 26 image elements referencing only six URLs and repeats the same Skills cover for all six “Top Hits” (`src/pages/Home.tsx:52-73`; `src/data/library.ts:54-58`).
-- The bundled font is TTF-only; there is no WOFF2 or subset (`src/index.css:11`; `DESIGN-IS-2026-08-29/01-weight-friction.md:80-84`).
-
-### State correctness and maintainability
-
-- `PlayerContext` keeps an rAF-driven progress state at the global provider level. While playing, the context value changes every frame, so every `usePlayer` consumer can re-render even when it only needs `likes` or an action (`src/player/PlayerContext.tsx:81-100`, `src/player/PlayerContext.tsx:109-115`).
-- `useMemo` does not solve this because `progress` is a dependency and functions are recreated per provider render (`src/player/PlayerContext.tsx:55-79`, `src/player/PlayerContext.tsx:109-113`). Splitting state/actions or using an external selector store would lower the blast radius if playback remains.
-- `toggleLike` and `toggleAudio` read render-captured state instead of functional updates (`src/player/PlayerContext.tsx:76-79`). This is unlikely to fail under current human click rates but is fragile under batched/rapid actions.
-- Enqueue permits duplicate IDs and queue growth without a limit (`src/player/PlayerContext.tsx:75`). Liked Songs deduplicates separately using a Set each render (`src/pages/LikedSongs.tsx:9-12`).
-- `hasTrack` is initialized `true` and never set false, making “no current track” fallbacks effectively unreachable (`src/player/PlayerContext.tsx:51-53`; `src/shell/PlayerBar.tsx:34-36`; `src/shell/NowPlayingPanel.tsx:36-38`).
-- AppShell's keyboard effect depends on the entire context object, which changes with progress, so the global key listener is torn down and re-added continuously during playback (`src/shell/AppShell.tsx:36-48`; `src/player/PlayerContext.tsx:109-113`).
-- `Search` allocates concatenated/lowercased strings and scans every track on each query update. Fine for 20 tracks, but not ready for hundreds of case-study artifacts (`src/pages/Search.tsx:18-25`).
-- Data, cover mapping, presentation gradients, recruiter facts, and fabricated metrics live in one dense file. That encourages copy edits to modify implementation-facing structure (`src/data/library.ts:1-71`).
-
-### Tooling and delivery
-
-- `package.json` has no dedicated `type-check`, `format`, `format:check`, `coverage`, or end-to-end test script (`package.json:6-12`).
-- No `.github/workflows/ci.yml` exists. This violates the supplied protocol's required CI gate and must become the first execution task.
-- Node/npm are unpinned, and there is no lockfile-enforced `npm ci` documented in the README.
-- The README is still the generic Vite template and does not document product purpose, architecture, local commands, content editing, asset requirements, accessibility constraints, or deployment (`README.md:1-72`).
-- There is no formatter configuration. Existing quote/semicolon style is mostly consistent in source, but `eslint.config.js` uses a different generated style (`eslint.config.js:1-22`).
-- ESLint is not type-aware and has no explicit jsx-a11y rules (`eslint.config.js:8-21`).
-- Tests have no coverage threshold, and the production experience has no automated browser quality gate.
-
-## 7. Quality-gate command mapping
-
-### Commands available today
-
-| Gate                 | Exact command                                     | Current result                   | Notes                                                                         |
-| -------------------- | ------------------------------------------------- | -------------------------------- | ----------------------------------------------------------------------------- |
-| Install              | `npm ci`                                          | Not rerun in this read-only pass | Lockfile exists; use this in CI.                                              |
-| Lint                 | `npm run lint`                                    | Pass, no warnings                | Runs `eslint .` (`package.json:9`).                                           |
-| Type-check           | `npx tsc -b`                                      | Covered by build                 | No dedicated script. `npm run build` begins with `tsc -b` (`package.json:8`). |
-| Unit/component tests | `npm test`                                        | Pass: 5 files, 10 tests          | Runs `vitest run --passWithNoTests` (`package.json:11`).                      |
-| Production build     | `npm run build`                                   | Pass: Vite 8.0.16, 453 modules   | Current output has a 385.84kB raw / 123.91kB gzip shared JS chunk.            |
-| Preview              | `npm run preview -- --host 127.0.0.1 --port 4173` | Script exists                    | Required for browser smoke tests (`package.json:10`).                         |
-
-All three current gates were rerun on this inspected revision: lint exited 0; all 10 tests passed; TypeScript plus Vite build exited 0.
-
-### Required additions before implementation tasks close
-
-1. Add `type-check` mapped to `tsc -b --pretty false` so type correctness is independently visible.
-2. Add formatter/check scripts and a repository formatter config.
-3. Add `test:coverage` with a new-code threshold selected in Phase 2.
-4. Add an end-to-end/browser smoke command covering all routes, recruiter CTAs, keyboard navigation, reduced motion, and mobile breakpoints.
-5. Add an accessibility gate, ideally axe checks on Home, Artist, playlist/case-study detail, Search results/no-results, and the mobile shell.
-6. Add asset/performance budgets: first-view transferred bytes, maximum image derivative size, no PNG master loaded for thumbnail use, and route-chunk caps.
-7. Add `.github/workflows/ci.yml` with separate quality, test, and build jobs; none exists today.
-8. Pin the Node major version for local and CI parity. Vite 8 requires a modern Node line; the current local Node 25 should not become an accidental CI contract.
-
-The previous evidence sweep recorded zero HTTP/network/console/runtime/broken-image errors on seven routes and passing lint/test/build (`DESIGN-IS-2026-08-29/01-weight-friction.md:110-131`). That is a useful baseline, but it was a one-off audit rather than a repeatable repository command.
-
-## 8. Migration seams: preserve Spotify, replace recruiter flow
-
-### Seam A — domain model before page rewrites
-
-Introduce evidence-first entities alongside the current `Track` interface. Each item should hold stable identity, category, role/client, dates, summary, problem, actions, outcome metrics, tools/skills, evidence links/assets, and recruiter takeaway. Keep Spotify nouns only in a presentation adapter. This lets the current UI compile while invented metrics are removed incrementally.
-
-Why this seam is safe: all current pages already read through one module (`src/data/library.ts:1-71`), and playlist detail uses ID lookup rather than embedded objects (`src/pages/PlaylistPage.tsx:10-18`).
-
-### Seam B — Home becomes recruiter-first without losing shelves
-
-Keep the dark shell, quick-pick visual density, album covers, and shelves, but change the first viewport contract:
-
-- one-sentence positioning and job target;
-- real quantified proof;
-- persistent CV/email/LinkedIn actions at every breakpoint;
-- selected projects/experience represented as playlists or releases;
-- a clear explanation of what “play” does.
-
-`Home` is route-local and lazy, so its information architecture can change without disturbing the player engine or other routes (`src/App.tsx:7`, `src/pages/Home.tsx:14-76`).
-
-### Seam C — Artist becomes the canonical candidate profile
-
-Preserve the Artist page grammar—hero, primary action, Popular, Discography, About—but replace verification/listener/follow fiction with sourceable facts, “Selected evidence,” portfolio collections, and direct conversion (`src/pages/ArtistPage.tsx:18-59`). This is the strongest theme-preserving conversion because recruiters already understand “artist profile” as the candidate overview.
-
-### Seam D — “play” becomes meaningful selection
-
-Do not force the Spotify theme to mean fake audio. Define Play as opening a narrated case-study/evidence sequence or selecting an item in the now-viewing panel. If ambient audio remains, make it optional embellishment and decouple it from progress/duration. `NowPlayingPanel` already supports responsive panel/sheet presentation (`src/shell/AppShell.tsx:63-92`; `src/shell/NowPlayingPanel.tsx:6-39`).
-
-Transitional strategy:
-
-1. Keep `usePlayer.play(track, context)` as a compatibility façade.
-2. Internally separate `selectedItemId`/`selectionContext` from audio state.
-3. Update consumers to use `useSelection` where no audio behavior is needed.
-4. Reduce the bottom player to a compact “now exploring” bar with Resume/Next/Open; retain the recognizable music control silhouette only where it has a real behavior.
-5. Remove rAF progress and invented duration only after all callers have migrated.
-
-### Seam E — reusable view primitives
-
-- Convert quick-pick tile roots to semantic `Link`s and expose Play as a sibling control, not a nested interactive descendant (`src/pages/Home.tsx:35-49`).
-- Convert `MediaCard` to a wrapper with sibling destination/action elements while preserving its art, typography, and hover reveal (`src/shell/MediaCard.tsx:8-22`).
-- Extend `TrackRow` details into a concise proof accordion or link to a dedicated case study, preserving numbered-track rhythm (`src/shell/TrackRow.tsx:33-66`).
-- Extend `Art` to a responsive asset component before generating replacement candidate-specific artwork (`src/shell/Art.tsx:3-15`).
-
-### Seam F — responsive shell
-
-Preserve desktop Sidebar and mobile BottomNav initially, but promote Contact/CV to a persistent, semantic action group. The current TopBar already centralizes scroll tint and CV behavior (`src/shell/TopBar.tsx:14-35`). The PlayerBar can be collapsed or conditional on mobile to reclaim the measured 122px of chrome while still surfacing a themed mini-player after a user selects evidence.
-
-### Seam G — asset migration
-
-Keep gradient fallback and the idea of album art, but replace the seven master PNGs with candidate-specific source artifacts and generated responsive derivatives. Because all pages go through `Art`, the image-pipeline migration can happen once (`src/shell/Art.tsx:3-15`). Target a sub-1MiB first view, as already recommended by the prior audit (`DESIGN-IS-2026-08-29/03-verdict.md:5-11`).
-
-## 9. Algorithm and data-processing risks
-
-This is not an algorithm-heavy product today, but Large scope requires explicit complexity boundaries so richer evidence, search, analytics, or CMS content does not introduce avoidable regressions.
-
-### Current operations
-
-| Operation              |                   Current complexity |                       Space | Evidence / risk                                                                                                                                                                                                            |
-| ---------------------- | -----------------------------------: | --------------------------: | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `trackById(id)`        |                         O(1) average |                  O(n) index | Precomputed `Map` (`src/data/library.ts:68-69`). Preserve this pattern.                                                                                                                                                    |
-| Playlist hydration     |                                 O(k) |                        O(k) | Map `k` IDs through the lookup (`src/pages/PlaylistPage.tsx:16`).                                                                                                                                                          |
-| Home/Artist ranking    |                           O(n log n) |                        O(n) | Clone, sort by fabricated plays, slice six (`src/pages/Home.tsx:29`; `src/pages/ArtistPage.tsx:15`). Recompute per render.                                                                                                 |
-| Search query           |               O(n * m) per keystroke | O(r) plus transient strings | Scans tracks and concatenates/lowercases searchable fields (`src/pages/Search.tsx:18-25`); `m` is searchable text length.                                                                                                  |
-| Library filter/sort    |    O(n) normally; O(n log n) for A–Z |                        O(n) | Memoized view-model construction (`src/pages/Library.tsx:23-34`).                                                                                                                                                          |
-| Shuffle                |                                 O(n) |                        O(n) | Fisher–Yates over a generated index array (`src/player/engine.ts:12-27`).                                                                                                                                                  |
-| Like lookup            |                                 O(l) |              O(l) persisted | `likes.includes(id)` and filters use arrays (`src/player/PlayerContext.tsx:76-78`).                                                                                                                                        |
-| Liked union            |                    O(a + l) expected |                    O(a + l) | Rebuilds `Set` each render (`src/pages/LikedSongs.tsx:9-12`).                                                                                                                                                              |
-| Queue append           |                  O(n) immutable copy |             O(n) per append | Array spread (`src/player/PlayerContext.tsx:75`).                                                                                                                                                                          |
-| Queue panel projection |                                 O(q) |                        O(q) | Slices/maps/filter on render (`src/shell/QueuePanel.tsx:5-8`).                                                                                                                                                             |
-| Player progress        | O(c) render work per animation frame |                  O(1) state | Context progress updates can re-render all `c` consumers up to display refresh rate (`src/player/PlayerContext.tsx:81-100`, `src/player/PlayerContext.tsx:109-115`). This is the highest current algorithmic/runtime risk. |
-
-### Complexity targets for the redesign
-
-- **ID resolution:** O(1) average via prebuilt maps for projects, roles, evidence, and collections.
-- **Initial render selection:** O(n) maximum. Do not sort the full collection inside render when editorial “featured” order can be explicit in data.
-- **Search under 500 items:** O(n * m) per query is acceptable only with pre-normalized searchable text and a 100–150ms debounce/deferred update. Target under 50ms on a mid-range mobile device.
-- **Search at 500+ items or CMS scale:** build a one-time O(n * m) normalized/token index; query should be O(n) over compact normalized strings or use a lightweight indexed search only if measured need justifies it. Do not add a large search dependency for a 20-item catalogue.
-- **Likes/saved shortlist:** O(1) membership with `Set` in memory and a serializable array only at the storage boundary.
-- **Queue/sequence navigation:** O(1) next/previous/jump; O(n) only when creating or shuffling a context.
-- **Filter/sort:** O(n log n) worst case for user-invoked sorting, never repeated every animation frame or unrelated state update.
-- **Global state updates:** selection changes may re-render selection consumers once; progress/audio animation must not update the entire routed app at 60Hz. If real progress remains, store it locally in the visible player or expose selector-based subscriptions.
-- **Memory:** O(n + asset metadata). Do not preload decoded full-size imagery; use responsive files and browser-native lazy loading. Keep preloaded first-view images bounded to visible hero and above-fold cards.
-- **Payload:** sub-1MiB transferred first view, no thumbnail request above roughly 100–150kB, and no full-resolution work artifact fetched until its detail view opens.
-
-### Data integrity targets
-
-- All collection references resolve, extending the existing playlist integrity test (`src/data/library.test.ts:9-11`).
-- Every public claim carries a source/proof classification: verified document/link, résumé-sourced, or clearly labelled narrative. Synthetic engagement fields should not exist in the source domain.
-- Every image requires dimensions, alt/decorative intent, responsive derivatives, and a fallback.
-- Every externally navigable evidence item has a stable slug/URL; Copy Link must copy that exact URL.
-- Content schema validation should fail the build for duplicate IDs, missing collection references, missing CTA targets, or unlabelled claims.
-
-## 10. Design evidence and original-spec implications
-
-The approved 2026-06-17 design explicitly required an “exact app experience,” complete player controls, all six current routes, desktop-first behavior, and original branding/assets (`docs/superpowers/specs/2026-06-17-darshify-design.md:7-27`, `docs/superpowers/specs/2026-06-17-darshify-design.md:29-52`). That explains why implementation quality concentrated on simulation completeness rather than recruiter conversion.
-
-The specification also set performance and accessibility expectations—route-level splitting, lazy panels, Lighthouse >=90, real buttons, route focus, reduced motion, and resilient states (`docs/superpowers/specs/2026-06-17-darshify-design.md:110-124`). The implementation partially satisfies these but does not meet them comprehensively.
-
-The 2026-08-29 audit evidence establishes the main technical facts relevant to redesign:
-
-- the audience/task is recruiter evaluation and contact, not music consumption (`DESIGN-IS-2026-08-29/01-evidence.md:11-17`);
-- the dark token system and contrast are strong (`DESIGN-IS-2026-08-29/01-evidence.md:19-23`);
-- hard-coded platform signals and labels create honesty/behavior mismatches (`DESIGN-IS-2026-08-29/01-evidence.md:39-45`);
-- keyboard reachability, focus visibility, mobile conversion, and redundant interaction patterns need structural fixes (`DESIGN-IS-2026-08-29/01-evidence.md:52-57`; `DESIGN-IS-2026-08-29/01-visual-accessibility.md:56-103`);
-- image delivery, not JavaScript, dominates performance cost (`DESIGN-IS-2026-08-29/01-weight-friction.md:18-49`);
-- lint, unit tests, build, routed runtime, and assets were otherwise stable (`DESIGN-IS-2026-08-29/01-weight-friction.md:110-140`).
-
-Therefore, “Spotify-themed throughout” is technically compatible with the Large redesign. The constraint does not require retaining fabricated metrics, invalid semantics, a 60Hz global timer, a permanently expanded player, or 12MiB of album art. The theme can live in palette, information grouping, album/track visual language, motion, microcopy, and an optional meaningful now-viewing/player layer while recruiter evidence owns the hierarchy.
-
-## 11. Recommended codebase boundaries for the plan
-
-These are sequencing boundaries, not implementation tasks:
-
-1. **Foundation gate:** add CI, pinned runtime, independent type-check/format/coverage commands, and baseline browser/accessibility tests.
-2. **Content contract:** introduce evidence-first data and validation while maintaining legacy adapters.
-3. **Asset system:** upgrade `Art` and produce responsive, candidate-specific media before new layouts multiply old payload behavior.
-4. **Recruiter-first routes:** redesign Home and Artist against the new model; make conversion persistent on mobile and desktop.
-5. **Evidence detail:** upgrade playlist/row/panel or add stable detail routes for case-study proof.
-6. **Shell and player split:** separate item selection from optional audio; slim persistent chrome, especially on mobile.
-7. **Search/library:** index the new content fields, replace false Recents behavior, and preserve the themed browsing model.
-8. **Hardening:** keyboard, screen reader, reduced motion, responsive, performance, route integrity, and conversion verification.
-
-This ordering keeps the existing site operational and recognizably Darshify after every phase while systematically replacing the recruiter-flow liabilities.
+- **Reducer.** Pure and fully tested: `careerMixReducer` (`reducer.ts:44-109`), actions `OPEN | TOGGLE | PREVIOUS | NEXT | TICK | CLOSE` (`:14-20`), fixed `CAREER_MIX_TOTAL_MS = 60_000` (`:3`), chapters split evenly (`:28-42`).
+- **Chapters** are derived at module load from `portfolio.careerMixChapters`. Each resolves the first linked case study that has proofs (`CareerMixContext.tsx:48-71`).
+- **Clock:** `setInterval` dispatches `TICK` every 250 ms (`:89-96`). Completion fires `career_mix_complete` once (`:98-106`).
+- **Consumers:** `Home.tsx:29`, `ArtistPage.tsx:58`, `PlaylistPage.tsx:11` and `LikedSongs.tsx:21` use only `open`. `CareerMixDock.tsx:24-25` uses everything.
+- **Perf issue:** one context value carries `state`, so **all consumers re-render 4×/s while playing** (`:122-134`).
+- **Extension path:**
+  - Split into an actions context and a state store (or `useSyncExternalStore`).
+  - Generalize the reducer to queue semantics: `PLAY_CONTEXT(ids, index)`, `SEEK(ms)`, `ENQUEUE`, `SET_VOLUME`, `TOGGLE_SHUFFLE`, `CYCLE_REPEAT`, `TOGGLE_LIKE`. The old `engine.ts` (`nextIndex` / `prevIndex` / `shuffleOrder`) drops straight in.
+  - Map "tracks" to the 17 case studies (or 19 proofs) with a deterministic duration rule.
+  - Keep the Career Mix as a "This Is Darshil" mix / radio inside it.
+
+---
+
+## 7. Technical debt in adjacent areas
+
+1. **Inner scroll container instead of window scroll.**
+   - The cause: `body { overflow: hidden }` (`base.css:43`), an `h-screen` shell (`AppShell.tsx:21`) and `<main class="overflow-y-auto">` (`:26-31`).
+   - The effects:
+     - React Router `<ScrollRestoration>` (`root.tsx:62`) is inert;
+     - `RouteFocus` scrolls `main` to top on _every_ pathname change, including Back/Forward (`RouteFocus.tsx:12-24`), so scroll position is lost;
+     - the iOS/Android URL bar never collapses;
+     - `100vh` clips under mobile browser chrome (needs `dvh`);
+     - `html { scroll-behavior: smooth }` (`base.css:32-34`) does nothing;
+     - Page Up/Down and Space scrolling work only when `main` has focus.
+   - SEO impact is small (content is in HTML), but it hurts mobile UX and CWV.
+2. **Scroll handler re-renders the shell.** `onScroll={setScrollY}` (`AppShell.tsx:29`) re-renders AppShell, Sidebar, TopBar, Dock and BottomNav on every scroll event, just to compute the TopBar tint (`TopBar.tsx:20`). Use a CSS scroll-driven animation, a rAF-throttled CSS variable or an IntersectionObserver sentinel.
+3. **Career Mix context churn** (`CareerMixContext.tsx:89-96,122-134`), see §6.5.
+4. **Hard-coded colours outside tokens:**
+   - `TopBar.tsx:11-12,28` (`#0d0d12`), `Sidebar.tsx:67`, `CareerMixDock.tsx:43` (`bg-[#181818]`);
+   - radial `rgba(30,215,96,…)` in `RecruiterHero.tsx:70` and `ArtistPage.tsx:66,254`;
+   - collection gradients stored in content (`portfolio.ts:666-717`);
+   - nothing derives colours from artwork.
+5. **Boilerplate README** ("React + TypeScript + Vite" template, `README.md`). There are no project docs.
+6. **Dead assets:**
+   - `src/assets/hero.png` (343×361) and `src/assets/vite.svg` are unreferenced;
+   - `public/og.png` is unreferenced (replaced by social cards);
+   - `public/artifacts/profile-wide.svg` is referenced only by tests and the `Art` dimension map.
+7. **Committed tool output:** `.vite/deps/_metadata.json` + `package.json` are tracked (`.gitignore` lacks `.vite/`). `.superpowers/sdd/.../task-11-report.md` is tracked although `.superpowers/` is ignored.
+8. **Unused runtime code:**
+   - `ToastProvider` is mounted (`root.tsx:74`) but `useToast` has no callers (`Toast.tsx:6`).
+   - The toast stack has no `role="status"`/`aria-live` (`Toast.tsx:19-28`) and uses a module-global id and an inline `<style>`.
+   - `useLocalStorage` is test-only.
+   - 7 icons are unused (`icons.tsx:40,51,63,73,93,98,109`), which drags `icons.tsx` to 61 % function coverage.
+9. **Router imports:** `react-router-dom` is redundant with `react-router` v7 (30 vs 15 importing files). There are also 5 v8 future-flag warnings at build.
+10. **CI trigger gap:** `pull_request: branches: [main]` (`ci.yml:3-7`), but the integration/default branch is `build/darshify` (`origin/HEAD`). PRs into it get CI only through the `feature/**` push trigger.
+11. **Node mismatch:** local 25.9 vs `.node-version` / CI 24.
+12. **`formatProofValue` unit grammar** (`waveform.ts:20-24`). It needs per-proof display overrides (e.g. "4th", "Top 10 %", "₹50,000+").
+13. **Duplicate route** `/liked` vs `/playlist/achievements` (§1.1, §6.3).
+14. **Hard-coded "Back to Projects"** link on all 17 case studies (`CaseStudyPage.tsx:192-197`), including experience, education and achievements.
+15. **Full page reloads from ProofWaveform:** internal links use `<a href>` instead of `<Link>` (`ProofWaveform.tsx:130-134`). This resets client state, including the Career Mix.
+16. **Accessibility in code:**
+    - card image `alt={title}` duplicates the link text (`MediaCard.tsx:30-35`);
+    - Forward is always enabled (`TopBar.tsx:37-43`);
+    - the brand SVG is not `aria-hidden` (`Sidebar.tsx:37-39`);
+    - `<aside role="region">` is redundant, and `<progress>` duplicates `aria-value*` (`CareerMixDock.tsx:37-39,68-78`);
+    - a global 44 px min block/inline size applies to _every_ `a`/`button`, including inline text links (`base.css:54-57`). This conflicts with Spotify's dense rows and inline artist links. Scope it to `.interactive-target` or `@media (pointer: coarse)`.
+17. **UI coupled to content IDs:** pages pick content by literal IDs ("r1", "p2", "a2", "figmenta-projects", …) in `Home.tsx:11-15`, `ArtistPage.tsx:18-46` and `RecruiterHero.tsx:30-34`. Curation belongs in content (e.g. `featured`, `order` fields).
+18. **Triplicated content:** the IIT-G Winter Consulting Program appears as project `p2`, achievement `a4` and certification `c2`, all citing one proof.
+19. **Generated artifacts must be regenerated and committed by hand** (social cards, sitemap). Tests hard-code the count 28.
+20. **Fonts:** Latin-only subsets, no preload. The Archivo + IBM Plex Mono pairing reads "editorial", not "Spotify".
+
+---
+
+## 8. Seams for this sector
+
+- **Player.**
+  - Reintroduce a `src/player/` store (reducer + `useSyncExternalStore`). Start from `fd6de35^:src/player/*` and `a154bd1^:src/shell/{PlayerBar,QueuePanel,NowPlayingPanel}.tsx`.
+  - Fold the Career Mix in as a curated mix.
+  - Keep the bar mounted and pre-loaded with a track.
+  - Drive progress with CSS or a throttled clock.
+  - Restore keyboard shortcuts with an interactive-element guard.
+- **Pages.** Restore the Spotify layouts:
+  - Home: greeting, quick picks, horizontal shelves;
+  - Artist: hero, Popular, Discography, About;
+  - Playlist: gradient header, track table;
+  - Search: browse tiles;
+  - Library: compact list.
+
+  Keep the existing SSR-rendered semantic content so the SEO value stays.
+
+- **Content.**
+  - Add the missing résumé facts.
+  - Replace hedges with confident, accurate copy.
+  - Fix unit display.
+  - Drop "Date not listed" (make `period` optional).
+  - Add curation fields.
+  - Decide the policy on playful metrics (plays, durations).
+- **SEO.**
+  - Custom domain.
+  - JSON-LD graph on `/`.
+  - The name in all titles.
+  - Résumé PDF metadata.
+  - `llms.txt`.
+  - Sitemap dedupe + `lastmod`.
+  - Raster icons.
+  - A real photo (owner input).
+- **Tests.**
+  - Rewrite the §3.7 list.
+  - Keep the facsimile guard.
+  - Add every new runtime file to `vite.config.ts:29-65` and to `coverage-scope.test.ts`.
+  - Watch the branch headroom (about 6).

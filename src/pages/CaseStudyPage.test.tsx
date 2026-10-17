@@ -1,6 +1,14 @@
 import { createElement } from "react";
-import { fireEvent, render, screen, within } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { PlayerProvider } from "../player/PlayerProvider";
+import { ToastProvider } from "../shell/Toast";
 import {
   createMemoryRouter,
   RouterProvider,
@@ -11,7 +19,12 @@ import { artifactById, proofById, sourceById } from "../content/selectors";
 import { formatProofValue } from "../content/waveform";
 import CaseStudyRoute, { loader, meta } from "../../app/routes/case-study";
 import { buildRouteMeta } from "../seo/meta";
-import { buildCreativeWorkJsonLd } from "../seo/structuredData";
+import {
+  buildCreativeWorkJsonLd,
+  buildGraph,
+  buildPersonJsonLd,
+  buildWebSiteJsonLd,
+} from "../seo/structuredData";
 
 const { trackOutcome } = vi.hoisted(() => ({ trackOutcome: vi.fn() }));
 vi.mock("../analytics/outcomes", async (importOriginal) => ({
@@ -67,12 +80,17 @@ const loaderArgs = (slug: string) =>
 
 function renderCaseStudy(slug: string) {
   const path = `/case-studies/${slug}`;
+  // The page renders inside the data router that runs its loader.
   const router = createMemoryRouter(
     [
       {
         path: "/case-studies/:slug",
         loader,
-        element: createElement(CaseStudyRoute),
+        element: createElement(
+          PlayerProvider,
+          { createAudio: () => null, children: null },
+          createElement(ToastProvider, null, createElement(CaseStudyRoute)),
+        ),
       },
     ],
     { initialEntries: [path] },
@@ -81,18 +99,46 @@ function renderCaseStudy(slug: string) {
   return render(createElement(RouterProvider, { router }));
 }
 
+function memoryStorage(): Storage {
+  const values = new Map<string, string>();
+  return {
+    get length() {
+      return values.size;
+    },
+    clear: () => values.clear(),
+    getItem: (key) => values.get(key) ?? null,
+    key: (index) => [...values.keys()][index] ?? null,
+    removeItem: (key) => values.delete(key),
+    setItem: (key, value) => values.set(key, String(value)),
+  };
+}
+
 describe("case-study pages", () => {
-  beforeEach(() => trackOutcome.mockClear());
+  beforeEach(() => {
+    trackOutcome.mockClear();
+    vi.stubGlobal("localStorage", memoryStorage());
+    vi.stubGlobal("matchMedia", (query: string) => ({
+      matches: false,
+      media: query,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }));
+  });
+  afterEach(() => vi.unstubAllGlobals());
 
   it("reports a case open and a source-evidence open using typed IDs only", async () => {
     const caseStudy = portfolio.caseStudies.find(({ id }) => id === "r1")!;
     renderCaseStudy(caseStudy.slug);
 
     await screen.findByRole("heading", { level: 1, name: caseStudy.title });
-    expect(trackOutcome).toHaveBeenCalledWith("case_study_open", {
-      caseStudyId: "r1",
-      placement: "case-study",
-    });
+    // The open event fires from a passive effect, which can flush after the
+    // heading is already in the DOM on a busy runner.
+    await waitFor(() =>
+      expect(trackOutcome).toHaveBeenCalledWith("case_study_open", {
+        caseStudyId: "r1",
+        placement: "case-study",
+      }),
+    );
 
     const sourceLinks = screen.getAllByRole("link", {
       name: "Darshil Jain résumé",
@@ -126,8 +172,10 @@ describe("case-study pages", () => {
       ).toHaveLength(1);
       expect(header).toHaveTextContent(caseStudy.organization);
       expect(header).toHaveTextContent(caseStudy.role);
-      expect(header).toHaveTextContent(caseStudy.period);
-      expect(header).toHaveTextContent(caseStudy.recruiterTakeaway);
+      if (caseStudy.period) {
+        expect(header).toHaveTextContent(caseStudy.period);
+      }
+      expect(header).toHaveTextContent(caseStudy.tagline);
       expect(header).toHaveTextContent(caseStudy.result);
 
       const expectedFeaturedProofId =
@@ -190,7 +238,7 @@ describe("case-study pages", () => {
         name: caseStudy.title,
       });
       const related = screen.getByRole("region", {
-        name: "Related case studies",
+        name: "More like this",
       });
       const expectedIds = expectedRelatedCaseIds[caseStudy.id];
       expect(expectedIds.length).toBeGreaterThan(0);
@@ -219,9 +267,10 @@ describe("case-study pages", () => {
       expect(descriptors).toEqual([
         ...buildRouteMeta({ kind: "case-study", caseStudy }),
         {
-          "script:ld+json": buildCreativeWorkJsonLd(
-            caseStudy,
-            portfolio.candidate,
+          "script:ld+json": buildGraph(
+            buildCreativeWorkJsonLd(caseStudy, portfolio.candidate),
+            buildPersonJsonLd(portfolio.candidate),
+            buildWebSiteJsonLd(),
           ),
         },
       ]);

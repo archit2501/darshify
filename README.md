@@ -1,73 +1,82 @@
-# React + TypeScript + Vite
+# Darshify
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Darshify is the personal portfolio of **Darshil Jain**, a BBA (Business & Industry) student at Maharaja Surajmal Institute (GGSIPU), New Delhi, working across operations, strategy and people. It presents Darshil's career the way a music-streaming app presents an artist:
 
-Currently, two official plugins are available:
+| On the site  | In Darshil's career                                         |
+| ------------ | ----------------------------------------------------------- |
+| Artist page  | Darshil                                                     |
+| EPs / albums | Experience, projects, leadership, credentials and education |
+| Songs        | Individual roles and projects                               |
+| Lyrics       | What the work involved and how it turned out                |
+| Genres       | Skills                                                      |
+| Liked Songs  | Awards                                                      |
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Every number on the site comes from Darshil's résumé. Darshify is an independent personal project and is not affiliated with or endorsed by Spotify.
 
-## React Compiler
+## Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React 19 + React Router 7 (framework mode, server rendering, static prerender of every canonical route)
+- Vite 8, Tailwind CSS 4, Motion, Base UI
+- Vitest + Testing Library, Playwright + axe
+- Deployed on Vercel
 
-## Expanding the ESLint configuration
+## Commands
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+```bash
+npm ci                  # install
+npm run dev             # dev server on http://localhost:5173
+npm run check           # format, lint, type-check, coverage (90% gate) and build
+npm run test:e2e        # build, then Playwright + axe browser tests
+E2E_BASE_URL=https://<deployment> npx playwright test   # the same browser tests against a Vercel preview or production
+npm run build           # production build with prerendered HTML in build/client
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Generated files are committed. Rerun the matching generator when their inputs change:
 
-```js
-// eslint.config.js
-import reactX from "eslint-plugin-react-x";
-import reactDom from "eslint-plugin-react-dom";
-
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs["recommended-typescript"],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+```bash
+npm run generate:crawl         # sitemap.xml, robots.txt, llms.txt, llms-full.txt (content or routes changed)
+npm run generate:social-cards  # one 1200×630 share image per route
+npm run generate:covers        # cover art and the artist image (after adding a photo)
+npm run generate:icons         # favicon.ico, app icons and manifest.webmanifest
+npm run resume:metadata        # résumé PDF title and author (after replacing the PDF)
+npm run indexnow               # after a production deploy: ask Bing and other IndexNow engines to recrawl
 ```
+
+## Where things live
+
+| Path                                          | What it holds                                                         |
+| --------------------------------------------- | --------------------------------------------------------------------- |
+| `src/content/`                                | The typed source of truth: facts, releases, songs, lyrics and sources |
+| `src/seo/site.ts`                             | Site identity: canonical origin, brand, locale, title qualifier       |
+| `src/seo/`                                    | Route metadata, the route inventory and structured data               |
+| `app/routes/`                                 | Route modules (loaders, metadata, 404s)                               |
+| `src/pages/`, `src/shell/`, `src/components/` | Pages, app chrome and shared UI                                       |
+| `scripts/`                                    | Build-time generators (artwork, social cards, crawl files)            |
+| `research/`, `plan/`                          | Research, decisions and the delivery plan (`plan/plan.html`)          |
+
+## How work ships
+
+Work follows the research → plan → execute protocol in `.claude-protocol/`. Each task gets its own `feature/<id>-<slug>` branch and a pull request into the integration branch `feature/spotify-immersion`, which merges only when CI (quality → test → build → browser) is green. The finished redesign reaches production in one pull request into `build/darshify`.
+
+## Quality bars
+
+- **Accessibility: WCAG 2.2 AA.**
+  - axe checks every route at phone, tablet and desktop widths, plus open menus, dialogs and both players (`e2e/accessibility.spec.ts`).
+  - Text over colour is checked against every colour in use (`src/content/contrast.test.ts`).
+  - Keyboard-only use, and focus never hidden under the chrome, are covered in `e2e/keyboard.spec.ts`.
+- **Performance.**
+  - At most 170 KB of gzipped JavaScript and 15 KB of CSS before a page is interactive, and one font file.
+  - No long tasks while scrolling (`e2e/performance.spec.ts`).
+  - Menus, dialogs, the phone player and tooltips load on first use.
+- **Coverage.** 90 % on the runtime allowlist in `vite.config.ts`.
+
+## Owner checklist for search visibility
+
+These steps happen outside the repository, and they matter as much as the code:
+
+1. **Photo.** Add a square portrait (at least 1200 px) as `public/photos/darshil-jain.jpg`. It becomes the artist image, the structured-data image and the image search result.
+2. **Domain.** Register `darshiljain.com`, add it in Vercel, set `origin` in `src/seo/site.ts`, rerun `npm run generate:crawl` and `npm run generate:social-cards`, and permanently redirect `wrapped-portfolio.vercel.app` to it.
+3. **Search engines.** Verify the site in Google Search Console and Bing Webmaster Tools, submit `/sitemap.xml`, and request indexing for `/` and `/artist`. After each production deploy, run `npm run indexnow`.
+4. **Profiles.** Use the same headline everywhere ("Darshil Jain · Operations & Strategy · BBA, MSI Delhi · Founder, Igniters Club"), set a custom LinkedIn URL, and link the site from LinkedIn, Unstop and the résumé's Portfolio link.
+5. **Mentions.** Ask Igniters Club, Unstop and competition organizers to link to the site.
+6. **Other profiles.** Add each public profile (Unstop and others) to `profiles` in `src/content/portfolio.ts`. They become the structured data's `sameAs` links, which tell search engines they all belong to one Darshil Jain.

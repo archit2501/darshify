@@ -1,5 +1,5 @@
 import { useEffect, useRef, type RefObject } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation } from "react-router";
 
 export function RouteFocus({
   mainRef,
@@ -14,7 +14,9 @@ export function RouteFocus({
     previousPathname.current = pathname;
 
     const main = mainRef.current;
-    main?.scrollTo({ top: 0 });
+    main?.scrollTo?.({ top: 0 });
+    // Below 768px the document itself scrolls.
+    window.scrollTo?.({ top: 0 });
 
     const heading = main?.querySelector<HTMLHeadingElement>("h1");
     if (!heading) return;

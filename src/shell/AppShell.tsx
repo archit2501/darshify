@@ -1,44 +1,174 @@
-import { useRef, useState } from "react";
-import { Outlet } from "react-router-dom";
-import { CareerMixDock } from "../career-mix/CareerMixDock";
-import { Sidebar } from "./Sidebar";
-import { TopBar } from "./TopBar";
-import { BottomNav } from "./BottomNav";
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
+import { Outlet } from "react-router";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import { whenIdle } from "../lib/idle";
+import { useIsDesktop, useMediaQuery } from "../lib/useMediaQuery";
 import { useReducedMotion } from "../lib/useReducedMotion";
-import { MotionProvider } from "../motion/MotionProvider";
+import { NowPlayingTitle } from "../player/NowPlayingTitle";
+import { GlobalTopBar } from "./GlobalTopBar";
+import { MobileChrome } from "./MobileChrome";
+import { MobileTopBar } from "./MobileTopBar";
+import { PageFooter } from "./PageFooter";
+import { PlayerBar } from "./PlayerBar";
+import { NowPlayingPanel } from "./NowPlayingPanel";
+import { QueueView } from "./QueueView";
+import { LyricsView } from "./LyricsView";
+import { usePlayer } from "../player/hooks";
 import { RouteFocus } from "./RouteFocus";
+import { LIBRARY, useLayoutPrefs } from "./layoutPrefs";
+import { LibraryPanel } from "./LibraryPanel";
+import { Resizer } from "./Resizer";
+import { ShortcutsDialog, TooltipLayer } from "./popups/lazy";
 import { SkipLink } from "./SkipLink";
+import { SHORTCUTS_STORAGE_KEY, usePlayerShortcuts } from "./useShortcuts";
 
+/**
+ * The app frame. From 768px up it is the desktop player's grid: a global top
+ * bar, Your Library on the left, the main view (the only thing that scrolls)
+ * and the player bar along the bottom. Below 768px the page scrolls like the
+ * mobile app, under a floating top row and above the mini player and tab
+ * bar. Until the width is known (prerender, hydration) both sets of player
+ * chrome render and CSS shows the right one; after that the hidden set is
+ * not rendered, so its clocks don't tick for nothing.
+ */
 export function AppShell() {
   const reduced = useReducedMotion();
+  const desktop = useIsDesktop();
   const mainRef = useRef<HTMLElement>(null);
-  const [scrollY, setScrollY] = useState(0);
+  const frameRef = useRef<HTMLDivElement>(null);
+  const [layout, updateLayout] = useLayoutPrefs();
+  const panel = usePlayer((state) => state.panel);
+  const lyricsView = usePlayer((state) => state.lyricsView);
+  const libraryWidth = layout.libraryCollapsed
+    ? LIBRARY.rail
+    : layout.libraryWidth;
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  // The dialog's code loads the first time it opens.
+  const [shortcutsMounted, setShortcutsMounted] = useState(false);
+  const [characterKeys, setCharacterKeys] = useLocalStorage(
+    SHORTCUTS_STORAGE_KEY,
+    true,
+  );
+  const showShortcuts = useCallback(() => {
+    setShortcutsMounted(true);
+    setShortcutsOpen(true);
+  }, []);
+  usePlayerShortcuts({ characterKeys, onShowHelp: showShortcuts });
+  const tooltips = useIdleTooltips();
 
   return (
-    <MotionProvider>
+    <>
       <SkipLink />
+      <NowPlayingTitle />
       <div
-        className="h-screen flex flex-col bg-bg"
+        ref={frameRef}
+        className="app-frame"
         data-reduced-motion={reduced}
+        data-panel={panel ? "open" : "closed"}
+        style={{ "--lib-current": `${libraryWidth}px` } as CSSProperties}
       >
-        <div className="flex-1 flex min-h-0 gap-0">
-          <Sidebar />
-          <main
-            id="main-content"
-            ref={mainRef}
-            onScroll={(e) => setScrollY((e.target as HTMLElement).scrollTop)}
-            className="flex-1 min-w-0 m-2 rounded-lg overflow-y-auto bg-panel relative"
-          >
-            <TopBar scrollY={scrollY} />
-            <div className="px-4 md:px-6 pb-8">
-              <Outlet />
-            </div>
-          </main>
-          <RouteFocus mainRef={mainRef} />
+        <div className="app-top max-md:hidden">
+          <GlobalTopBar onShortcuts={showShortcuts} />
         </div>
-        <CareerMixDock />
-        <BottomNav />
+        <div className="app-library relative max-md:hidden">
+          <LibraryPanel
+            collapsed={layout.libraryCollapsed}
+            onToggleCollapsed={() =>
+              updateLayout({ libraryCollapsed: !layout.libraryCollapsed })
+            }
+          />
+          {layout.libraryCollapsed ? null : (
+            <div className="absolute inset-y-0 -right-[0.3125rem] flex">
+              <Resizer
+                label="Resize Your Library"
+                value={layout.libraryWidth}
+                min={LIBRARY.min}
+                max={LIBRARY.max}
+                target={() => frameRef.current}
+                cssVar="--lib-current"
+                onCommit={(libraryWidth) => updateLayout({ libraryWidth })}
+              />
+            </div>
+          )}
+        </div>
+        {desktop === true ? null : <MobileTopBar onShortcuts={showShortcuts} />}
+        <main
+          id="main-content"
+          ref={mainRef}
+          data-scroll-root
+          className="app-main"
+        >
+          {lyricsView ? (
+            <LyricsView />
+          ) : (
+            <>
+              {/* Page gutters; full-bleed headers pull back out with
+                    the same variables. */}
+              <div className="px-(--content-x) pt-(--page-top) pb-8">
+                <Outlet />
+              </div>
+              <PageFooter />
+            </>
+          )}
+        </main>
+        <div className="app-panel">
+          {desktop === false ? null : (
+            <>
+              {panel === "now-playing" ? <NowPlayingPanel /> : null}
+              {panel === "queue" ? <QueueView /> : null}
+            </>
+          )}
+        </div>
+        <div className="app-bar">
+          {desktop === false ? null : (
+            <div className="max-md:hidden">
+              <PlayerBar />
+            </div>
+          )}
+          {desktop === true ? null : (
+            <div className="md:hidden">
+              <MobileChrome />
+            </div>
+          )}
+        </div>
       </div>
-    </MotionProvider>
+      <RouteFocus mainRef={mainRef} />
+      {shortcutsMounted ? (
+        <Suspense fallback={null}>
+          <ShortcutsDialog
+            open={shortcutsOpen}
+            onOpenChange={setShortcutsOpen}
+            characterKeys={characterKeys}
+            onCharacterKeysChange={setCharacterKeys}
+          />
+        </Suspense>
+      ) : null}
+      {tooltips ? (
+        <Suspense fallback={null}>
+          <TooltipLayer />
+        </Suspense>
+      ) : null}
+    </>
   );
+}
+
+/**
+ * Tooltips name icon controls for mouse users, so their code loads once a
+ * device that can hover has finished loading the page.
+ */
+function useIdleTooltips() {
+  const canHover = useMediaQuery("(hover: hover) and (pointer: fine)");
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    if (!canHover) return;
+    return whenIdle(() => setReady(true), 500);
+  }, [canHover]);
+  return ready;
 }

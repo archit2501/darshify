@@ -1,10 +1,11 @@
 import {
   data,
+  redirect,
   useLoaderData,
   type LoaderFunctionArgs,
   type MetaFunction,
 } from "react-router";
-import { collectionById } from "../../src/content/selectors";
+import { collectionById, LIKED_RELEASE_ID } from "../../src/content/selectors";
 import { LikedSongs } from "../../src/pages/LikedSongs";
 import { PlaylistPage } from "../../src/pages/PlaylistPage";
 import { buildNotFoundMeta, buildRouteMeta } from "../../src/seo/meta";
@@ -29,6 +30,7 @@ export function loader({ params }: LoaderFunctionArgs) {
     } satisfies CollectionRouteData;
   }
 
+  if (params.id === LIKED_RELEASE_ID) throw redirect("/liked", 301);
   const collection = collectionById(params.id);
   if (!collection) return data(null, { status: 404 });
 

@@ -1,12 +1,15 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter } from "react-router";
 import { describe, expect, it } from "vitest";
 import LibraryRoute, { meta } from "../../app/routes/library";
+import { PlayerProvider } from "../player/PlayerProvider";
 
 const renderLibrary = () =>
   render(
     <MemoryRouter>
-      <LibraryRoute />
+      <PlayerProvider createAudio={() => null}>
+        <LibraryRoute />
+      </PlayerProvider>
     </MemoryRouter>,
   );
 
@@ -22,7 +25,7 @@ describe("Career Library", () => {
   it("publishes Career Library route metadata", () => {
     expect(meta({} as Parameters<typeof meta>[0])).toEqual(
       expect.arrayContaining([
-        { title: "Browse professional evidence | Darshify" },
+        { title: "Darshil Jain's releases — Your Library | Darshify" },
       ]),
     );
   });
@@ -31,13 +34,9 @@ describe("Career Library", () => {
     renderLibrary();
 
     expect(
-      screen.getByRole("heading", { level: 1, name: "Career Library" }),
+      screen.getByRole("heading", { level: 1, name: "Your Library" }),
     ).toBeVisible();
-    expect(screen.getByText("Professional evidence categories")).toBeVisible();
-    expect(screen.getByText("Release: Career EP")).toBeVisible();
-    expect(
-      screen.queryByText(/Your Library|Songs|Playlists|Saved/i),
-    ).not.toBeInTheDocument();
+    expect(screen.getAllByText("EP · Darshil Jain")[0]).toBeVisible();
   });
 
   it("offers keyboard-operable category filters with stable collection routes", () => {
@@ -76,11 +75,11 @@ describe("Career Library", () => {
   it("filters releases with a labelled field and presents a clear empty state", () => {
     renderLibrary();
     const search = screen.getByRole("searchbox", {
-      name: "Search Career Library",
+      name: "Search Your Library",
     });
     expect(search).toHaveAttribute("name", "library-search");
 
-    fireEvent.change(search, { target: { value: "credential" } });
+    fireEvent.change(search, { target: { value: "certification" } });
     expect(
       screen.getByRole("heading", { name: "Certifications" }),
     ).toBeVisible();
@@ -90,7 +89,7 @@ describe("Career Library", () => {
 
     fireEvent.change(search, { target: { value: "not in the library" } });
     expect(screen.getByRole("status")).toHaveTextContent(
-      "No evidence categories match",
+      "Nothing in Your Library matches",
     );
   });
 });

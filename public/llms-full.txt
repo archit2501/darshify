@@ -1,0 +1,440 @@
+# Darshil Jain: full profile
+
+> BBA (Business & Industry) student at Maharaja Surajmal Institute, GGSIPU, Delhi, working across operations, strategy and people. Three internships, a paid startup consulting engagement and a student club built from zero to 80+ members.
+
+The complete text of Darshify (https://wrapped-portfolio.vercel.app), Darshil Jain's portfolio, in one file. A shorter map is at https://wrapped-portfolio.vercel.app/llms.txt.
+
+Darshil Jain is a BBA (Business & Industry) student at Maharaja Surajmal Institute, affiliated with Guru Gobind Singh Indraprastha University (GGSIPU), in Janakpuri, Delhi. Class of 2027, CGPA 9.39. Darshil works across operations, strategy and people.
+
+Darshil has interned in operations at Figmenta and PSR Compliance and in human resources at MJ Marketing Consultancy: screening 500+ résumés, running compliance workflows for 70+ clients and coordinating 100+ interviews. Darshil also consulted for the AI healthcare startup ZautoAI on a paid engagement that helped it become a finalist at IIHMR Saamarthya 5.0.
+
+Darshil founded the institute's Igniters Club chapter (powered by Unstop), grew it from 0 to 80+ members in 10 months and led Converge 2026, the institute's largest management fest, with 1,000+ participants and ₹50,000+ in sponsorship and partnership value.
+
+Every figure here comes from Darshil Jain's own one-page résumé and is marked self-reported where it cannot be independently verified.
+
+## Profile
+
+- Name: Darshil Jain (also: Darshil)
+- Headline: Operations & strategy · BBA (Business & Industry), MSI Delhi
+- Education: Bachelor of Business Administration (Business & Industry), Maharaja Surajmal Institute (MSI), Guru Gobind Singh Indraprastha University (GGSIPU); Janakpuri, Delhi, India; 2024–2027
+- Skills: Market Research, Competitive Analysis, Strategic Analysis, Business Development, Stakeholder Management, Project Management, Product Analysis, Process Optimization, Microsoft Excel, Google Sheets, Canva, Notion
+- Profile page: https://wrapped-portfolio.vercel.app/artist
+- Résumé (PDF): https://wrapped-portfolio.vercel.app/Darshil_Jain_Resume.pdf
+- LinkedIn: https://www.linkedin.com/in/darshil-jain-611a3332b
+- Contact: the Email or LinkedIn button on any page of https://wrapped-portfolio.vercel.app
+
+## Work
+
+### Operations Intern at Figmenta
+
+- Role: Operations Intern, Figmenta
+- When: Jan 2026 – Feb 2026
+- Type: Work experience
+- Page: https://wrapped-portfolio.vercel.app/case-studies/figmenta-operations-intern
+
+Built the Asia team's project dashboard and a hiring workflow it can reuse.
+
+Situation: Figmenta's Asia team ran 35+ projects across 15+ people without one shared view of progress, and needed a repeatable way to hire and onboard.
+
+What Darshil did:
+
+- Built and ran a centralized project-tracking dashboard in Notion and Excel covering 35+ projects and 15+ team members.
+- Screened 500+ résumés, shortlisted 100+ candidates and managed onboarding for 5+ hires.
+- Wrote structured hiring workflows and reusable onboarding decks for future hires.
+
+Result: Clearer workflow visibility, on-time task execution and a hiring process the team can run again.
+
+Figures (from the résumé):
+
+- 35+ projects tracked: Projects covered by the centralized dashboard. (self-reported)
+- 15+ team members on the dashboard: Asia team members covered by the dashboard. (self-reported)
+- 500+ résumés screened: Résumés screened during hiring support at Figmenta. (self-reported)
+- 100+ candidates shortlisted: Candidates shortlisted during hiring support. (self-reported)
+- 5+ hires onboarded: Hires whose onboarding was managed. (self-reported)
+
+Skills: Project Management, Process Optimization, Microsoft Excel, Notion
+
+### Operations Intern at PSR Compliance
+
+- Role: Operations Intern, PSR Compliance
+- When: June 2025 – August 2025
+- Type: Work experience
+- Page: https://wrapped-portfolio.vercel.app/case-studies/psr-compliance-operations-intern
+
+Kept compliance work for 70+ clients running through a team transition.
+
+Situation: A team transition at PSR Compliance left compliance work for 70+ clients without an owner.
+
+What Darshil did:
+
+- Took operational responsibility for compliance workflows covering 70+ clients.
+- Coordinated directly with company leadership and mentored incoming interns.
+- Delivered compliance consulting, identified upsell opportunities and supported renewals and service expansion.
+
+Result: Continuity for 70+ clients, with stronger customer retention and monetization.
+
+Figures (from the résumé):
+
+- 70+ clients' compliance managed: Clients whose compliance workflows were managed during a team transition. (self-reported)
+
+Skills: Stakeholder Management, Business Development, Process Optimization
+
+### Human Resources Intern at MJ Marketing Consultancy
+
+- Role: Human Resource Intern, MJ Marketing Consultancy
+- When: March 2025 – June 2025
+- Type: Work experience
+- Page: https://wrapped-portfolio.vercel.app/case-studies/mj-marketing-human-resources-intern
+
+Brought data and structure to a high-volume hiring pipeline.
+
+Situation: MJ Marketing Consultancy's recruitment pipeline was busy and hard to see into.
+
+What Darshil did:
+
+- Managed and analyzed 500+ candidate profiles to improve pipeline visibility and data-driven screening.
+- Coordinated 100+ interviews and ran initial assessments for 300+ candidates.
+
+Result: A more efficient hiring funnel, better-informed shortlisting and workforce planning, and faster hiring decisions. The internship ended with a letter of recommendation.
+
+Figures (from the résumé):
+
+- 500+ candidate profiles analyzed: Candidate profiles managed and analyzed. (self-reported)
+- 100+ interviews coordinated: Interviews coordinated during the internship. (self-reported)
+- 300+ candidates assessed: Candidates given initial assessments. (self-reported)
+
+Skills: Stakeholder Management, Process Optimization, Google Sheets
+
+### Strategy Consulting for ZautoAI
+
+- Role: Strategy Consultant (paid engagement), ZautoAI
+- When: Nov 2025 – Dec 2025
+- Type: Project (team project)
+- Page: https://wrapped-portfolio.vercel.app/case-studies/zautoai-strategy-consulting
+
+A paid strategy consulting engagement: market, pricing and go-to-market for an AI healthcare startup.
+
+Situation: ZautoAI, an AI healthcare startup, needed market, competitive, go-to-market, pricing and positioning analysis.
+
+What Darshil did:
+
+- Ran market and competitive analysis as part of a paid consulting team.
+- Developed go-to-market, pricing and positioning recommendations.
+- Presented the strategic insights directly to the founder.
+
+Result: The work contributed to ZautoAI's selection as a finalist at IIHMR Saamarthya 5.0.
+
+Skills: Market Research, Competitive Analysis, Strategic Analysis, Business Development
+
+### Consulting & Analytics Capstone, IIT Guwahati
+
+- Role: Program participant, IIT Guwahati Consulting & Analytics Club
+- When: Dec 2025 – Jan 2026
+- Type: Project
+- Page: https://wrapped-portfolio.vercel.app/case-studies/iit-guwahati-consulting-analytics-capstone
+
+A phased plan to cut no-shows on a telemedicine platform, ranked in the top 10%.
+
+Situation: A telemedicine platform was losing appointments to no-shows.
+
+What Darshil did:
+
+- Analyzed what drove the platform's high no-show rate.
+- Designed a phased product and process intervention: user onboarding, behavioral nudges and an A/B testing framework.
+
+Result: Recognized among the top 10% of participants.
+
+Figures (from the résumé):
+
+- Top 10% of program participants: Ranked among the top 10% of participants in the IIT Guwahati Consulting & Analytics Club Winter Consulting Program. (self-reported)
+
+Skills: Strategic Analysis, Product Analysis, Process Optimization
+
+### Haldiram's International Expansion Strategy
+
+- Role: Strategy contributor, Haldiram's case study
+- When: April 2025 – May 2025
+- Type: Project (team project)
+- Page: https://wrapped-portfolio.vercel.app/case-studies/haldirams-international-expansion
+
+Tariffs, supply chains and local taste, worked into a plan for global expansion.
+
+Situation: Taking Haldiram's international means working through regulatory tariffs, supply-chain constraints and cultural localization.
+
+What Darshil did:
+
+- Evaluated market-entry challenges across tariffs, supply chains and localization.
+- Developed strategic recommendations for scalable global expansion with the team.
+
+Result: A publication-ready business case.
+
+Skills: Market Research, Competitive Analysis, Strategic Analysis
+
+### Zomato Metrics & Trends Dashboard
+
+- Role: Dashboard builder, Zomato marketplace data
+- When: Sep 2024 – Oct 2024
+- Type: Project (individual project)
+- Page: https://wrapped-portfolio.vercel.app/case-studies/zomato-metrics-trends-dashboard
+
+An interactive Looker Studio dashboard that surfaces marketplace trends.
+
+Situation: Marketplace data on ratings, orders and customers hides its trends in raw tables.
+
+What Darshil did:
+
+- Built an interactive performance dashboard in Google Looker Studio.
+- Analyzed 5+ key business metrics, including restaurant ratings, order growth and customer demographics.
+
+Result: Data-driven insights and trend identification for marketplace performance.
+
+Figures (from the résumé):
+
+- 5+ business metrics analyzed: Business metrics in the Looker Studio dashboard. (self-reported)
+
+Skills: Product Analysis, Google Sheets
+
+### Founder & President, Igniters Club
+
+- Role: Founder & President, Igniters Club (powered by Unstop)
+- When: Sep 2025 – May 2026
+- Type: Leadership
+- Page: https://wrapped-portfolio.vercel.app/case-studies/igniters-club-founder-president
+
+Grew a campus club from zero to 80+ members and led the institute's largest management fest.
+
+Situation: The institute had no Igniters Club chapter, the student community powered by Unstop.
+
+What Darshil did:
+
+- Founded the institute chapter and grew it from 0 to 80+ members in 10 months.
+- Built a 17-member leadership team across four functional departments.
+- Led Converge 2026, the institute's largest management fest, hosting industry leaders and startup founders.
+
+Result: 1,000+ participants at Converge 2026 and ₹50,000+ in sponsorship and partnership value.
+
+Figures (from the résumé):
+
+- 80+ members in 10 months: Members the chapter grew to from zero within 10 months. (self-reported)
+- 17 leaders on the core team: Members of the chapter's leadership structure. (self-reported)
+- 4 functional departments: Departments in the chapter's leadership structure. (self-reported)
+- 1,000+ fest participants: Participants at Converge 2026, the institute's largest management fest. (self-reported)
+- ₹50,000+ in sponsorship and partnerships: Sponsorship and partnership value secured for Converge 2026. (self-reported)
+
+Skills: Stakeholder Management, Project Management, Business Development
+
+### Finalist, 13th National Business Plan Championship
+
+- Role: Finalist, IIM Bangalore × MakeIntern
+- Type: Achievement
+- Page: https://wrapped-portfolio.vercel.app/case-studies/national-business-plan-championship-finalist
+
+Finalist at the 13th National Business Plan Championship, organized by IIM Bangalore × MakeIntern.
+
+Situation: The 13th National Business Plan Championship, organized by IIM Bangalore and MakeIntern.
+
+What Darshil did:
+
+- Reached the final round.
+
+Result: Finalist.
+
+Skills: Strategic Analysis, Business Development
+
+### 4th Place, Product Decode
+
+- Role: Competitor, Indian Institute of Management Calcutta
+- Type: Achievement
+- Page: https://wrapped-portfolio.vercel.app/case-studies/iim-calcutta-product-decode
+
+4th place in Product Decode, organized by IIM Calcutta.
+
+Situation: Product Decode, a product-analysis competition organized by IIM Calcutta.
+
+What Darshil did:
+
+- Competed in Product Decode.
+
+Result: Secured 4th position.
+
+Figures (from the résumé):
+
+- 4th place at Product Decode: 4th position in Product Decode, organized by IIM Calcutta. (self-reported)
+
+Skills: Product Analysis, Strategic Analysis
+
+### Winner, BPlan Showdown
+
+- Role: Winner, BPlan Showdown Business Plan Competition
+- Type: Achievement
+- Page: https://wrapped-portfolio.vercel.app/case-studies/bplan-showdown-winner
+
+Won the BPlan Showdown business plan competition.
+
+Situation: The BPlan Showdown business plan competition.
+
+What Darshil did:
+
+- Competed with a business plan.
+
+Result: Winner.
+
+Skills: Strategic Analysis, Business Development
+
+### Top 10%, IIT Guwahati Winter Consulting Program
+
+- Role: Program participant, IIT Guwahati Consulting & Analytics Club
+- When: Dec 2025 – Jan 2026
+- Type: Achievement
+- Page: https://wrapped-portfolio.vercel.app/case-studies/iit-guwahati-winter-consulting-program-recognition
+
+Ranked among the top 10% of participants in the Winter Consulting Program.
+
+Situation: The Winter Consulting Program run by IIT Guwahati's Consulting & Analytics Club.
+
+What Darshil did:
+
+- Completed the program, including its consulting and analytics capstone.
+
+Result: Ranked among the top 10% of participants.
+
+Figures (from the résumé):
+
+- Top 10% of program participants: Ranked among the top 10% of participants in the IIT Guwahati Consulting & Analytics Club Winter Consulting Program. (self-reported)
+
+Skills: Strategic Analysis, Product Analysis
+
+### BBA (Business & Industry)
+
+- Role: Undergraduate student, Maharaja Surajmal Institute, GGSIPU
+- When: 2024 – 2027
+- Type: Education
+- Page: https://wrapped-portfolio.vercel.app/case-studies/bba-business-and-industry
+
+Undergraduate business degree at Maharaja Surajmal Institute, Delhi, 2024–2027. CGPA 9.39.
+
+Situation: Bachelor of Business Administration in Business & Industry at Maharaja Surajmal Institute, affiliated with Guru Gobind Singh Indraprastha University, in Janakpuri, Delhi.
+
+What Darshil did:
+
+- Studying business and industry from 2024 to 2027.
+
+Result: Current CGPA of 9.39.
+
+Figures (from the résumé):
+
+- 9.39 CGPA: Current BBA CGPA. (self-reported)
+
+Skills: Strategic Analysis, Market Research
+
+### Class XII (Senior Secondary)
+
+- Role: Student, Lovely Public Sr. Sec. School, Priyadarshini Vihar
+- When: 2024
+- Type: Education
+- Page: https://wrapped-portfolio.vercel.app/case-studies/senior-secondary-education
+
+Senior secondary school, completed in 2024 with 88%.
+
+Situation: Senior secondary education at Lovely Public Sr. Sec. School, Priyadarshini Vihar, Delhi.
+
+What Darshil did:
+
+- Completed Class XII in 2024.
+
+Result: Scored 88%.
+
+Figures (from the résumé):
+
+- 88% in Class XII: Final Class XII result. (self-reported)
+
+Skills: 
+
+### Global Entrepreneurship Bootcamp
+
+- Role: Certified participant, Hult Prize IIT Bombay
+- When: 2026
+- Type: Credential
+- Page: https://wrapped-portfolio.vercel.app/case-studies/hult-prize-global-entrepreneurship-bootcamp
+
+Entrepreneurship bootcamp certification from Hult Prize IIT Bombay, 2026.
+
+Situation: The Global Entrepreneurship Bootcamp run by Hult Prize at IIT Bombay.
+
+What Darshil did:
+
+- Completed the bootcamp.
+
+Result: Certified in 2026.
+
+Skills: Business Development
+
+### Winter Consulting Program
+
+- Role: Certified participant, IIT Guwahati Consulting & Analytics Club
+- When: 2025
+- Type: Credential
+- Page: https://wrapped-portfolio.vercel.app/case-studies/winter-consulting-program-certificate
+
+Consulting and analytics program certification, 2025.
+
+Situation: The Winter Consulting Program run by IIT Guwahati's Consulting & Analytics Club.
+
+What Darshil did:
+
+- Completed the program and its capstone.
+
+Result: Certified in 2025, ranked among the top 10% of participants.
+
+Figures (from the résumé):
+
+- Top 10% of program participants: Ranked among the top 10% of participants in the IIT Guwahati Consulting & Analytics Club Winter Consulting Program. (self-reported)
+
+Skills: Strategic Analysis, Product Analysis
+
+### Business Intelligence & Data Analysis
+
+- Role: Certified participant, Indian Institute of Management Bangalore
+- When: 2024
+- Type: Credential
+- Page: https://wrapped-portfolio.vercel.app/case-studies/business-intelligence-data-analysis-certificate
+
+Business intelligence and data analysis certification from IIM Bangalore, 2024.
+
+Situation: A business intelligence and data analysis program from the Indian Institute of Management Bangalore.
+
+What Darshil did:
+
+- Completed the program.
+
+Result: Certified in 2024.
+
+Skills: Product Analysis, Microsoft Excel
+
+## Frequently asked questions
+
+### Who is Darshil Jain?
+
+Darshil Jain is a BBA (Business & Industry) student at Maharaja Surajmal Institute (GGSIPU) in Delhi, class of 2027, working across operations, strategy and people. Darshil has interned at Figmenta, PSR Compliance and MJ Marketing Consultancy and founded the institute's Igniters Club chapter.
+
+### What does Darshil Jain study?
+
+A Bachelor of Business Administration in Business & Industry at Maharaja Surajmal Institute, affiliated with Guru Gobind Singh Indraprastha University, from 2024 to 2027, with a CGPA of 9.39.
+
+### Where has Darshil Jain interned?
+
+Figmenta (Operations Intern, Jan–Feb 2026), PSR Compliance (Operations Intern, June–August 2025) and MJ Marketing Consultancy (Human Resource Intern, March–June 2025, with a letter of recommendation).
+
+### What has Darshil Jain led?
+
+Darshil founded the Igniters Club chapter (powered by Unstop) at the institute in September 2025, grew it to 80+ members with a 17-member leadership team, and led Converge 2026: 1,000+ participants and ₹50,000+ in sponsorship and partnership value.
+
+### What has Darshil Jain won?
+
+Winner of the BPlan Showdown business plan competition, finalist at the 13th National Business Plan Championship (IIM Bangalore × MakeIntern), 4th place in Product Decode (IIM Calcutta) and top 10% of participants in the IIT Guwahati Consulting & Analytics Club Winter Consulting Program.
+
+### How do I contact Darshil Jain?
+
+Use the Email or LinkedIn button on any page of this site. The one-page résumé PDF, also downloadable here, lists every way to reach Darshil.
+
+Site: Darshify, a portfolio styled like a music-streaming app. Darshify is a personal portfolio inspired by music-streaming apps. It is not affiliated with or endorsed by Spotify.

@@ -1,120 +1,94 @@
-# Darshify redesign research synthesis
+# Research synthesis: Spotify immersion + name SEO (sector v3)
 
-**Scope:** Large  
-**Non-negotiable constraint:** Spotify-themed throughout  
-**Research inputs:** `research/01-codebase.md`, `research/02-market-tech.md`, `research/03-uiux.md`, and the `DESIGN-IS-2026-08-29` audit.
+**Date:** 2026-10-17 · **Scope:** Large · **Branch:** `feature/spotify-immersion` (from `build/darshify` at `3dfae91`)
+**Inputs:** [`01-codebase.md`](./01-codebase.md), [`02-market-tech.md`](./02-market-tech.md), [`03-uiux.md`](./03-uiux.md). The previous (recruiter-first) synthesis is in git at `60fd7a2`.
 
-## Executive direction
+**Owner brief:** visitors should feel they are inside the Spotify app and be "mesmerized" on every page, as if a master UI/UX engineer built it. Searches for "Darshil Jain" / "Darshil" should surface Darshil first on Google, other engines and AI assistants (SEO + AEO + GEO).
 
-Darshify can remain unmistakably Spotify-themed and still become a recruiter-grade portfolio. The theme should remain in the artist profile, releases, track rows, dark streaming atmosphere, cover system, search/library vocabulary, and one meaningful “play” experience. The redesign must stop using Spotify's simulation as the information architecture. Career evidence becomes the product model; Spotify becomes the presentation grammar.
+---
 
-The shared recommendation is **Artist profile → proof tracks → conversion**, with a compact optional **Career Mix** or now-viewing dock. The first viewport should communicate Darshil's role, value, three sourced outcomes, and CV/Email/LinkedIn actions. Projects and roles become evidence-rich tracks with stable URLs, real artifacts, explicit contribution, and Situation → Action → Result → Evidence detail.
+## Top 5 cross-cutting insights
 
-## Top five cross-cutting insights
+1. **The foundation is right; the presentation layer is wrong.** All three agents agree.
+   - **Keep:** SSR + prerender of all 28 routes, a typed content model with sources, a11y plumbing (skip link, landmarks, route focus, reduced motion), and green, fast quality gates (lint 4 s, 296 tests 10 s, build 2 s).
+   - **What fails:** what the visitor sees reads as "a dark compliance report wearing a Spotify sidebar":
+     - monospace "self-reported" labels (10× on one page) and "The résumé reports…" in every result;
+     - identical black/green text covers;
+     - 222 px bordered card "tracks";
+     - no persistent player, and the one that appears has an invisible white-on-white play button (`CareerMixDock.tsx:19-20,97`, confirmed).
+   - **The plan:** rebuild the presentation layer on the existing content/SEO spine. Don't rewrite the app.
+2. **Most of the Spotify experience already existed and was deliberately deleted.**
+   - **Deleted:** player bar, scrubber, volume, shuffle/repeat, queue, Now Playing panel, mobile full-screen sheet, track table with play-swap, context menu, card hover play, keyboard shortcuts, recent searches.
+   - **Restore sources:** `a154bd1^` and `fd6de35^`, which are already Motion 13–migrated.
+   - **Why it went:** it was paired with **fabricated data** (98,400 "monthly listeners", "Verified Candidate", invented play counts), a 60 fps re-render loop and a11y bugs. Restore the _behavior_ with honest data and a better store; don't restore the fake numbers.
+3. **"Honest fidelity" resolves fidelity against truth.** Every Spotify slot can hold a true fact:
+   - plays column → impact ("500+ résumés screened");
+   - duration → engagement length ("2 mo");
+   - date added → start month;
+   - listener line → "3 internships · 4 projects · 4 awards";
+   - lyrics → the case study's Situation → Actions → Result lines;
+   - Credits → the single "Source: résumé" row that replaces every "self-reported" chip.
 
-### 1. The theme is viable; clone fidelity is not the differentiator
+   The immersion comes from the _behavior_: a real player that drives the whole UI, artwork color bleeding into headers, 56 px track tables, the hover play rise, shortcuts and a lyrics mode. Fake numbers aren't needed for it.
 
-Direct analogues already turn projects into tracks and CV sections into playlists. Darshify will not become distinctive by reproducing more Spotify controls. It must demonstrate the professional qualities relevant to strategy and operations: prioritization, synthesis, quantified outcomes, transparent assumptions, and executive communication (`research/02-market-tech.md#competitive-implications`; `research/03-uiux.md#4-it-looks-like-a-derivative-clone-not-darshils-professional-identity`).
+4. **Name SEO is a disambiguation problem, not a markup problem.**
+   - **The competition:** at least six other "Darshil Jain"s rank on LinkedIn and ZoomInfo, and this site isn't indexed in the tested index.
+   - **The levers, in order:**
+     1. a domain with Darshil's name (`darshiljain.com` looked unregistered on 17 Oct);
+     2. an entity graph on `/` (`WebSite` + `ProfilePage` + `Person` with `alternateName`, `alumniOf` MSI/GGSIPU, Delhi, founder of Igniters Club, `sameAs`);
+     3. disambiguators in every title and description;
+     4. an answer-first "Who is Darshil Jain?" block with quotable numbers;
+     5. a **real photo**;
+     6. Search Console + Bing Webmaster + IndexNow;
+     7. explicit AI-crawler allow rules.
+   - **What doesn't work:** `llms.txt` and FAQ rich results are not levers in 2026, and keyword stuffing hurts.
+   - **Expectation:** ranking #1 for the bare first name "Darshil" is a stretch goal. "Darshil Jain" + qualifiers, and AI answers, are winnable.
+5. **The app-like UI must stay crawlable and fast.** Every competitor Spotify portfolio fails here: Joshify and Franco serve empty shells, and Luan gates its content behind a loader. Rules for this redesign:
+   - panels are _views_ of SSR content, so collapsed ≠ unmounted;
+   - every destination is a real `<a href>`, and search state lives in `?q=`;
+   - colour is precomputed at build time;
+   - initial JS ≤ 170 KB gzip, with the player and immersive mode lazy-loaded where possible;
+   - fix the two existing perf traps: the shell re-renders on every scroll event, and the Career Mix context re-renders every consumer 4×/s.
 
-Preserve the Darshify name, play-glyph signature, near-black layers, green signal, release/track grammar, search/library model, and artist-profile framing. Make the **Proof Waveform**—a sourced visual strip built from real work scale and chronology—the candidate-specific signature (`research/03-uiux.md#4-candidate-specific-visual-signature-the-proof-waveform`).
+## Conflicts between findings (surface in Phase 2, never resolve silently)
 
-### 2. Truth must move into the domain model
+| #   | Conflict                                                                                                                                                                                         | Proposed resolution                                                                                                                                                                                                                                                    |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| C1  | **Truthful vs. Spotify slots.** The previous decisions plus `content.test.ts:76` ban plays, durations, listeners and verified badges. The owner wants it to feel like real Spotify.              | **Honest fidelity:** every slot gets a true value; omit a slot rather than fake it.                                                                                                                                                                                    |
+| C2  | **Recruiter-first vs. immersion.** The previous synthesis said "Spotify is grammar, not IA" and put a "Recruiter briefing" card on Home. The UI agent recommends full Spotify IA.                | Full Spotify IA, with **CV / Email / LinkedIn one click away everywhere**: the artist action bar, the avatar menu and the player download icon. The answer-first facts stay in SSR HTML.                                                                               |
+| C3  | **Career Mix scope.** The previous decision was a silent 60 s, 3-chapter tour that drops queue/shuffle/repeat. Now: a full real transport.                                                       | The full transport, all of it real: play this list, seek, shuffle, repeat, queue, Now Playing, lyrics. Volume is shown only if real audio exists.                                                                                                                      |
+| C4  | **Library choices.** The previous decision was "original icons, no Lucide, Motion only". Agent 2 suggests Base UI (menus, drawer, tooltip, slider) + react-resizable-panels (+ optional Lucide). | Keep the original icon set (extended) and Motion as the only animation runtime. Add **Base UI** for menus/drawer/tooltip. **Hand-roll the resizer** with fixed px widths, which is SSR-safe with no CLS, instead of react-resizable-panels. Build-time `sharp` colour. |
+| C5  | **Typography.** Archivo + IBM Plex Mono (the previous "editorial" voice) vs. Figtree (the closest free Spotify Mix/Circular feel, 20 KB).                                                        | Figtree only, and drop the mono entirely. Verify tabular figures before relying on them.                                                                                                                                                                               |
+| C6  | **Signature element.** The previous "Proof Waveform" vs. the UI agent saying "it reads as a broken sparkline; retire it".                                                                        | Retire it. The new signature is **lyrics-mode case studies + an opt-in "Rewind" story**.                                                                                                                                                                               |
+| C7  | **Fidelity vs. IP.** The owner wants "near-indistinguishable", but Spotify's guidelines forbid look-alike logos, wordmarks and fonts. Agent 2 notes "Darshify" sounds like Spotify.              | Clone the layout, behavior, density, tokens and shortcuts. Keep the logo, font, icons and name original. Add a non-affiliation line. Keep the test that blocks a Spotify-logo facsimile. Lead SEO with the _name_, not "Darshify".                                     |
+| C8  | **Domain.** SEO wants Darshil's name in the domain. Everything is hard-coded to `wrapped-portfolio.vercel.app` (meta, robots, sitemap, tests, analytics).                                        | Make the origin a single config value. Ship on the current host now, and switch it with one line + a 308 redirect when the owner registers the domain.                                                                                                                 |
+| C9  | **Search state.** The new design uses URL `?q=` and recent searches; `e2e/discovery.spec.ts:94` forbids persisting queries.                                                                      | Put the query in the URL (`noindex,follow` on query pages, canonical `/search`). Recent searches are optional and use localStorage with try/catch.                                                                                                                     |
+| C10 | **Duplicate routes.** `/liked` and `/playlist/achievements` are both indexed.                                                                                                                    | Make `/liked` canonical ("Liked Songs"-styled Awards) and 301 the other.                                                                                                                                                                                               |
+| C11 | **Protocol vs. repo.** The protocol says "merge to main", but the repo's default branch is `build/darshify`. CI runs PR checks only for `main`.                                                  | PRs target `build/darshify`. Fix the CI trigger in the first task.                                                                                                                                                                                                     |
 
-The current `Track` schema requires invented durations and play counts, and the artist model carries an invented listener count. All three reports recommend an evidence-first source model with identity, category, role/client, dates, problem, action, result, contribution, source/proof status, artifact, and recruiter takeaway. Spotify terms should be generated by a presentation adapter rather than stored as facts (`research/01-codebase.md#seam-a--domain-model-before-page-rewrites`; `research/02-market-tech.md#32-truthful-social-proof-and-evidence`; `research/03-uiux.md#3-truthful-copy-system`).
+## Blocking assets (owner input)
 
-Every quantified claim should have source, period/date, and verification status. “Verified Candidate,” listeners, plays, fake duration, popularity ranking, Follow, and other simulated authority must disappear.
+1. **A real photo of Darshil**: a square portrait ≥1200 px, ideally plus a wide banner ≥2400×900. It unblocks the artist header, the About card, Now Playing "About the artist", Person/ProfilePage `image` and image search. None exists anywhere.
+2. **Other public profiles** for `sameAs` (Unstop, Instagram, X, GitHub), if they are professional.
+3. **Availability / target roles wording.** Without it, drop that section.
+4. Optional: a 60–90 s voice intro with a transcript, which would enable real audio and a volume control.
+5. Optional, outside the repo: register `darshiljain.com`, set a custom LinkedIn URL, fix the résumé PDF metadata (Title "Copy of Resume", Author "Harish jaiswal") and point the résumé's "Portfolio" link to the site.
 
-### 3. The first viewport must become a recruiter briefing
+## Hard constraints carried into planning
 
-Home currently teaches the app metaphor before it explains the candidate. The shared target is name, role, one-sentence value, at least one sourced proof point, and CV/Email/LinkedIn in the first viewport on desktop and mobile. Only three priority evidence choices should follow, not six equal-weight category tiles (`research/03-uiux.md#1-the-first-screen-wastes-the-recruiters-most-valuable-seconds`; `research/02-market-tech.md#31-recruiter-first-information-architecture`).
+- The 90 % aggregate coverage gate is over an explicit allowlist (`vite.config.ts:29-65`). Branch headroom is about 6 branches, so every new runtime file must be added and covered.
+- About 15 tests encode the recruiter-first stance and must be rewritten deliberately. The Spotify-logo facsimile guard stays.
+- 28 hard-coded route and social-card counts; social cards must be regenerated whenever titles or routes change.
+- The prerendered HTML must keep main content, H1s and links (e2e "core content without JavaScript" checks).
 
-The Artist profile is the strongest Spotify-preserving container for this contract. Its hero, releases, Popular/Selected Impact, discography, and About grammar can remain while the hierarchy becomes truthful and conversion-first (`research/01-codebase.md#seam-c--artist-becomes-the-canonical-candidate-profile`).
+## Learnings during delivery
 
-### 4. “Play” must perform a real content action
-
-The current timer/ambient-chord simulation is the highest-effort decoy in the product. Research supports two valid theme-preserving outcomes: a user-controlled 60–90 second Career Mix/guided evidence tour, or a simpler selection action that opens a now-viewing evidence panel. In either case, every transport control must map to a real behavior; audio labels are reserved for actual audio, with captions/transcript and silent alternative (`research/03-uiux.md#2-the-player-is-a-high-effort-decoy-not-a-career-communication-tool`; `research/02-market-tech.md#the-60-second-career-mix`; `research/01-codebase.md#seam-d--play-becomes-meaningful-selection`).
-
-The full queue/shuffle/repeat/seek/likes/follow system is not required for the recruiter task and should not remain by default.
-
-### 5. The codebase is stable enough for evolutionary migration, but delivery gates are missing
-
-The current React/Vite/Tailwind architecture is compact, route-split, and passes lint, all 10 tests, and build. A rewrite is unnecessary. Reuse the router, tokens, content taxonomy, `Art`, `Shelf`, `MediaCard`, `TrackRow`, reduced-motion hook, and responsive panel primitives; migrate the domain model, Home/Artist hierarchy, evidence routes, player split, and image pipeline in phases (`research/01-codebase.md#8-migration-seams-preserve-spotify-replace-recruiter-flow`).
-
-However, no CI workflow, independent type-check, formatter check, coverage threshold, browser test, accessibility gate, or payload budget exists. These must be foundation work before feature tasks can close (`research/01-codebase.md#7-quality-gate-command-mapping`).
-
-## Conflicts and proposed resolutions
-
-### Conflict 1 — Preserve BrowserRouter SPA or adopt prerendering
-
-- **Codebase research:** preserving BrowserRouter and current lazy routes is the lowest-risk migration and protects existing URLs.
-- **Market/tech research:** React Router Framework Mode with static prerendering materially improves crawlability, route metadata, social sharing, and initial HTML for Home and case-study routes.
-
-**Proposed resolution:** migrate to React Router 7 Framework Mode/static prerendering during the architecture foundation, while preserving current public URLs through redirects/adapters. This is more work but aligns with the 10/10 SEO/shareability target. Surface this as the Phase 2 architecture decision; do not resolve silently.
-
-### Conflict 2 — What should “Play” mean?
-
-- **UI/UX research:** “Play” should be used only for a genuine captioned/narrated introduction; otherwise label the action “Start highlight tour.”
-- **Market research:** recommends a user-controlled 60-second Career Mix with optional real narration.
-- **Codebase research:** recommends splitting selection from audio and using the existing now-playing panel as a “now viewing” evidence surface.
-
-**Proposed resolution:** build a silent-by-default guided Career Mix using the existing panel/dock primitives; call it “Start Career Mix,” with progress/next/back/pause. Add narration only if a real recorded script exists. Ordinary cards use “View proof”/“Read case,” not Play. Surface this as the Phase 2 primary-interaction decision.
-
-### Conflict 3 — Framer Motion 12 or Motion 13
-
-- **Codebase research:** the current `framer-motion` integration works and should not be supplemented with another animation runtime.
-- **Market research:** Motion 13 is the official continuation and documents a direct import migration plus `LazyMotion` bundle reduction.
-
-**Proposed resolution:** migrate from `framer-motion` to `motion/react` in the same task that redesigns shell motion, using `LazyMotion`. Do not add GSAP or a second runtime. Surface this in the Phase 2 library decision.
-
-### Conflict 4 — Performance budget
-
-- **UI/UX research:** total first-view transfer ≤1.0 MiB, image transfer ≤700 kB, initial JS ≤150 kB gzip.
-- **Market research:** ≤1.5 MB cold mobile with ≤1.0 MB as stretch; initial JS ≤200 kB gzip.
-
-**Proposed resolution:** use the stricter UI target as the release gate: ≤1.0 MiB total, ≤700 kB images, ≤150 kB gzip JS. The current app is already near the JavaScript target; image delivery is the dominant problem. This can be revisited only with measured visual-quality evidence.
-
-### Conflict 5 — WCAG 2.1 AA or 2.2 AA
-
-- **Existing audit/scope:** used WCAG 2.1 AA.
-- **Market research:** recommends the current WCAG 2.2 AA baseline.
-
-**Proposed resolution:** adopt WCAG 2.2 AA. It is a forward-compatible tightening of the existing requirement and better covers focus and interaction behavior.
-
-## Recommended product concept
-
-**The Career Mix — an evidence-first artist profile.**
-
-- First viewport: Darshil, target role, value proposition, sourced proof, CV/Email/LinkedIn.
-- Three Recruiter Essentials: one experience, one consulting/project case, one achievement.
-- Career Releases: Experience, Projects, Leadership, Awards/Certifications.
-- Proof tracks: one-line outcome, organization/date, personal contribution, Situation → Action → Result → Evidence, stable share URL.
-- Proof Waveform: one sourced signature across hero, cards, and case studies.
-- Compact Career Mix dock: real guided sequence only; no fake plays, fake duration, shuffle/repeat, likes, follow, or decorative queue.
-- Search/library remain Spotify-inspired but use plain-language primary labels and themed secondary labels.
-- Real/redacted artifacts or fact-derived typographic covers; no generic neon AI objects.
-- Static prerendering, route-specific metadata/share cards, privacy-conscious outcome analytics, and Core Web Vitals reporting.
-
-## Recommended measurable targets
-
-- ≥80% of at least five target-role reviewers can state Darshil's target function and one verified proof point after five seconds.
-- ≥80% can locate a relevant project, CV, and contact method in 30 seconds.
-- CV/contact reachable in one interaction from every primary route and visible in the first Home viewport at 390 × 844 and 1440 × 900.
-- Zero fabricated authority, popularity, playback, duration, or verification signals.
-- 100% of quantitative claims have source/date/verification metadata.
-- WCAG 2.2 AA; zero serious/critical Axe violations; keyboard and reduced-motion manual gates pass.
-- Cold first view ≤1.0 MiB total; images ≤700 kB; initial JS ≤150 kB gzip.
-- Mobile p75 LCP ≤2.5 s, INP ≤200 ms, CLS ≤0.1; Lighthouse mobile ≥95 in Performance, Accessibility, Best Practices, and SEO.
-- Search under 50 ms for the current corpus; O(1) ID lookup; O(n) filtering/search over pre-normalized text; no virtualization or fuzzy-search dependency at current scale.
-
-## Phase 2 decisions that must be made by the user
-
-1. V1 scope boundary.
-2. Architecture: prerendered React Router Framework Mode vs current SPA.
-3. Library choice: Motion 13 migration and whether Lucide is adopted.
-4. UI/IA approach: recommended Artist profile → proof tracks → conversion vs Album Casebook vs Career Wrapped.
-5. Specific UX wins to prioritize.
-6. Test coverage threshold.
-7. Deployment/cutover risk strategy.
-8. Time-complexity target for search/filter/global updates.
-9. Accessibility target (recommended WCAG 2.2 AA).
-10. Career Mix behavior: guided silent tour, real narrated briefing, or selection-only now-viewing panel.
+- **4.1.2: the contact answer leaked the email.** The FAQ's "How do I contact Darshil Jain?" printed the address into FAQPage JSON-LD and `llms.txt`. It now points to the Email and LinkedIn buttons, and tests keep the email and phone out of every machine-readable file.
+- **4.2.1: Base UI and Motion sat on every page's critical path.** Base UI with floating-ui was ~62 KB gzipped, Motion ~25 KB, and initial JS was ~250 KB against a 170 KB budget. Menus, dialogs, the phone player's drawer and tooltips now load on first use behind plain server-rendered buttons, which keeps the prerendered HTML unchanged. Initial JS is now ~150 KB.
+- **4.2.1: this supersedes C4's "Motion as the only animation runtime".** Motion's one use (the proof waveform's draw-on) is CSS now, so CSS is the only animation runtime.
+- **4.2.1: Tailwind 4 scanned the whole repository.** Plans, research and old docs added ~1.4 KB gzipped of unused CSS. Sources are now limited to `src/` and `app/`.
+- **4.2.1: `new AudioContext()` can block for ~200 ms.** This is browser audio-device setup. The engine is now built in idle time after the visitor's first click or key press, so Play only resumes it.
+- **4.2.1: axe can't measure text over gradients.** The colour rules are unit-tested across every song, release, genre and Rewind colour (`src/content/contrast.test.ts`). Two Rewind colours were deepened slightly. Text on player surfaces is ≥80% white over the song colour 20% darker.
+- **4.2.1: phones need `scroll-padding` under fixed chrome.** Without it, keyboard focus slid under the mini player and tab bar (WCAG 2.4.11).
+- **4.2.1: Figtree's Latin subset has no rupee sign.** A 1 KB glyph subset replaces the 10 KB latin-ext file.
+- **4.2.1: the server function crashed on Vercel.** Every server-rendered request (unknown URLs, bad slugs) answered 500 `FUNCTION_INVOCATION_FAILED`. The cause: `react-router-dom` pulls in `react-router/dom`, a file Vercel's file tracing leaves out of the function. Production, built in August, was unaffected, but any rebuild would have broken it. Imports now come from `react-router` only, and ESLint plus a check on the server bundle guard it. Lesson: validate the deployed preview, not just the local server.

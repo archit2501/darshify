@@ -3,8 +3,14 @@
 import { describe, expect, it } from "vitest";
 import type { LoaderFunctionArgs } from "react-router";
 import { portfolio } from "../../src/content/portfolio";
+import { LIKED_RELEASE_ID } from "../../src/content/selectors";
 import { buildNotFoundMeta, buildRouteMeta } from "../../src/seo/meta";
-import { buildCreativeWorkJsonLd } from "../../src/seo/structuredData";
+import {
+  buildCreativeWorkJsonLd,
+  buildGraph,
+  buildPersonJsonLd,
+  buildWebSiteJsonLd,
+} from "../../src/seo/structuredData";
 import { meta as homeMeta } from "./home";
 import { meta as artistMeta } from "./artist";
 import { meta as searchMeta } from "./search";
@@ -24,7 +30,15 @@ const args = (params: Record<string, string | undefined>) =>
 
 describe("route metadata adapters", () => {
   it("delegates every fixed route to the canonical metadata builder", () => {
-    expect(homeMeta({} as never)).toEqual(buildRouteMeta({ kind: "home" }));
+    expect(homeMeta({} as never)).toEqual([
+      ...buildRouteMeta({ kind: "home" }),
+      {
+        "script:ld+json": buildGraph(
+          buildWebSiteJsonLd(),
+          buildPersonJsonLd(portfolio.candidate),
+        ),
+      },
+    ]);
     expect(artistMeta({} as never)).toEqual(
       expect.arrayContaining(buildRouteMeta({ kind: "artist" })),
     );
@@ -40,12 +54,15 @@ describe("route metadata adapters", () => {
       buildRouteMeta({ kind: "liked" }),
     );
 
-    portfolio.collections.forEach((collection) => {
-      const loaded = collectionLoader(args({ id: collection.id }));
-      expect(collectionMeta({ data: loaded } as never)).toEqual(
-        buildRouteMeta({ kind: "collection", collection }),
-      );
-    });
+    // The awards redirect to /liked, so they have no /playlist page of their own.
+    portfolio.collections
+      .filter((collection) => collection.id !== LIKED_RELEASE_ID)
+      .forEach((collection) => {
+        const loaded = collectionLoader(args({ id: collection.id }));
+        expect(collectionMeta({ data: loaded } as never)).toEqual(
+          buildRouteMeta({ kind: "collection", collection }),
+        );
+      });
   });
 
   it("publishes canonical case metadata plus supported CreativeWork JSON-LD", () => {
@@ -54,9 +71,10 @@ describe("route metadata adapters", () => {
       expect(caseMeta({ data: loaded } as never)).toEqual([
         ...buildRouteMeta({ kind: "case-study", caseStudy }),
         {
-          "script:ld+json": buildCreativeWorkJsonLd(
-            caseStudy,
-            portfolio.candidate,
+          "script:ld+json": buildGraph(
+            buildCreativeWorkJsonLd(caseStudy, portfolio.candidate),
+            buildPersonJsonLd(portfolio.candidate),
+            buildWebSiteJsonLd(),
           ),
         },
       ]);

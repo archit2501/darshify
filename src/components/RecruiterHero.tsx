@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { portfolio } from "../content/portfolio";
 import {
   artifactById,
@@ -7,26 +7,26 @@ import {
   sourceById,
 } from "../content/selectors";
 import { formatProofValue } from "../content/waveform";
-import { PlayIcon } from "../icons/icons";
 import { ContactActions } from "./ContactActions";
+import { PlayPill } from "../shell/PlayPill";
+import { defaultContext } from "../player/tracks";
 import { EvidenceCover } from "./EvidenceCover";
+import { Cover } from "../shell/Cover";
+import { artistArt } from "../content/artwork";
 import { ProofWaveform } from "./ProofWaveform";
+import { collectionById } from "../content/selectors";
 
 const {
   proof: featuredProof,
   source: featuredSource,
   caseStudy: featuredCaseStudy,
   artifact: resumeArtifact,
-  profileArtwork,
   waveformProofs,
 } = (() => {
-  const proof = proofById(portfolio.candidate.profileArtwork.proofId);
+  const proof = proofById("figmenta-resumes");
   const source = sourceById(proof?.sourceIds[0] ?? "");
   const caseStudy = caseStudyById(proof?.caseStudyIds[0] ?? "");
   const artifact = artifactById("darshil-resume-pdf");
-  const profileArtwork = artifactById(
-    portfolio.candidate.profileArtwork.artifactId,
-  );
   const waveformProofs = [
     "figmenta-projects",
     "figmenta-resumes",
@@ -38,7 +38,6 @@ const {
     !source ||
     !caseStudy ||
     !artifact ||
-    !profileArtwork ||
     waveformProofs.some((candidate) => candidate === undefined)
   ) {
     throw new Error("Recruiter hero evidence must resolve from typed content");
@@ -48,31 +47,30 @@ const {
     source,
     caseStudy,
     artifact,
-    profileArtwork,
     waveformProofs: waveformProofs.filter(
       (candidate) => candidate !== undefined,
     ),
   };
 })();
 
-export function RecruiterHero({
-  greeting,
-  onStartCareerMix,
-}: {
-  greeting: string;
-  onStartCareerMix: (trigger: HTMLButtonElement) => void;
-}) {
+/**
+ * The Home spotlight: Darshil's recruiter briefing in the This Is colour,
+ * with everything a recruiter needs on the first screen.
+ */
+const thisIsColor = collectionById("this-is-darshil-jain")?.color ?? "#2e5b4b";
+
+export function RecruiterHero() {
   return (
     <section
       aria-label="Recruiter briefing"
-      className="relative mb-8 overflow-hidden rounded-xl border border-line bg-elevated p-4 md:p-6"
+      className="relative overflow-hidden rounded-panel p-4 md:p-6"
+      style={{
+        backgroundImage: `linear-gradient(135deg, ${thisIsColor} 0%, var(--color-surface-hi) 72%)`,
+      }}
     >
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_15%,rgba(30,215,96,0.13),transparent_36%)]" />
-
       <div className="relative grid gap-5 lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start lg:gap-8">
         <div className="min-w-0">
-          <p className="sr-only">{greeting}</p>
-          <p className="mb-2 pr-24 font-evidence text-utility uppercase tracking-[0.18em] text-signal md:pr-0">
+          <p className="mb-2 text-xs font-bold tracking-[0.14em] text-green uppercase">
             Recruiter briefing
           </p>
           <h1 className="max-w-3xl text-hero-mobile font-black leading-[0.96] tracking-[-0.035em] text-text md:text-hero-desktop">
@@ -112,16 +110,12 @@ export function RecruiterHero({
           </div>
 
           <div className="mt-4 flex flex-wrap items-start gap-3">
-            <ContactActions candidate={portfolio.candidate} placement="hero" />
-            <button
-              type="button"
-              onClick={(event) => onStartCareerMix(event.currentTarget)}
-              data-motion-transform
-              className="interactive-target inline-flex items-center justify-center gap-2 rounded-full border border-text px-4 text-sm font-bold text-text transition-transform duration-[var(--transition-hover-fast)] motion-safe:hover:scale-[1.02]"
-            >
-              <PlayIcon />
-              Start Career Mix
-            </button>
+            <ContactActions
+              candidate={portfolio.candidate}
+              placement="hero"
+              compactOnPhones
+            />
+            <PlayPill context={defaultContext} label="This Is Darshil Jain" />
           </div>
 
           <div className="mt-3 max-w-xl">
@@ -129,9 +123,15 @@ export function RecruiterHero({
           </div>
         </div>
 
-        <div className="absolute right-0 top-0 w-20 overflow-hidden rounded-lg border border-line shadow-xl sm:w-24 lg:static lg:w-full">
-          <EvidenceCover artifact={profileArtwork} aspect="1:1" priority />
-          <div className="hidden border-t border-line lg:block">
+        <div className="hidden overflow-hidden rounded-art shadow-art lg:block lg:w-full">
+          <Cover
+            art={artistArt}
+            portrait={portfolio.candidate.portrait}
+            label="Darshil Jain"
+            eyebrow="This is"
+            priority
+          />
+          <div className="border-t border-white/10">
             <EvidenceCover artifact={resumeArtifact} aspect="row" priority />
           </div>
         </div>

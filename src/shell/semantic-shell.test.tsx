@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { Link, MemoryRouter, useLocation } from "react-router-dom";
+import { Link, MemoryRouter, useLocation } from "react-router";
 import { RouteFocus } from "./RouteFocus";
 
 const scrollToDescriptor = Object.getOwnPropertyDescriptor(

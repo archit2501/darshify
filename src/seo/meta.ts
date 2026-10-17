@@ -1,24 +1,30 @@
 import type { MetaDescriptor } from "react-router";
 import { portfolio } from "../content/portfolio";
-import type { CaseStudy, Collection } from "../content/types";
+import type { CaseStudy, Collection, Genre } from "../content/types";
+import { LIKED_RELEASE_ID } from "../content/selectors";
+import { CANONICAL_SITE_ORIGIN, absoluteUrl } from "./site";
 
-export const CANONICAL_SITE_ORIGIN =
-  "https://wrapped-portfolio.vercel.app" as const;
+export { CANONICAL_SITE_ORIGIN } from "./site";
 
 type FixedRouteMeta =
   | { kind: "home" }
   | { kind: "artist" }
   | { kind: "search" }
   | { kind: "library" }
-  | { kind: "liked" };
+  | { kind: "liked" }
+  | { kind: "rewind" };
 
 export type RouteMetaInput =
   | FixedRouteMeta
   | { kind: "collection"; collection: Collection }
-  | { kind: "case-study"; caseStudy: CaseStudy };
+  | { kind: "case-study"; caseStudy: CaseStudy }
+  | { kind: "genre"; genre: Genre };
 
 export type RouteId =
-  FixedRouteMeta["kind"] | `collection:${string}` | `case-study:${string}`;
+  | FixedRouteMeta["kind"]
+  | `collection:${string}`
+  | `case-study:${string}`
+  | `genre:${string}`;
 
 export interface CanonicalRoute {
   id: RouteId;
@@ -32,19 +38,28 @@ const fixedRoutes: CanonicalRoute[] = [
   { id: "search", path: "/search", meta: { kind: "search" } },
   { id: "library", path: "/library", meta: { kind: "library" } },
   { id: "liked", path: "/liked", meta: { kind: "liked" } },
+  { id: "rewind", path: "/rewind", meta: { kind: "rewind" } },
 ];
 
 export const canonicalRouteInventory: CanonicalRoute[] = [
   ...fixedRoutes,
-  ...portfolio.collections.map((collection) => ({
-    id: `collection:${collection.id}` as const,
-    path: `/playlist/${collection.id}`,
-    meta: { kind: "collection" as const, collection },
-  })),
+  ...portfolio.collections
+    // The awards are canonical at /liked; /playlist/achievements redirects.
+    .filter((collection) => collection.id !== LIKED_RELEASE_ID)
+    .map((collection) => ({
+      id: `collection:${collection.id}` as const,
+      path: `/playlist/${collection.id}`,
+      meta: { kind: "collection" as const, collection },
+    })),
   ...portfolio.caseStudies.map((caseStudy) => ({
     id: `case-study:${caseStudy.id}` as const,
     path: `/case-studies/${caseStudy.slug}`,
     meta: { kind: "case-study" as const, caseStudy },
+  })),
+  ...portfolio.genres.map((genre) => ({
+    id: `genre:${genre.slug}` as const,
+    path: `/genre/${genre.slug}`,
+    meta: { kind: "genre" as const, genre },
   })),
 ];
 
@@ -53,34 +68,38 @@ const fixedCopy: Record<
   { title: string; description: string }
 > = {
   home: {
-    title: "Darshil Jain — Business, strategy & operations | Darshify",
+    title: "Darshil Jain — Operations & Strategy · BBA, MSI Delhi | Darshify",
     description:
-      "Recruiter briefing for Darshil Jain with sourced operations, strategy, analytics, recruitment, and leadership evidence.",
+      "Darshil Jain is a BBA (Business & Industry) student at Maharaja Surajmal Institute, Delhi, working across operations, strategy and people: three internships, a paid startup consulting engagement and a student club built to 80+ members.",
   },
   artist: {
-    title: "Darshil Jain professional profile | Darshify",
+    title: "Darshil Jain — Profile, experience and résumé | Darshify",
     description:
-      "Review Darshil Jain's complete proposition, selected impact, education, skills, availability, and source-backed career evidence.",
+      "Who Darshil Jain is: education (BBA, MSI Delhi, CGPA 9.39), internships at Figmenta, PSR Compliance and MJ Marketing Consultancy, leadership, awards, skills and how to get in touch.",
   },
   search: {
-    title: "Search professional evidence | Darshify",
+    title: "Search Darshil Jain's work | Darshify",
     description:
-      "Search Darshil Jain's experience, projects, leadership, achievements, skills, and source-backed evidence.",
+      "Search Darshil Jain's experience, projects, leadership, achievements, skills and sources by organization, skill, action or result.",
   },
   library: {
-    title: "Browse professional evidence | Darshify",
+    title: "Darshil Jain's releases — Your Library | Darshify",
     description:
-      "Browse Darshil Jain's professional evidence categories and career releases by experience, project, skill, credential, achievement, or education.",
+      "Every release in Darshil Jain's portfolio: experience, projects, leadership, skills, certifications, achievements and education.",
   },
   liked: {
-    title: "Selected achievements | Darshify",
+    title: "Darshil Jain's achievements | Darshify",
     description:
-      "Review Darshil Jain's selected achievements and résumé-listed competition recognition in one focused evidence view.",
+      "Darshil Jain's competition results: a business plan win, a national championship final, 4th at IIM Calcutta and top 10% at IIT Guwahati.",
+  },
+  rewind: {
+    title: "Darshil Jain's Rewind — the year in review | Darshify",
+    description:
+      "Darshil Jain's work in review, told like a music year-in-review: internships, top skills, a club built from zero, awards and grades, all from the résumé.",
   },
 };
 
-const canonicalUrl = (path: string) =>
-  `${CANONICAL_SITE_ORIGIN}${path === "/" ? "" : path}`;
+const canonicalUrl = absoluteUrl;
 
 export const socialCardPathForRouteId = (routeId: RouteId) =>
   `/social-cards/${routeId.replace(":", "-")}.png`;
@@ -90,8 +109,8 @@ const resolveRoute = (input: RouteMetaInput) => {
     return {
       id: `collection:${input.collection.id}` as RouteId,
       path: `/playlist/${input.collection.id}`,
-      title: `${input.collection.title} evidence | Darshify`,
-      description: `${input.collection.description} Browse this source-linked ${input.collection.title.toLowerCase()} collection for Darshil Jain.`,
+      title: `${input.collection.title} — Darshil Jain | Darshify`,
+      description: `${input.collection.description} A ${input.collection.releaseType === "EP" ? "EP" : input.collection.releaseType.toLowerCase()} from Darshil Jain's portfolio, sourced from the résumé.`,
       type: "website",
     };
   }
@@ -100,9 +119,22 @@ const resolveRoute = (input: RouteMetaInput) => {
     return {
       id: `case-study:${input.caseStudy.id}` as RouteId,
       path: `/case-studies/${input.caseStudy.slug}`,
-      title: `${input.caseStudy.title} | Darshify`,
-      description: `${input.caseStudy.recruiterTakeaway} ${input.caseStudy.organization}, ${input.caseStudy.period}.`,
+      title: `${input.caseStudy.title} — Darshil Jain | Darshify`,
+      description: `${input.caseStudy.tagline} ${input.caseStudy.organization}, ${input.caseStudy.period}.`,
       type: "article",
+    };
+  }
+
+  if (input.kind === "genre") {
+    const count = portfolio.caseStudies.filter((song) =>
+      song.skills.includes(input.genre.skill),
+    ).length;
+    return {
+      id: `genre:${input.genre.slug}` as RouteId,
+      path: `/genre/${input.genre.slug}`,
+      title: `${input.genre.skill} — Darshil Jain | Darshify`,
+      description: `${input.genre.description} Darshil Jain's ${input.genre.skill.toLowerCase()} work: ${count} ${count === 1 ? "example" : "examples"} from the résumé.`,
+      type: "website",
     };
   }
 

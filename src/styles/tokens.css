@@ -1,77 +1,133 @@
+/*
+ * Darshify design tokens. The scale follows the anatomy of a modern dark
+ * music-streaming app (research/03-uiux.md, B5): one near-black canvas,
+ * #121212 panels, white/grey text, a single green signal and colour that comes
+ * from each release's artwork. Brand marks and fonts stay original.
+ */
+@theme static {
+  --font-sans:
+    "Figtree Variable", "Figtree", system-ui, -apple-system, "Segoe UI", Roboto,
+    sans-serif;
+
+  /* Surfaces */
+  --color-app: #000000;
+  --color-surface: #121212;
+  --color-surface-hi: #1f1f1f;
+  --color-surface-2: #2a2a2a;
+  --color-menu: #282828;
+  /* Notices (toasts): white text on this blue is 5.3:1. */
+  --color-announce: #2a6bc0;
+  --color-tint: rgb(255 255 255 / 0.07);
+  --color-tint-hover: rgb(255 255 255 / 0.1);
+  --color-tint-strong: rgb(255 255 255 / 0.2);
+  --color-selected: rgb(255 255 255 / 0.3);
+  --color-divider: rgb(255 255 255 / 0.1);
+
+  /* Content */
+  --color-fg: #ffffff;
+  --color-subdued: #b3b3b3;
+  --color-icon-off: #7c7c7c;
+  --color-progress: #4d4d4d;
+
+  /* Signal */
+  --color-green: #1ed760;
+  --color-green-hover: #3be477;
+  --color-green-press: #1abc54;
+
+  /* Legacy names, kept while older components are rebuilt. */
+  --color-ink: var(--color-app);
+  --color-elevated: var(--color-surface-hi);
+  --color-line: var(--color-surface-2);
+  --color-text: var(--color-fg);
+  --color-muted: var(--color-subdued);
+  --color-signal: var(--color-green);
+  --color-bg: var(--color-app);
+  --color-card: var(--color-surface-hi);
+  --color-accent: var(--color-green);
+  --color-sub: var(--color-subdued);
+  --font-evidence: var(--font-sans);
+
+  /* Type scale (Tailwind's xs/sm/base remain 12/14/16 px) */
+  --text-display: clamp(2rem, 0.75rem + 5.5cqi, 6rem);
+  --text-display--line-height: 1;
+  --text-display--letter-spacing: -0.04em;
+  --text-display--font-weight: 900;
+  --text-headline: 2rem;
+  --text-headline--line-height: 1.15;
+  --text-headline--letter-spacing: -0.02em;
+  --text-headline--font-weight: 800;
+  --text-title: 1.5rem;
+  --text-title--line-height: 1.25;
+  --text-title--letter-spacing: -0.01em;
+  --text-title--font-weight: 700;
+  --text-lyric: clamp(1.5rem, 1rem + 1.6vw, 2rem);
+  --text-lyric--line-height: 1.35;
+  --text-lyric--font-weight: 700;
+  --text-utility: 0.75rem;
+  --text-metadata: 0.875rem;
+  --text-body: 1rem;
+  --text-section-title: 1.5rem;
+  --text-hero-mobile: 2.5rem;
+  --text-hero-desktop: 3.5rem;
+
+  /* Radii */
+  --radius-row: 4px;
+  --radius-art: 6px;
+  --radius-panel: 8px;
+
+  /* Shadows */
+  --shadow-art: 0 4px 60px rgb(0 0 0 / 0.5);
+  --shadow-card: 0 8px 24px rgb(0 0 0 / 0.5);
+  --shadow-play: 0 8px 8px rgb(0 0 0 / 0.3);
+  --shadow-menu: 0 16px 24px rgb(0 0 0 / 0.3), 0 6px 8px rgb(0 0 0 / 0.2);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+  --ease-emph: cubic-bezier(0.3, 0, 0, 1);
+  --animate-eq: eq 1.1s ease-in-out infinite;
+
+  @keyframes eq {
+    0%,
+    100% {
+      transform: scaleY(0.3);
+    }
+    50% {
+      transform: scaleY(1);
+    }
+  }
+}
+
 :root {
   color-scheme: dark;
 
-  --color-ink: #000000;
-  --color-panel: #121212;
-  --color-elevated: #1b1b1b;
-  --color-line: #303030;
-  --color-text: #f7f7f5;
-  --color-muted: #b3b3b3;
-  --color-signal: #1ed760;
+  --topbar-h: 4rem;
+  --player-h: 4.5rem;
+  --panel-gap: 0.5rem;
+  --lib-w: 20rem;
+  --np-w: 21.25rem;
+  --content-x: 1.5rem;
+  /* Space above page content: room for the phone's floating top row. */
+  --page-top: 1rem;
+  /* The phone's mini player and tab bar, pinned to the bottom. */
+  --chrome-bottom: calc(9.5rem + env(safe-area-inset-bottom));
 
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-6: 1.5rem;
-  --space-8: 2rem;
-  --space-12: 3rem;
-  --space-16: 4rem;
+  --dur-hover: 200ms;
+  --dur-reveal: 300ms;
 
-  --type-utility: 0.75rem;
-  --type-metadata: 0.875rem;
-  --type-body: 1rem;
-  --type-card-title: 1.25rem;
-  --type-section-title: 1.75rem;
-  --type-hero-mobile: 2.5rem;
-  --type-hero-desktop: 3.5rem;
-
-  --line-height-body: 1.55;
-  --measure-reading-min: 65ch;
-  --measure-reading-max: 72ch;
-  --content-width-min: 75rem;
-  --content-width-max: 80rem;
-  --evidence-width-min: 42.5rem;
-  --evidence-width-max: 47.5rem;
-  --mobile-gutter: 1rem;
+  /* Legacy variables read by components that have not been rebuilt yet. */
   --target-min: 2.75rem;
-
-  --focus-ring-width: 0.125rem;
-  --focus-ring-color: var(--color-signal);
-  --focus-ring-offset: 0.1875rem;
-  --focus-ring-offset-color: var(--color-line);
-
   --transition-hover-fast: 120ms;
-  --transition-hover: 180ms;
-  --transition-panel-fast: 200ms;
-  --transition-panel: 260ms;
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@theme inline {
-  --color-ink: var(--color-ink);
-  --color-panel: var(--color-panel);
-  --color-elevated: var(--color-elevated);
-  --color-line: var(--color-line);
-  --color-text: var(--color-text);
-  --color-muted: var(--color-muted);
-  --color-signal: var(--color-signal);
+@media (max-width: 767px) {
+  :root {
+    --content-x: 1rem;
+    --page-top: 4rem;
+  }
+}
 
-  /* Compatibility aliases while page consumers move to semantic names. */
-  --color-bg: var(--color-ink);
-  --color-card: var(--color-elevated);
-  --color-card-hi: var(--color-line);
-  --color-accent: var(--color-signal);
-  --color-sub: var(--color-muted);
-
-  --font-ui: "Archivo Variable", system-ui, sans-serif;
-  --font-evidence: "IBM Plex Mono", ui-monospace, monospace;
-
-  --text-utility: var(--type-utility);
-  --text-metadata: var(--type-metadata);
-  --text-body: var(--type-body);
-  --text-card-title: var(--type-card-title);
-  --text-section-title: var(--type-section-title);
-  --text-hero-mobile: var(--type-hero-mobile);
-  --text-hero-desktop: var(--type-hero-desktop);
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-reveal: 0ms;
+  }
 }

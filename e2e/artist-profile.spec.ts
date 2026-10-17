@@ -9,8 +9,8 @@ test("mobile Artist prioritizes proposition and sourced impact before releases",
   const proposition = page.getByRole("region", {
     name: "Candidate proposition",
   });
-  const impact = page.getByRole("region", { name: "Selected Impact" });
-  const releases = page.getByRole("region", { name: "Career Releases" });
+  const impact = page.getByRole("region", { name: "Popular" });
+  const releases = page.getByRole("region", { name: "Discography" });
 
   await expect(
     proposition.getByRole("heading", { level: 1, name: "Darshil Jain" }),
@@ -19,15 +19,15 @@ test("mobile Artist prioritizes proposition and sourced impact before releases",
     proposition.getByRole("link", { name: "Download CV" }),
   ).toBeVisible();
   await expect(
-    proposition.getByRole("button", { name: "Start Career Mix" }),
+    proposition.getByRole("button", { name: "Play Darshil Jain" }),
   ).toBeVisible();
 
   const featuredProof = proposition.getByRole("article", {
-    name: "Featured proof: Résumés screened",
+    name: "Featured proof: résumés screened",
   });
-  await expect(featuredProof).toContainText("500+ résumés");
+  await expect(featuredProof).toContainText("500+");
   await expect(featuredProof).toContainText(
-    "Résumés screened during hiring support.",
+    "Résumés screened during hiring support at Figmenta.",
   );
   await expect(featuredProof).toContainText("Darshil Jain résumé");
   await expect(featuredProof).toContainText("self-reported");
@@ -47,10 +47,9 @@ test("mobile Artist prioritizes proposition and sourced impact before releases",
   expect(featuredProofBox!.y + featuredProofBox!.height).toBeLessThanOrEqual(
     844,
   );
-  await expect(impact.locator("article")).toHaveCount(3);
-  await expect(
-    impact.getByRole("link", { name: "Read case study" }),
-  ).toHaveCount(3);
+  // Header row plus the five popular songs, each linking to its page.
+  await expect(impact.getByRole("row")).toHaveCount(6);
+  await expect(impact.locator('a[href^="/case-studies/"]')).toHaveCount(5);
 
   const impactBox = await impact.boundingBox();
   const releasesBox = await releases.boundingBox();

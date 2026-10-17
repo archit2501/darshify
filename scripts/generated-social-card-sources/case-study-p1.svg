@@ -1,30 +1,27 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="ZautoAI Strategy Consulting Engagement | Darshify" data-route-id="case-study:p1">
-  <title>ZautoAI Strategy Consulting Engagement | Darshify</title>
-  <desc>Darshify social card. Project case study: ZautoAI Strategy Consulting Engagement | Darshify.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="Strategy Consulting for ZautoAI — Darshil Jain | Darshify" data-route-id="case-study:p1">
+  <title>Strategy Consulting for ZautoAI — Darshil Jain | Darshify</title>
+  <desc>Darshify social card for Darshil Jain. Project case study: Strategy Consulting for ZautoAI — Darshil Jain | Darshify.</desc>
   <defs>
-    <linearGradient id="surface" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#191919"/>
-      <stop offset="1" stop-color="#070707"/>
+    <linearGradient id="wash" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0" stop-color="#c2185b"/>
+      <stop offset="1" stop-color="#121212"/>
     </linearGradient>
-    <radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="translate(1030 86) rotate(135) scale(420)">
-      <stop stop-color="#1ed760" stop-opacity=".38"/>
-      <stop offset="1" stop-color="#1ed760" stop-opacity="0"/>
-    </radialGradient>
   </defs>
-  <rect width="1200" height="630" rx="36" fill="url(#surface)"/>
-  <rect width="1200" height="630" rx="36" fill="url(#glow)"/>
+  <rect width="1200" height="630" fill="#121212"/>
+  <rect width="1200" height="630" fill="url(#wash)"/>
+  <rect x="78" y="129" width="400" height="400" rx="12" fill="#000" opacity=".45"/>
+  <text x="528" y="205" fill="#ffffff" fill-opacity=".8" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" letter-spacing="3">PROJECT CASE STUDY</text>
+  <text fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="60" font-weight="800" letter-spacing="-1.5"><tspan x="528" y="283">Strategy Consulting</tspan><tspan x="528" y="347">for ZautoAI</tspan></text>
+  <circle cx="545" cy="427" r="17" fill="#1ed760"/>
+  <text x="575" y="436" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700">Darshil Jain</text>
   <g data-motif="proof-wave" aria-label="Evidence signal">
-    <rect x="1016" y="70" width="10" height="24" rx="5" fill="#1ed760"/>
-    <rect x="1036" y="56" width="10" height="52" rx="5" fill="#1ed760"/>
-    <rect x="1056" y="64" width="10" height="36" rx="5" fill="#1ed760"/>
-    <rect x="1076" y="44" width="10" height="76" rx="5" fill="#1ed760"/>
-    <rect x="1096" y="61" width="10" height="42" rx="5" fill="#1ed760"/>
-    <rect x="1116" y="51" width="10" height="62" rx="5" fill="#1ed760"/>
-    <rect x="1136" y="73" width="10" height="18" rx="5" fill="#1ed760"/>
+    <rect x="1016" y="546" width="10" height="24" rx="5" fill="#1ed760"/>
+    <rect x="1036" y="532" width="10" height="52" rx="5" fill="#1ed760"/>
+    <rect x="1056" y="540" width="10" height="36" rx="5" fill="#1ed760"/>
+    <rect x="1076" y="520" width="10" height="76" rx="5" fill="#1ed760"/>
+    <rect x="1096" y="537" width="10" height="42" rx="5" fill="#1ed760"/>
+    <rect x="1116" y="527" width="10" height="62" rx="5" fill="#1ed760"/>
+    <rect x="1136" y="549" width="10" height="18" rx="5" fill="#1ed760"/>
   </g>
-  <text x="76" y="82" fill="#1ed760" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" letter-spacing="4">DARSHIFY</text>
-  <text x="76" y="144" fill="#b3b3b3" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="600" letter-spacing="1">Project case study</text>
-  <text fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="55" font-weight="800" letter-spacing="-1.5"><tspan x="76" y="238">ZautoAI Strategy Consulting</tspan><tspan x="76" y="310">Engagement | Darshify</tspan></text>
-  <rect x="76" y="548" width="1048" height="2" fill="#2a2a2a"/>
-  <text x="76" y="588" fill="#b3b3b3" font-family="Arial, Helvetica, sans-serif" font-size="20">Darshify</text>
+  <text x="72" y="588" fill="#1ed760" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" letter-spacing="4">DARSHIFY</text>
 </svg>

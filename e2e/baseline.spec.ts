@@ -16,22 +16,25 @@ test("primary routes render one visible heading without console errors", async (
   expect(errors).toEqual([]);
 });
 
-test("Home starts the silent Career Mix and close restores the exact launcher", async ({
+test("the always-on player plays This Is Darshil Jain with real controls", async ({
   page,
 }) => {
   await page.goto("/", { waitUntil: "networkidle" });
-  const trigger = page.getByRole("button", { name: "Start Career Mix" });
+  const player = page.getByRole("region", { name: "Player" });
+  await expect(player).toBeVisible();
+  const seek = player.getByRole("slider", { name: "Seek" });
 
-  await trigger.click();
+  await page.getByRole("button", { name: "Play This Is Darshil Jain" }).click();
 
-  await expect(page.getByRole("region", { name: "Career Mix" })).toBeVisible();
-  await expect(page.getByRole("status")).toContainText("Operate. Playing.");
-  await expect(page.getByLabel("Career Mix total progress")).toHaveAttribute(
-    "aria-valuemax",
-    "60000",
-  );
-  await expect(page.getByLabel("Volume")).toHaveCount(0);
-  await page.getByRole("button", { name: "Close Career Mix" }).click();
-
-  await expect(trigger).toBeFocused();
+  await expect(player.getByRole("button", { name: "Pause" })).toBeVisible();
+  await expect(page).toHaveTitle(/ • Darshil Jain$/);
+  await expect
+    .poll(async () => Number(await seek.inputValue()), { timeout: 5000 })
+    .toBeGreaterThan(0);
+  await player.getByRole("button", { name: "Next" }).click();
+  await player.getByRole("slider", { name: "Volume" }).fill("0.3");
+  await player.getByRole("button", { name: "Pause" }).click();
+  await expect(
+    page.getByRole("button", { name: "Play This Is Darshil Jain" }),
+  ).toBeVisible();
 });

@@ -7,6 +7,7 @@ import {
   CANONICAL_SITE_ORIGIN,
   canonicalRouteInventory,
 } from "../src/seo/meta";
+import { buildRobots } from "../src/seo/crawl";
 
 const buildClientDirectory = join(process.cwd(), "build/client");
 
@@ -14,8 +15,9 @@ const fixedRoutes = [
   { path: "/", heading: portfolio.candidate.name },
   { path: "/artist", heading: portfolio.candidate.name },
   { path: "/search", heading: "Search portfolio" },
-  { path: "/library", heading: "Career Library" },
+  { path: "/library", heading: "Your Library" },
   { path: "/liked", heading: "Selected achievements" },
+  { path: "/rewind", heading: "Darshil's Rewind" },
 ] as const;
 
 const prerenderRoutes: ReadonlyArray<{
@@ -23,13 +25,19 @@ const prerenderRoutes: ReadonlyArray<{
   heading: string | RegExp;
 }> = [
   ...fixedRoutes,
-  ...portfolio.collections.map((collection) => ({
-    path: `/playlist/${collection.id}`,
-    heading: collection.title,
-  })),
+  ...portfolio.collections
+    .filter((collection) => collection.id !== "achievements")
+    .map((collection) => ({
+      path: `/playlist/${collection.id}`,
+      heading: collection.title,
+    })),
   ...portfolio.caseStudies.map((caseStudy) => ({
     path: `/case-studies/${caseStudy.slug}`,
     heading: caseStudy.title,
+  })),
+  ...portfolio.genres.map((genre) => ({
+    path: `/genre/${genre.slug}`,
+    heading: genre.skill,
   })),
 ];
 
@@ -80,7 +88,7 @@ test("artifact regression: the build contains the complete independent route inv
     .map((path) => relative(buildClientDirectory, path))
     .sort();
 
-  expect(new Set(expectedDocuments).size).toBe(28);
+  expect(new Set(expectedDocuments).size).toBe(canonicalRouteInventory.length);
   expect(prerenderRoutes.map(({ path }) => path)).toEqual(
     canonicalRouteInventory.map(({ path }) => path),
   );
@@ -165,11 +173,11 @@ test("artifact regression: the build contains the complete independent route inv
       return createHash("sha256").update(asset).digest("hex");
     },
   );
-  expect(new Set(socialCardHashes).size).toBe(28);
+  expect(new Set(socialCardHashes).size).toBe(canonicalRouteInventory.length);
   expect(socialCardBytes).toBeLessThan(2_500_000);
 
   expect(readFileSync(join(buildClientDirectory, "robots.txt"), "utf8")).toBe(
-    `User-agent: *\nAllow: /\n\nSitemap: ${CANONICAL_SITE_ORIGIN}/sitemap.xml\n`,
+    buildRobots(),
   );
   const sitemap = readFileSync(
     join(buildClientDirectory, "sitemap.xml"),
@@ -211,13 +219,20 @@ test.describe("production HTML without JavaScript", () => {
     ).toBeVisible();
     await expect(
       page.getByText(
-        "Built operating visibility and reusable hiring workflows for an Asia team.",
+        "Built the Asia team's project dashboard and a hiring workflow it can reuse.",
         { exact: true },
       ),
     ).toBeVisible();
+    // The song's release is linked from the header; the old hard-coded
+    // "Back to Projects" link (wrong for most songs) is gone.
+    await expect(
+      page
+        .locator("article > header")
+        .getByRole("link", { name: "Experience", exact: true }),
+    ).toHaveAttribute("href", "/playlist/experience");
     await expect(
       page.getByRole("link", { name: "Back to Projects" }),
-    ).toHaveAttribute("href", "/playlist/projects");
+    ).toHaveCount(0);
   });
 
   test("liked alias regression: slash variants serve selected achievements with non-duplicate metadata", async ({
@@ -229,7 +244,7 @@ test.describe("production HTML without JavaScript", () => {
       await expect(
         page.getByRole("heading", { level: 1, name: "Selected achievements" }),
       ).toBeVisible();
-      await expect(page).toHaveTitle("Selected achievements | Darshify");
+      await expect(page).toHaveTitle("Darshil Jain's achievements | Darshify");
     }
   });
 
@@ -252,7 +267,7 @@ test.describe("production HTML without JavaScript", () => {
         page.getByRole("link", { name: "Back to Home" }),
       ).toHaveAttribute("href", "/");
       await expect(
-        page.getByText("Operations Internship at Figmenta"),
+        page.getByRole("main").getByText("Operations Intern at Figmenta"),
       ).toHaveCount(0);
     }
   });
@@ -288,14 +303,15 @@ test("hydration regression: timezone, local storage, and reduced motion do not a
     }),
   ).toBeVisible();
   await expect(page.locator('[data-reduced-motion="true"]')).toBeVisible();
-  await expect(page.getByRole("region", { name: "Career Mix" })).toHaveCount(0);
-  await expect(page.getByLabel("Volume")).toHaveCount(0);
+  // Remembered player preferences apply after hydration, never during it.
+  await expect(page.getByRole("region", { name: "Player" })).toBeVisible();
+  await expect(page.getByRole("slider", { name: "Volume" })).toBeVisible();
   await expect(page.getByLabel("Toggle ambient audio")).toHaveCount(0);
 
   await page.goto("/search", { waitUntil: "networkidle" });
   await expect(page.getByText("Recent searches")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "operations" })).toHaveCount(0);
-  await expect(page.getByRole("searchbox")).toHaveValue("");
+  await expect(page.getByRole("main").getByRole("searchbox")).toHaveValue("");
   expect(consoleErrors).toEqual([]);
   expect(pageErrors).toEqual([]);
   await context.close();
@@ -310,7 +326,7 @@ test("routing regression: internal links retain client-side navigation", async (
   });
 
   await page.goto("/");
-  await page.getByRole("link", { name: "Search", exact: true }).first().click();
+  await page.getByRole("link", { name: "Browse all" }).click();
 
   await expect(page).toHaveURL(/\/search$/);
   await expect(
@@ -318,4 +334,41 @@ test("routing regression: internal links retain client-side navigation", async (
   ).toBeVisible();
   await page.waitForLoadState("networkidle");
   expect(errors).toEqual([]);
+});
+
+test("the awards' old playlist address permanently redirects to /liked", async ({
+  request,
+  page,
+}) => {
+  const response = await request.get("/playlist/achievements", {
+    maxRedirects: 0,
+  });
+  // Permanent either way: the app's loader answers 301, and on Vercel the
+  // vercel.json redirect answers 308 before the app is reached.
+  expect([301, 308]).toContain(response.status());
+  expect(response.headers()["location"]).toBe("/liked");
+
+  await page.goto("/playlist/achievements");
+  // The local static server adds a trailing slash to prerendered folders.
+  await expect(page).toHaveURL(/\/liked\/?$/);
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Selected achievements" }),
+  ).toBeVisible();
+});
+
+test("the server function imports nothing Vercel's file tracing leaves out", () => {
+  // react-router/dom (also reached through react-router-dom) resolves to a
+  // file Vercel doesn't package, so the function crashed on every
+  // server-rendered request: 404 pages answered 500.
+  const serverDirectory = join(process.cwd(), "build/server");
+  const bundles = readdirSync(serverDirectory, { recursive: true })
+    .map(String)
+    .filter((file) => file.endsWith(".js"));
+  expect(bundles.length).toBeGreaterThan(0);
+  for (const file of bundles) {
+    const code = readFileSync(join(serverDirectory, file), "utf8");
+    expect(code, file).not.toMatch(
+      /["']react-router-dom["']|react-router\/dom/,
+    );
+  }
 });

@@ -5,6 +5,7 @@ export default [
   route("artist", "routes/artist.tsx"),
   route("search", "routes/search.tsx"),
   route("library", "routes/library.tsx"),
+  route("rewind", "routes/rewind.tsx"),
   route("playlist/:id", "routes/collection.tsx", {
     id: "routes/collection-playlist",
   }),
@@ -12,5 +13,6 @@ export default [
     id: "routes/collection-liked",
   }),
   route("case-studies/:slug", "routes/case-study.tsx"),
+  route("genre/:slug", "routes/genre.tsx"),
   route("*", "routes/not-found.tsx"),
 ] satisfies RouteConfig;

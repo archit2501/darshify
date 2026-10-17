@@ -1,10 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { portfolio } from "./portfolio";
-import type { EvidenceStatus } from "./types";
+import type { EvidenceStatus, ReleaseType } from "./types";
+import { relativeLuminance } from "./color";
 import { validatePortfolio } from "./validate";
-
-const candidateArtwork = (candidate: typeof portfolio.candidate) =>
-  candidate.profileArtwork;
 
 const expectedFeaturedProofByCaseId: Record<string, string | null> = {
   r1: "figmenta-resumes",
@@ -91,70 +89,19 @@ describe("portfolio content", () => {
     );
   });
 
-  // Regression: a profile cover outside typed content can retain a stale quantitative claim after its canonical proof changes.
-  it("models candidate artwork as an image-backed artifact tied to its canonical proof", () => {
-    const artwork = candidateArtwork(portfolio.candidate);
+  it("publishes no placeholder as a photo and validates a supplied portrait", () => {
+    expect(portfolio.candidate.portrait).toBeNull();
 
-    expect(artwork).toEqual({
-      artifactId: "darshil-profile-square",
-      proofId: "figmenta-resumes",
-    });
-
-    if (!artwork) return;
-    const artifact = portfolio.artifacts.find(
-      (item) => item.id === artwork.artifactId,
-    );
-    const proof = portfolio.proofPoints.find(
-      (item) => item.id === artwork.proofId,
-    );
-
-    expect(artifact?.image?.src).toBe("/artifacts/profile-square.svg");
-    expect(artifact?.sourceIds).toEqual(["darshil-resume"]);
-    expect(artifact?.provenance).toContain("500+ résumés");
-    expect(proof?.value).toBe(500);
-    expect(proof?.unit).toBe("+ résumés");
-  });
-
-  it("rejects unresolved or differently sourced candidate artwork evidence", () => {
-    const missingArtifact = structuredClone(portfolio);
-    missingArtifact.candidate.profileArtwork = {
-      artifactId: "missing-artifact",
-      proofId: "figmenta-resumes",
+    const withPortrait = structuredClone(portfolio);
+    withPortrait.candidate.portrait = {
+      dominantColor: "#fafafa",
+      variants: [],
     };
+    const errors = validatePortfolio(withPortrait);
 
-    expect(validatePortfolio(missingArtifact)).toContain(
-      "Candidate profile artwork references unknown artifact missing-artifact",
-    );
-
-    const missingProof = structuredClone(portfolio);
-    const missingProofArtwork = candidateArtwork(missingProof.candidate);
-    expect(missingProofArtwork).toBeDefined();
-    if (!missingProofArtwork) return;
-    missingProofArtwork.proofId = "missing-proof";
-
-    expect(validatePortfolio(missingProof)).toContain(
-      "Candidate profile artwork references unknown proof missing-proof",
-    );
-
-    const differentlySourced = structuredClone(portfolio);
-    const artwork = candidateArtwork(differentlySourced.candidate);
-    expect(artwork).toBeDefined();
-    if (!artwork) return;
-    const artworkArtifact = differentlySourced.artifacts.find(
-      (item) => item.id === artwork.artifactId,
-    );
-    expect(artworkArtifact).toBeDefined();
-    if (!artworkArtifact) return;
-    artworkArtifact.sourceIds = ["different-source"];
-    differentlySourced.sources.push({
-      id: "different-source",
-      title: "Different source",
-      kind: "public-link",
-      note: "A real but unrelated source.",
-    });
-
-    expect(validatePortfolio(differentlySourced)).toContain(
-      "Candidate profile artwork darshil-profile-square and proof figmenta-resumes must share an evidence source",
+    expect(errors).toContain("Candidate portrait has no image variants");
+    expect(errors).toContain(
+      "Candidate portrait colour #fafafa is too light for white text",
     );
   });
 
@@ -167,12 +114,12 @@ describe("portfolio content", () => {
     );
   });
 
-  it("requires a typed secondary release label for every collection", () => {
+  it("requires a supported release type for every collection", () => {
     const invalid = structuredClone(portfolio);
-    invalid.collections[0].themedLabel = "";
+    invalid.collections[0].releaseType = "Mixtape" as ReleaseType;
 
     expect(validatePortfolio(invalid)).toContain(
-      "Collection experience is missing a themed release label",
+      "Collection this-is-darshil-jain has unsupported release type Mixtape",
     );
   });
 
@@ -218,7 +165,6 @@ describe("portfolio content", () => {
     invalid.caseStudies[0].relatedIds.push("missing-related");
     invalid.collections[0].caseStudyIds.push("missing-case");
     invalid.collections[1].slug = invalid.collections[0].slug;
-    invalid.careerMixChapters[0].caseStudyIds.push("missing-chapter-case");
     invalid.artifacts[0].alt = "";
     invalid.artifacts[0].provenance = "";
     invalid.artifacts[0].sourceIds = ["missing-artifact-source"];
@@ -251,10 +197,7 @@ describe("portfolio content", () => {
       "Case study r1 references unknown related case study missing-related",
     );
     expect(errors).toContain(
-      "Collection experience references unknown case study missing-case",
-    );
-    expect(errors).toContain(
-      "Career mix chapter operate references unknown case study missing-chapter-case",
+      "Collection this-is-darshil-jain references unknown case study missing-case",
     );
     expect(errors).toContain("Artifact darshil-resume-pdf is missing alt text");
     expect(errors).toContain(
@@ -264,7 +207,7 @@ describe("portfolio content", () => {
       "Artifact darshil-resume-pdf references unknown source missing-artifact-source",
     );
     expect(errors).toContain(
-      "Proof point figmenta-projects is missing a period",
+      "Proof point figmenta-projects has an empty period",
     );
     expect(errors).toContain(
       "Proof point figmenta-projects references unknown source missing-proof-source",
@@ -283,6 +226,107 @@ describe("portfolio content", () => {
     );
     expect(errors).toContain(
       "Proof point figmenta-team-members is missing a source",
+    );
+  });
+});
+
+describe("honest-fidelity content", () => {
+  const visibleCopy = JSON.stringify([
+    portfolio.candidate.headline,
+    portfolio.candidate.summary,
+    portfolio.candidate.bio,
+    portfolio.candidate.faq,
+    portfolio.caseStudies,
+    portfolio.collections.map(({ title, description }) => [title, description]),
+    portfolio.proofPoints.map(({ display, label, summary }) => [
+      display,
+      label,
+      summary,
+    ]),
+  ]);
+
+  it("passes validation with no errors", () => {
+    expect(validatePortfolio(portfolio)).toEqual([]);
+  });
+
+  it.each([
+    "paid strategy consulting engagement",
+    "IIHMR Saamarthya 5.0",
+    "13th National Business Plan Championship",
+    "0 to 80+ members in 10 months",
+    "largest management fest",
+    "industry leaders and startup founders",
+    "A/B testing",
+    "Janakpuri, Delhi",
+    "letter of recommendation",
+  ])("carries the résumé fact %j", (fact) => {
+    expect(visibleCopy.toLowerCase()).toContain(fact.toLowerCase());
+  });
+
+  it("never hedges each claim with the résumé or prints a missing date", () => {
+    expect(visibleCopy).not.toMatch(
+      /résumé reports|Résumé-listed|Date not listed|self-reported through|independently verified/i,
+    );
+  });
+
+  it("formats values the way people say them", () => {
+    const display = (id: string) =>
+      portfolio.proofPoints.find((proof) => proof.id === id)?.display;
+    expect(display("iitg-participant-percentile")).toBe("Top 10%");
+    expect(display("product-decode-rank")).toBe("4th");
+    expect(display("converge-sponsorship")).toBe("₹50,000+");
+    expect(display("bba-cgpa")).toBe("9.39");
+  });
+
+  it("keeps every release, song and genre colour dark enough for white text", () => {
+    const colours = [
+      ...portfolio.collections.map((item) => item.color),
+      ...portfolio.caseStudies.map((item) => item.color),
+      ...portfolio.genres.map((item) => item.color),
+    ];
+    for (const colour of colours) {
+      expect(relativeLuminance(colour)).toBeLessThanOrEqual(0.18);
+    }
+  });
+
+  it("gives every skill exactly one genre", () => {
+    expect(portfolio.genres.map((genre) => genre.skill).sort()).toEqual(
+      [...portfolio.candidate.skills].sort(),
+    );
+  });
+
+  it("rejects hedging copy, light colours, bad dates and missing lyrics", () => {
+    const invalid = structuredClone(portfolio);
+    invalid.caseStudies[0].result = "The résumé reports improved visibility.";
+    invalid.caseStudies[0].color = "#a0e0b0";
+    invalid.caseStudies[0].start = "2026-13";
+    invalid.caseStudies[1].lyrics = ["Only one line"];
+    invalid.caseStudies[1].start = "2025-08";
+    invalid.caseStudies[1].end = "2025-06";
+    invalid.collections[1].description = "Date not listed in résumé";
+    invalid.genres[0].color = "#ffffff";
+    invalid.genres[1].skill = "Juggling";
+    invalid.candidate.faq = [];
+
+    const errors = validatePortfolio(invalid);
+
+    expect(errors).toContain("Case study r1 uses hedging copy");
+    expect(errors).toContain(
+      "Case study r1 colour #a0e0b0 is too light for white text",
+    );
+    expect(errors).toContain("Case study r1 has an invalid start date");
+    expect(errors).toContain("Case study r2 needs 2-6 lyric lines");
+    expect(errors).toContain("Case study r2 ends before it starts");
+    expect(errors).toContain("Collection experience uses hedging copy");
+    expect(errors).toContain(
+      "Genre market-research colour #ffffff is too light for white text",
+    );
+    expect(errors).toContain(
+      "Genre competitive-analysis is not one of the candidate's skills",
+    );
+    expect(errors).toContain("Skill Competitive Analysis has no genre");
+    expect(errors).toContain(
+      "Candidate needs a bio and answer-first questions",
     );
   });
 });

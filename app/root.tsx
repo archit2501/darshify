@@ -9,7 +9,8 @@ import {
   type LinksFunction,
 } from "react-router";
 import "../src/index.css";
-import { CareerMixProvider } from "../src/career-mix/CareerMixContext";
+import figtreeLatin from "@fontsource-variable/figtree/files/figtree-latin-wght-normal.woff2?url";
+import { PlayerProvider } from "../src/player/PlayerProvider";
 import { AppShell } from "../src/shell/AppShell";
 import { ToastProvider } from "../src/shell/Toast";
 import {
@@ -18,7 +19,17 @@ import {
 } from "../src/analytics/outcomes";
 
 export const links: LinksFunction = () => [
+  {
+    rel: "preload",
+    href: figtreeLatin,
+    as: "font",
+    type: "font/woff2",
+    crossOrigin: "anonymous",
+  },
+  { rel: "icon", href: "/favicon.ico", sizes: "32x32 48x48" },
   { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
+  { rel: "apple-touch-icon", href: "/icons/apple-touch-icon.png" },
+  { rel: "manifest", href: "/manifest.webmanifest" },
 ];
 
 function HydrationMarker() {
@@ -52,7 +63,10 @@ export function Layout({ children }: { children: ReactNode }) {
     <html lang="en">
       <head>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, viewport-fit=cover"
+        />
         <meta name="theme-color" content="#000000" />
         <Meta />
         <Links />
@@ -70,11 +84,11 @@ export default function Root() {
   return (
     <>
       <ProductionAnalytics />
-      <CareerMixProvider>
+      <PlayerProvider>
         <ToastProvider>
           <AppShell />
         </ToastProvider>
-      </CareerMixProvider>
+      </PlayerProvider>
       <HydrationMarker />
     </>
   );

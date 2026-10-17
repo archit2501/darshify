@@ -33,10 +33,13 @@ for (const viewport of viewports) {
       page.getByText(portfolio.candidate.headline),
       page.getByText(portfolio.candidate.summary),
       page.getByRole("group", { name: "Featured recruiter proof" }),
-      page.getByRole("link", { name: "Download CV", exact: true }),
-      page.getByRole("link", { name: "Email", exact: true }),
-      page.getByRole("link", { name: "LinkedIn", exact: true }),
-      page.getByRole("button", { name: "Start Career Mix" }),
+      ...["Download CV", "Email", "LinkedIn"].map((name) =>
+        page
+          .getByRole("group", { name: `Contact ${portfolio.candidate.name}` })
+          .first()
+          .getByRole("link", { name, exact: true }),
+      ),
+      page.getByRole("button", { name: "Play This Is Darshil Jain" }),
     ];
 
     for (const item of firstView) await expectEntirelyInViewport(page, item);
@@ -51,7 +54,7 @@ for (const viewport of viewports) {
     }
     await expect(
       evidenceList.getByRole("link", {
-        name: /Projects tracked.*35\+ projects.*Jan 2026.*Darshil Jain résumé.*self-reported/i,
+        name: /projects tracked.*35\+.*Jan 2026.*Darshil Jain résumé.*self-reported/i,
       }),
     ).toBeVisible();
 
@@ -60,10 +63,12 @@ for (const viewport of viewports) {
     });
     await expect(contact).toHaveCount(1);
 
-    await page.getByRole("button", { name: "Start Career Mix" }).focus();
+    await page
+      .getByRole("button", { name: "Play This Is Darshil Jain" })
+      .focus();
     await page.keyboard.press("Enter");
     await expect(
-      page.getByRole("region", { name: "Career Mix" }),
+      page.getByRole("button", { name: "Pause This Is Darshil Jain" }),
     ).toBeVisible();
   });
 }

@@ -1,9 +1,9 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter } from "react-router";
 import { portfolio } from "../content/portfolio";
-import { artifactById } from "../content/selectors";
 import { RecruiterHero } from "./RecruiterHero";
+import { PlayerProvider } from "../player/PlayerProvider";
 
 beforeEach(() => {
   vi.stubGlobal("matchMedia", (query: string) => ({
@@ -22,15 +22,12 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe("RecruiterHero", () => {
   it("presents the candidate, proposition, sourced proof, and every first-view conversion", () => {
-    const onStartCareerMix = vi.fn();
-
     render(
-      <MemoryRouter>
-        <RecruiterHero
-          greeting="Good morning"
-          onStartCareerMix={onStartCareerMix}
-        />
-      </MemoryRouter>,
+      <PlayerProvider createAudio={() => null}>
+        <MemoryRouter>
+          <RecruiterHero />
+        </MemoryRouter>
+      </PlayerProvider>,
     );
 
     expect(
@@ -45,8 +42,8 @@ describe("RecruiterHero", () => {
     const proof = screen.getByRole("group", {
       name: "Featured recruiter proof",
     });
-    expect(within(proof).getByText("500+ résumés")).toBeVisible();
-    expect(within(proof).getByText("Résumés screened")).toBeVisible();
+    expect(within(proof).getByText("500+")).toBeVisible();
+    expect(within(proof).getByText("résumés screened")).toBeVisible();
     expect(within(proof).getByText("Darshil Jain résumé")).toBeVisible();
     expect(within(proof).getByText("Jan 2026 – Feb 2026")).toBeVisible();
     expect(within(proof).getByText("self-reported")).toBeVisible();
@@ -64,32 +61,29 @@ describe("RecruiterHero", () => {
       portfolio.candidate.linkedInUrl,
     );
 
-    const trigger = screen.getByRole("button", {
-      name: "Start Career Mix",
-    });
-    fireEvent.click(trigger);
-    expect(onStartCareerMix).toHaveBeenCalledWith(trigger);
-    expect(screen.getByText("Good morning")).toHaveClass("sr-only");
+    fireEvent.click(
+      screen.getByRole("button", { name: "Play This Is Darshil Jain" }),
+    );
+    expect(
+      screen.getByRole("button", { name: "Pause This Is Darshil Jain" }),
+    ).toBeVisible();
   });
 
   it("renders the candidate artwork, proof cover, and compact proof waveform", () => {
     render(
-      <MemoryRouter>
-        <RecruiterHero greeting="Hello" onStartCareerMix={() => undefined} />
-      </MemoryRouter>,
+      <PlayerProvider createAudio={() => null}>
+        <MemoryRouter>
+          <RecruiterHero />
+        </MemoryRouter>
+      </PlayerProvider>,
     );
 
-    const artwork = portfolio.candidate.profileArtwork;
-    const artifact = artifactById(artwork.artifactId);
-    expect(artifact).toBeDefined();
-    if (!artifact?.image) return;
-    expect(screen.getByRole("img", { name: artifact.alt })).toHaveAttribute(
-      "src",
-      artifact.image.src,
-    );
+    const cover = document.querySelector('[data-cover="darshil-jain"] img');
+    expect(cover).toHaveAttribute("src", "/covers/artist.svg");
+    expect(cover).toHaveAttribute("alt", "");
     expect(
       screen.getByRole("img", {
-        name: /Darshil Jain's résumé containing education/i,
+        name: /Darshil Jain's one-page résumé covering education/i,
       }),
     ).toBeInTheDocument();
     const waveform = screen.getByRole("region", {
@@ -105,7 +99,7 @@ describe("RecruiterHero", () => {
     expect(within(evidence).getAllByRole("link")).toHaveLength(3);
     expect(
       within(evidence).getByRole("link", {
-        name: /Projects tracked.*35\+ projects.*Jan 2026.*Darshil Jain résumé.*self-reported/i,
+        name: /projects tracked.*35\+.*Jan 2026.*Darshil Jain résumé.*self-reported/i,
       }),
     ).toBeInTheDocument();
   });

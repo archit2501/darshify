@@ -18,18 +18,20 @@ test("mobile search is labelled, does not steal focus, and exposes stable groupe
     page.getByRole("region", { name: "Achievements" }),
   ).toBeVisible();
   await expect(page.getByRole("region", { name: "Skills" })).toBeVisible();
-  await expect(page.getByRole("status")).toContainText("matches for");
+  await expect(page.getByRole("main").getByRole("status")).toContainText(
+    "matches for",
+  );
   await expect(
     page.getByRole("region", { name: "Projects" }),
   ).not.toHaveAttribute("aria-live");
   await expect(
     page.getByRole("link", {
-      name: "Read ZautoAI Strategy Consulting Engagement",
+      name: "Read Strategy Consulting for ZautoAI",
     }),
   ).toHaveAttribute("href", "/case-studies/zautoai-strategy-consulting");
 
   await search.fill("definitely absent");
-  await expect(page.getByRole("status")).toContainText(
+  await expect(page.getByRole("main").getByRole("status")).toContainText(
     "No results for “definitely absent”",
   );
 });
@@ -38,13 +40,13 @@ test("category identity and result groups do not leak shared résumé prose", as
   page,
 }) => {
   await page.goto("/search", { waitUntil: "networkidle" });
-  const search = page.getByRole("searchbox");
+  const search = page.getByRole("main").getByRole("searchbox");
 
   const cases: Array<[string, string, string]> = [
-    ["projects", "Projects", "ZautoAI Strategy Consulting Engagement"],
-    ["leadership", "Leadership", "Founder and President of Igniters Club"],
+    ["projects", "Projects", "Strategy Consulting for ZautoAI"],
+    ["leadership", "Leadership", "Founder & President, Igniters Club"],
     ["certifications", "Certifications", "Winter Consulting Program"],
-    ["education", "Education", "BBA in Business and Industry"],
+    ["education", "Education", "BBA (Business & Industry)"],
   ];
 
   for (const [query, group, title] of cases) {
@@ -68,9 +70,9 @@ test("Career Library filters and A–Z sort remain keyboard operable on mobile",
   await page.goto("/library", { waitUntil: "networkidle" });
 
   await expect(
-    page.getByRole("heading", { level: 1, name: "Career Library" }),
+    page.getByRole("heading", { level: 1, name: "Your Library" }),
   ).toBeVisible();
-  const projects = page.getByRole("button", { name: "Projects" });
+  const projects = page.getByRole("button", { name: "Projects", exact: true });
   await projects.focus();
   await page.keyboard.press("Enter");
   await expect(projects).toHaveAttribute("aria-pressed", "true");
@@ -93,8 +95,9 @@ test("Career Library filters and A–Z sort remain keyboard operable on mobile",
 
 test("search does not persist raw recruiter queries", async ({ page }) => {
   await page.goto("/search");
-  await page.getByRole("searchbox").fill("confidential recruiter query");
-  await page.getByRole("searchbox").press("Enter");
+  const field = page.getByRole("main").getByRole("searchbox");
+  await field.fill("confidential recruiter query");
+  await field.press("Enter");
 
   const storage = await page.evaluate(() => ({ ...localStorage }));
   expect(JSON.stringify(storage)).not.toContain("confidential recruiter query");

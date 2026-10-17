@@ -20,7 +20,7 @@ const allEvents: OutcomeEvent[] = [
   "linkedin_open",
   "case_study_open",
   "evidence_open",
-  "career_mix_complete",
+  "song_play",
 ];
 
 describe("privacy-safe outcome analytics", () => {
@@ -40,7 +40,7 @@ describe("privacy-safe outcome analytics", () => {
     );
 
     expect(transport).toHaveBeenCalledTimes(6);
-    expect(transport).toHaveBeenLastCalledWith("career_mix_complete", {
+    expect(transport).toHaveBeenLastCalledWith("song_play", {
       routeId: "case-study:r1",
       caseStudyId: "r1",
       evidenceId: "figmenta-resumes",

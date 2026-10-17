@@ -5,22 +5,22 @@ import { CANONICAL_SITE_ORIGIN } from "../src/seo/meta";
 const caseStudyPath = (slug: string) => `/case-studies/${slug}`;
 
 const expectedFeaturedProofByCaseId: Record<string, string | undefined> = {
-  r1: "500+ résumés",
-  r2: "70+ clients",
-  r3: "500+ profiles",
+  r1: "500+",
+  r2: "70+",
+  r3: "500+",
   p1: undefined,
-  p2: "10 top percent",
+  p2: "Top 10%",
   p3: undefined,
-  p4: "5+ metrics",
-  l1: "1,000+ participants",
+  p4: "5+",
+  l1: "1,000+",
   a1: undefined,
-  a2: "4 position",
+  a2: "4th",
   a3: undefined,
-  a4: "10 top percent",
-  e1: "9.39 CGPA",
+  a4: "Top 10%",
+  e1: "9.39",
   e2: "88%",
   c1: undefined,
-  c2: "10 top percent",
+  c2: "Top 10%",
   c3: undefined,
 };
 
@@ -82,7 +82,7 @@ test.describe("shareable evidence-rich case studies", () => {
           );
         }
         await expect(
-          page.getByRole("link", { name: "Open source artifact" }),
+          page.getByRole("link", { name: "Open source artifact" }).first(),
         ).toHaveAttribute("href", portfolio.candidate.resumeUrl);
         await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
           "href",
@@ -90,7 +90,7 @@ test.describe("shareable evidence-rich case studies", () => {
         );
         await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
           "content",
-          `${caseStudy.title} | Darshify`,
+          `${caseStudy.title} — Darshil Jain | Darshify`,
         );
         const structuredData = await page
           .locator('script[type="application/ld+json"]')
@@ -116,9 +116,11 @@ test.describe("shareable evidence-rich case studies", () => {
       await expect(
         page.getByRole("link", { name: "Browse Projects" }),
       ).toHaveAttribute("href", "/playlist/projects");
-      await expect(page.getByText(portfolio.caseStudies[0].title)).toHaveCount(
-        0,
-      );
+      // The player bar is app chrome and may be cued to any song; the
+      // page itself must not fall back to case-study content.
+      await expect(
+        page.getByRole("main").getByText(portfolio.caseStudies[0].title),
+      ).toHaveCount(0);
     });
   });
 
@@ -138,19 +140,22 @@ test.describe("shareable evidence-rich case studies", () => {
         });
 
         const header = page.locator("article > header");
-        await expect(header).toContainText(caseStudy.recruiterTakeaway);
+        await expect(header).toContainText(caseStudy.tagline);
         await expect(header).toContainText(caseStudy.result);
         await expect(header).toContainText("Darshil Jain résumé");
         await expect(header).toContainText("self-reported");
 
         const headerBounds = await header.boundingBox();
         expect(headerBounds, caseStudy.slug).not.toBeNull();
+        // On phones the mini player and tab bar cover the bottom of the screen.
+        const visibleBottom =
+          viewport.label === "mobile"
+            ? (await page.locator(".app-bar").boundingBox())!.y
+            : viewport.height;
         expect(
           headerBounds!.y + headerBounds!.height,
           caseStudy.slug,
-        ).toBeLessThanOrEqual(
-          viewport.height - (viewport.label === "mobile" ? 64 : 0),
-        );
+        ).toBeLessThanOrEqual(visibleBottom);
       }
     });
   }
@@ -163,7 +168,7 @@ test.describe("shareable evidence-rich case studies", () => {
     for (const caseStudy of portfolio.caseStudies) {
       await page.goto(caseStudyPath(caseStudy.slug));
       const related = page.getByRole("region", {
-        name: "Related case studies",
+        name: "More like this",
       });
       const expectedIds = expectedRelatedCaseIds[caseStudy.id];
       await expect(related.getByRole("link")).toHaveCount(expectedIds.length);

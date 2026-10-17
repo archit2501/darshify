@@ -7,6 +7,13 @@ import sharp from "sharp";
 import { describe, expect, it } from "vitest";
 import { prerenderPaths } from "../../react-router.config";
 import {
+  buildLlmsFullTxt,
+  buildLlmsTxt,
+  buildRobots,
+  buildSitemap,
+} from "./crawl";
+import { portfolio } from "../content/portfolio";
+import {
   CANONICAL_SITE_ORIGIN,
   buildRouteMeta,
   canonicalRouteInventory,
@@ -21,8 +28,16 @@ const descriptor = (
   ) as Record<string, unknown> | undefined;
 
 describe("canonical route metadata", () => {
-  it("gives all 28 prerendered documents unique absolute discovery metadata", () => {
-    expect(canonicalRouteInventory).toHaveLength(28);
+  it("gives every prerendered document unique absolute discovery metadata", () => {
+    // Six fixed routes, every release except the awards (canonical at
+    // /liked), every song and every skill.
+    expect(canonicalRouteInventory.length).toBe(
+      6 +
+        portfolio.collections.length -
+        1 +
+        portfolio.caseStudies.length +
+        portfolio.genres.length,
+    );
     expect(canonicalRouteInventory.map(({ path }) => path)).toEqual(
       prerenderPaths,
     );
@@ -65,6 +80,7 @@ describe("canonical route metadata", () => {
       search: "Evidence search",
       library: "Career library",
       liked: "Selected achievements",
+      rewind: "Year in review",
     } as const;
     let totalBytes = 0;
     const pixelHashes: Array<Promise<string>> = [];
@@ -87,7 +103,9 @@ describe("canonical route metadata", () => {
           ? `Evidence collection · ${meta.collection.title}`
           : meta.kind === "case-study"
             ? `${meta.caseStudy.kind[0].toUpperCase()}${meta.caseStudy.kind.slice(1)} case study`
-            : fixedCategory[meta.kind];
+            : meta.kind === "genre"
+              ? `Skill · ${meta.genre.skill}`
+              : fixedCategory[meta.kind];
       const embeddedIdentity = asset.toString("utf8");
 
       expect(imageUrl.search).toBe("");
@@ -111,13 +129,15 @@ describe("canonical route metadata", () => {
       return createHash("sha256").update(asset).digest("hex");
     });
 
-    expect(new Set(hashes)).toHaveLength(28);
-    expect(new Set(await Promise.all(pixelHashes))).toHaveLength(28);
+    expect(new Set(hashes)).toHaveLength(canonicalRouteInventory.length);
+    expect(new Set(await Promise.all(pixelHashes))).toHaveLength(
+      canonicalRouteInventory.length,
+    );
     expect(
       readdirSync("public/social-cards").filter((file) =>
         file.endsWith(".png"),
       ),
-    ).toHaveLength(28);
+    ).toHaveLength(canonicalRouteInventory.length);
     expect(totalBytes).toBeLessThan(2_500_000);
   });
 
@@ -134,7 +154,7 @@ describe("canonical route metadata", () => {
       .filter((file) => file.endsWith(".svg"))
       .map((file) => readFileSync(join(sourceDirectory!, file), "utf8"));
 
-    expect(sources).toHaveLength(28);
+    expect(sources).toHaveLength(canonicalRouteInventory.length);
     sources.forEach((source) => {
       expect(source).toContain('data-motif="proof-wave"');
       const hasGreenCircle = /<circle[^>]+fill="#1ed760"/i.test(source);
@@ -189,8 +209,14 @@ describe("canonical route metadata", () => {
       ),
     );
 
-    expect(readFileSync("public/robots.txt", "utf8")).toBe(
-      `User-agent: *\nAllow: /\n\nSitemap: ${CANONICAL_SITE_ORIGIN}/sitemap.xml\n`,
+    expect(readFileSync("public/robots.txt", "utf8")).toBe(buildRobots());
+    expect(readFileSync("public/llms.txt", "utf8")).toBe(buildLlmsTxt());
+    expect(readFileSync("public/llms-full.txt", "utf8")).toBe(
+      buildLlmsFullTxt(),
+    );
+    expect(readFileSync("public/sitemap.xml", "utf8")).toBe(buildSitemap());
+    expect(buildRobots()).toContain(
+      `Sitemap: ${CANONICAL_SITE_ORIGIN}/sitemap.xml`,
     );
   });
 });

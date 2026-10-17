@@ -56,8 +56,8 @@ vi.mock("../src/shell/AppShell", async () => {
   };
 });
 
-vi.mock("../src/career-mix/CareerMixContext", () => ({
-  CareerMixProvider: ({ children }: { children: ReactNode }) => children,
+vi.mock("../src/player/PlayerProvider", () => ({
+  PlayerProvider: ({ children }: { children: ReactNode }) => children,
 }));
 
 vi.mock("../src/shell/Toast", () => ({

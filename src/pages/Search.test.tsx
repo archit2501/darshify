@@ -1,12 +1,15 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter } from "react-router";
 import { describe, expect, it, vi } from "vitest";
 import SearchRoute, { meta } from "../../app/routes/search";
+import { PlayerProvider } from "../player/PlayerProvider";
 
 const renderSearch = () =>
   render(
     <MemoryRouter>
-      <SearchRoute />
+      <PlayerProvider createAudio={() => null}>
+        <SearchRoute />
+      </PlayerProvider>
     </MemoryRouter>,
   );
 
@@ -14,7 +17,7 @@ describe("Search professional discovery", () => {
   it("publishes professional discovery route metadata", () => {
     expect(meta({} as Parameters<typeof meta>[0])).toEqual(
       expect.arrayContaining([
-        { title: "Search professional evidence | Darshify" },
+        { title: "Search Darshil Jain's work | Darshify" },
       ]),
     );
   });
@@ -33,25 +36,25 @@ describe("Search professional discovery", () => {
   });
 
   it.each([
-    ["organization", "Figmenta", "Operations Internship at Figmenta"],
-    ["skill", "Microsoft Excel", "Operations Internship at Figmenta"],
-    ["situation", "team transition", "Operations Internship at PSR Compliance"],
+    ["organization", "Figmenta", "Operations Intern at Figmenta"],
+    ["skill", "Microsoft Excel", "Operations Intern at Figmenta"],
+    ["situation", "team transition", "Operations Intern at PSR Compliance"],
     [
       "action",
       "behavioral nudges",
-      "Telemedicine Consulting and Analytics Capstone",
+      "Consulting & Analytics Capstone, IIT Guwahati",
     ],
     [
       "result",
       "publication-ready",
       "Haldiram's International Expansion Strategy",
     ],
-    ["takeaway", "operating visibility", "Operations Internship at Figmenta"],
     [
-      "source",
-      "Candidate-authored source",
-      "Operations Internship at Figmenta",
+      "tagline",
+      "hiring workflow it can reuse",
+      "Operations Intern at Figmenta",
     ],
+    ["source", "one-page résumé", "Operations Intern at Figmenta"],
   ])("matches %s evidence deterministically", (_field, query, title) => {
     renderSearch();
     fireEvent.change(screen.getByRole("searchbox"), {
@@ -80,20 +83,20 @@ describe("Search professional discovery", () => {
     const projects = screen.getByRole("region", { name: "Projects" });
     expect(
       within(projects).getByRole("link", {
-        name: "Read ZautoAI Strategy Consulting Engagement",
+        name: "Read Strategy Consulting for ZautoAI",
       }),
     ).toHaveAttribute("href", "/case-studies/zautoai-strategy-consulting");
 
     const skills = screen.getByRole("region", { name: "Skills" });
     expect(
       within(skills).getByRole("link", { name: "Explore Strategic Analysis" }),
-    ).toHaveAttribute("href", "/playlist/skills");
+    ).toHaveAttribute("href", "/genre/strategic-analysis");
   });
 
   it("keeps education and certifications out of Achievements", () => {
     renderSearch();
     fireEvent.change(screen.getByRole("searchbox"), {
-      target: { value: "candidate-authored source" },
+      target: { value: "one-page résumé" },
     });
 
     const achievements = screen.getByRole("region", { name: "Achievements" });
@@ -104,17 +107,17 @@ describe("Search professional discovery", () => {
 
     expect(
       within(achievements).getByRole("heading", {
-        name: "BPlan Showdown Winner",
+        name: "Winner, BPlan Showdown",
       }),
     ).toBeVisible();
     expect(
       within(achievements).queryByRole("heading", {
-        name: "BBA in Business and Industry",
+        name: "BBA (Business & Industry)",
       }),
     ).not.toBeInTheDocument();
     expect(
       within(education).getByRole("heading", {
-        name: "BBA in Business and Industry",
+        name: "BBA (Business & Industry)",
       }),
     ).toBeVisible();
     expect(

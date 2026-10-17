@@ -1,122 +1,591 @@
 @font-face {
-  font-family: "Archivo Variable";
+  font-family: "Figtree Variable";
   font-style: normal;
   font-display: swap;
-  font-weight: 400 900;
-  src: url("@fontsource-variable/archivo/files/archivo-latin-wght-normal.woff2")
+  font-weight: 300 900;
+  src: url("@fontsource-variable/figtree/files/figtree-latin-wght-normal.woff2")
     format("woff2-variations");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
 }
 
+/* Figtree's rupee sign, alone (1 KB, scripts/subset-rupee-font.py): the
+   only character the site uses from the 10 KB latin-ext file. */
 @font-face {
-  font-family: "IBM Plex Mono";
+  font-family: "Figtree Variable";
   font-style: normal;
   font-display: swap;
-  font-weight: 500;
-  src: url("@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-500-normal.woff2")
-    format("woff2");
+  font-weight: 300 900;
+  src: url("./fonts/figtree-rupee-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+20B9;
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-html,
-body,
-#root {
-  margin: 0;
-  min-height: 100%;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  min-width: 20rem;
-  background: var(--color-ink);
-  color: var(--color-text);
-  font-family: "Archivo Variable", system-ui, sans-serif;
-  font-size: var(--type-body);
-  line-height: var(--line-height-body);
-  overflow: hidden;
-  text-rendering: optimizeLegibility;
-}
-
-button,
-input,
-select,
-textarea {
-  font: inherit;
-}
-
-:where(a, button, [role="button"], input, select, textarea) {
-  min-block-size: var(--target-min);
-  min-inline-size: var(--target-min);
-}
-
-:where(a, button, input, select, textarea, [tabindex]):focus-visible {
-  outline: var(--focus-ring-width) solid var(--focus-ring-color);
-  outline-offset: var(--focus-ring-offset);
-  box-shadow: 0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width))
-    var(--focus-ring-offset-color);
-}
-
-[data-route-heading]:focus {
-  outline: var(--focus-ring-width) solid var(--focus-ring-color);
-  outline-offset: var(--focus-ring-offset);
-  box-shadow: 0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width))
-    var(--focus-ring-offset-color);
-}
-
-.evidence-metadata {
-  font-family: "IBM Plex Mono", ui-monospace, monospace;
-  font-size: var(--type-metadata);
-  font-variant-numeric: tabular-nums;
-  font-weight: 500;
-}
-
-.reading-measure {
-  inline-size: min(100%, var(--measure-reading-max));
-}
-
-.interactive-target {
-  min-block-size: var(--target-min);
-  min-inline-size: var(--target-min);
-}
-
-::-webkit-scrollbar {
-  width: 0.75rem;
-}
-
-::-webkit-scrollbar-thumb {
-  border: 0.1875rem solid transparent;
-  border-radius: 999px;
-  background: var(--color-line);
-  background-clip: content-box;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
+/*
+ * Base and component layers sit below Tailwind utilities, so a utility class
+ * on an element always wins over these defaults.
+ */
+@layer base {
   *,
   *::before,
   *::after {
-    animation-delay: 0ms !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-delay: 0ms !important;
-    transition-duration: 0.01ms !important;
+    box-sizing: border-box;
   }
 
-  [data-motion-transform] {
-    transform: none !important;
+  html {
+    background: var(--color-app);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    min-width: 20rem;
+    min-height: 100dvh;
+    background: var(--color-app);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: rgb(30 215 96 / 0.35);
+    color: var(--color-fg);
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+
+  img,
+  svg {
+    display: block;
+  }
+
+  :where(h1, h2, h3, p) {
+    text-wrap: pretty;
+  }
+
+  :where(h1, h2) {
+    text-wrap: balance;
+    /* A long word in a display title breaks rather than pushing a narrow
+       phone sideways ("Entrepreneurship" at 320px). */
+    overflow-wrap: break-word;
+  }
+
+  @media (max-width: 767px) {
+    /* Focus and in-page links scroll clear of the floating top row and the
+       mini player and tabs, never under them (WCAG 2.4.11). */
+    html {
+      scroll-padding-block: var(--page-top) var(--chrome-bottom);
+    }
+
+    :where(h1) {
+      -webkit-hyphens: auto;
+      hyphens: auto;
+    }
+  }
+
+  .interactive-target {
+    min-block-size: var(--target-min);
+    min-inline-size: var(--target-min);
+  }
+
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible,
+  [data-route-heading]:focus {
+    outline: 2px solid var(--color-fg);
+    outline-offset: 2px;
   }
 }
 
-[data-reduced-motion="true"] [data-motion-transform] {
-  transform: none !important;
+@layer components {
+  /* App frame: the desktop player's grid from 768px, a scrolling page below. */
+  .app-frame {
+    min-height: 100dvh;
+    background: var(--color-app);
+  }
+
+  .app-main {
+    position: relative;
+    min-width: 0;
+    background: var(--color-surface);
+    /* Clears the mini player and tab bar pinned to the bottom. */
+    padding-bottom: var(--chrome-bottom);
+  }
+
+  .app-bar {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 40;
+  }
+
+  /* Right-hand panel (Now Playing / Queue): docked from 1280px, overlay below. */
+  .app-panel {
+    display: none;
+  }
+
+  @media (min-width: 768px) {
+    .app-frame[data-panel="open"] .app-panel {
+      display: block;
+      position: fixed;
+      z-index: 35;
+      top: calc(var(--topbar-h));
+      right: var(--panel-gap);
+      bottom: calc(var(--player-h) + var(--panel-gap));
+      width: min(var(--np-w), calc(100vw - 2rem));
+      border-radius: var(--radius-panel);
+      box-shadow: var(--shadow-menu);
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .app-frame[data-panel="open"] {
+      grid-template:
+        "top top top" var(--topbar-h)
+        "lib main np" minmax(0, 1fr)
+        "bar bar bar" auto / var(--lib-current, var(--lib-w)) minmax(0, 1fr)
+        var(--np-w);
+    }
+
+    .app-frame[data-panel="open"] .app-panel {
+      grid-area: np;
+      position: static;
+      width: auto;
+      min-height: 0;
+      box-shadow: none;
+    }
+  }
+
+  /* Visualizer: two blurred fields drifting behind the Now Playing art. */
+  .visualizer-blob {
+    position: absolute;
+    width: 75%;
+    height: 75%;
+    border-radius: 50%;
+    filter: blur(36px);
+    background: var(--viz);
+    animation: viz-drift 11s ease-in-out infinite alternate;
+  }
+
+  .visualizer-blob-a {
+    top: -15%;
+    left: -15%;
+  }
+
+  .visualizer-blob-b {
+    right: -20%;
+    bottom: -20%;
+    background: #fff;
+    opacity: 0.35;
+    animation-duration: 15s;
+    animation-direction: alternate-reverse;
+  }
+
+  .visualizer[data-active="false"] .visualizer-blob {
+    animation-play-state: paused;
+  }
+
+  @keyframes viz-drift {
+    from {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    to {
+      transform: translate3d(22%, 16%, 0) scale(1.3);
+    }
+  }
+
+  @media (min-width: 768px) {
+    .app-frame {
+      display: grid;
+      height: 100dvh;
+      overflow: hidden;
+      column-gap: var(--panel-gap);
+      padding: 0 var(--panel-gap) var(--panel-gap);
+      grid-template:
+        "top top" var(--topbar-h)
+        "lib main" minmax(0, 1fr)
+        "bar bar" auto / var(--lib-current, var(--lib-w)) minmax(0, 1fr);
+    }
+
+    .app-top {
+      grid-area: top;
+    }
+
+    .app-library {
+      grid-area: lib;
+      min-height: 0;
+    }
+
+    .app-main {
+      grid-area: main;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      border-radius: var(--radius-panel);
+      padding-bottom: 0;
+      scroll-padding-top: var(--topbar-h);
+    }
+
+    .app-bar {
+      grid-area: bar;
+      position: static;
+    }
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Range inputs: scrubber and volume. Fill comes from --range-pct. The
+     input is a 24px target (WCAG 2.5.8); the track inside stays 4px. */
+  .range {
+    --range-pct: 0%;
+    --range-fill: var(--color-fg);
+    appearance: none;
+    -webkit-appearance: none;
+    block-size: 1.5rem;
+    inline-size: 100%;
+    margin: 0;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .range::-webkit-slider-runnable-track {
+    block-size: 0.25rem;
+    border-radius: 999px;
+    background: linear-gradient(
+      to right,
+      var(--range-fill) var(--range-pct),
+      var(--color-progress) var(--range-pct)
+    );
+  }
+
+  .range::-moz-range-track {
+    block-size: 0.25rem;
+    border-radius: 999px;
+    background: linear-gradient(
+      to right,
+      var(--range-fill) var(--range-pct),
+      var(--color-progress) var(--range-pct)
+    );
+  }
+
+  .range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    inline-size: 0.75rem;
+    block-size: 0.75rem;
+    margin-block-start: -0.25rem;
+    border: 0;
+    border-radius: 50%;
+    background: var(--color-fg);
+    box-shadow: 0 2px 4px rgb(0 0 0 / 0.5);
+    opacity: 0;
+  }
+
+  .range::-moz-range-thumb {
+    inline-size: 0.75rem;
+    block-size: 0.75rem;
+    border: 0;
+    border-radius: 50%;
+    background: var(--color-fg);
+    box-shadow: 0 2px 4px rgb(0 0 0 / 0.5);
+    opacity: 0;
+  }
+
+  .range:hover,
+  .range:focus-visible {
+    --range-fill: var(--color-green);
+  }
+
+  .range:hover::-webkit-slider-thumb,
+  .range:focus-visible::-webkit-slider-thumb {
+    opacity: 1;
+  }
+
+  .range:hover::-moz-range-thumb,
+  .range:focus-visible::-moz-range-thumb {
+    opacity: 1;
+  }
+
+  .range:focus-visible {
+    outline-offset: 4px;
+  }
+
+  /* Touch screens never hover, so the thumb shows all the time and a tap
+     doesn't leave the fill green. */
+  @media (hover: none) {
+    .range::-webkit-slider-thumb {
+      opacity: 1;
+    }
+
+    .range::-moz-range-thumb {
+      opacity: 1;
+    }
+
+    .range:hover {
+      --range-fill: var(--color-fg);
+    }
+  }
+
+  /* The phone player's scrubber keeps its thumb on. */
+  .range-sheet::-webkit-slider-thumb {
+    opacity: 1;
+  }
+
+  .range-sheet::-moz-range-thumb {
+    opacity: 1;
+  }
+
+  /* Notices sit just above the player: the mini player and tabs on phones,
+     the player bar from 768px. */
+  .toast-region {
+    bottom: var(--chrome-bottom);
+  }
+
+  @media (min-width: 768px) {
+    .toast-region {
+      bottom: calc(var(--player-h) + 1.5rem);
+    }
+  }
+
+  .toast-in {
+    animation: toast-in 200ms cubic-bezier(0.3, 0, 0, 1);
+  }
+
+  @keyframes toast-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.5rem) scale(0.98);
+    }
+  }
+
+  /* Marquee: a long title drifts across and back (Marquee.tsx measures it). */
+  .marquee[data-overflow="true"] {
+    text-overflow: clip;
+    mask-image: linear-gradient(90deg, #000 calc(100% - 1rem), transparent);
+  }
+
+  .marquee[data-overflow="true"] > .marquee-text {
+    display: inline-block;
+    animation: marquee calc(4s + var(--marquee-distance) * 45ms) ease-in-out
+      1.5s infinite alternate;
+  }
+
+  @keyframes marquee {
+    0%,
+    18% {
+      transform: translateX(0);
+    }
+    82%,
+    100% {
+      transform: translateX(var(--marquee-shift));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee[data-overflow="true"] {
+      text-overflow: ellipsis;
+      mask-image: none;
+    }
+
+    .marquee[data-overflow="true"] > .marquee-text {
+      display: inline;
+      animation: none !important;
+    }
+  }
+
+  /* Rewind: the story's progress bars, drifting colour and slide entrance. */
+  .rewind-progress {
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  .rewind-progress[data-state="done"] {
+    transform: scaleX(1);
+  }
+
+  .rewind-progress[data-state="running"],
+  .rewind-progress[data-state="held"] {
+    animation: rewind-fill var(--slide-ms) linear forwards;
+  }
+
+  .rewind-progress[data-state="held"] {
+    animation-play-state: paused;
+  }
+
+  @keyframes rewind-fill {
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  .rewind-blob {
+    position: absolute;
+    z-index: 0;
+    width: 75%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    filter: blur(48px);
+    opacity: 0.35;
+    pointer-events: none;
+    animation: rewind-drift 10s ease-in-out infinite alternate;
+  }
+
+  /* Both blobs shade, never lighten: slide colours sit near the 4.5:1
+     limit for white text, so the slide colour must stay the lightest
+     thing behind any text (src/content/contrast.test.ts). */
+  .rewind-blob-a {
+    top: -22%;
+    right: -28%;
+    background: #000;
+    opacity: 0.22;
+  }
+
+  .rewind-blob-b {
+    bottom: -28%;
+    left: -28%;
+    background: #000;
+    opacity: 0.45;
+    animation-duration: 13s;
+  }
+
+  @keyframes rewind-drift {
+    to {
+      transform: translate3d(-14%, 12%, 0) scale(1.2);
+    }
+  }
+
+  .rewind-slide:not([hidden]) {
+    animation: rewind-in 500ms cubic-bezier(0.2, 0.7, 0, 1);
+  }
+
+  @keyframes rewind-in {
+    from {
+      opacity: 0;
+      transform: translateY(1rem) scale(0.98);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rewind-blob,
+    .rewind-slide:not([hidden]) {
+      animation: none !important;
+    }
+  }
+
+  /* The proof waveform's line draws itself once. pathLength="1" makes one
+     dash the whole line, so the offset runs from hidden to drawn. */
+  .waveform-draw {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: waveform-draw 700ms ease-out forwards;
+  }
+
+  @keyframes waveform-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .waveform-draw {
+      animation: none;
+      stroke-dashoffset: 0;
+    }
+  }
+
+  /* Equalizer bars for the playing row. */
+  .eq {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 2px;
+    block-size: 0.875rem;
+  }
+
+  .eq > i {
+    inline-size: 3px;
+    block-size: 100%;
+    border-radius: 1px;
+    background: var(--color-green);
+    transform-origin: bottom;
+    animation: var(--animate-eq);
+  }
+
+  .eq > i:nth-child(2) {
+    animation-delay: -0.3s;
+  }
+
+  .eq > i:nth-child(3) {
+    animation-delay: -0.6s;
+  }
+
+  .eq > i:nth-child(4) {
+    animation-delay: -0.85s;
+  }
+
+  .eq[data-paused="true"] > i {
+    animation-play-state: paused;
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scroll-area {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(255 255 255 / 0.3) transparent;
+  }
+}
+
+@layer base {
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-delay: 0ms !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-delay: 0ms !important;
+      transition-duration: 0.01ms !important;
+    }
+
+    [data-motion-transform] {
+      transform: none !important;
+    }
+
+    .eq > i {
+      animation: none !important;
+      transform: scaleY(0.6);
+    }
+  }
+
+  [data-reduced-motion="true"] [data-motion-transform] {
+    transform: none !important;
+  }
 }

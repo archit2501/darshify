@@ -1,0 +1,32 @@
+{
+  "phase": "4",
+  "sector": "spotify-immersion",
+  "scope": "large",
+  "stack": "node-react-router7-vite8-tailwind4-typescript",
+  "previousSector": {
+    "stateFile": ".Codex-protocol/state.json",
+    "note": "Recruiter-first redesign (Codex). Tasks 4.1.1 in progress, 4.2.1 and 4.3.1 todo at handover."
+  },
+  "currentTaskId": "4.3.1",
+  "lastQuestionAsked": 10,
+  "decisions": {
+    "scope": "large",
+    "v1_scope": "full-immersion-plus-rewind",
+    "architecture": "rebuild-ui-on-existing-spine",
+    "data_honesty": "honest-fidelity",
+    "libraries": "base-ui+own-icons+webaudio-ambient",
+    "ui_approach": "faithful-redesign-hybrid",
+    "front_loaded_ux_wins": [
+      "player-np-lyrics",
+      "color-covers-photo",
+      "track-tables-hover-play"
+    ],
+    "test_coverage": "90-percent-plus-browser",
+    "release_strategy": "integration-branch-atomic-cutover",
+    "performance_contract": "strict-render-budget",
+    "accessibility_target": "wcag-2.2-aa"
+  },
+  "researchComplete": true,
+  "lastUpdated": "2026-10-17T07:58:45.022Z",
+  "planGenerated": true
+}

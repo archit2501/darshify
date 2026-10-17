@@ -12,7 +12,7 @@ const viewports = [
     label: "desktop",
     width: 1440,
     height: 900,
-    visibleNavigation: "Primary navigation",
+    visibleNavigation: "Your Library",
   },
 ] as const;
 
@@ -51,11 +51,11 @@ for (const viewport of viewports) {
     ).toBeVisible();
 
     if (viewport.label === "desktop") {
-      const railWidth = await page
-        .getByRole("navigation", { name: "Primary navigation" })
+      const libraryWidth = await page
+        .getByRole("navigation", { name: "Your Library" })
         .evaluate((navigation) => navigation.getBoundingClientRect().width);
-      expect(railWidth).toBeGreaterThanOrEqual(216);
-      expect(railWidth).toBeLessThanOrEqual(232);
+      expect(libraryWidth).toBeGreaterThanOrEqual(280);
+      expect(libraryWidth).toBeLessThanOrEqual(420);
     }
 
     const actions = page.locator(
@@ -105,10 +105,13 @@ for (const viewport of viewports) {
       "false",
     );
 
-    await page
-      .getByRole("navigation", { name: viewport.visibleNavigation })
-      .getByRole("link", { name: "Search", exact: true })
-      .click();
+    const searchLink =
+      viewport.label === "desktop"
+        ? page.getByRole("link", { name: "Browse all" })
+        : page
+            .getByRole("navigation", { name: viewport.visibleNavigation })
+            .getByRole("link", { name: "Search", exact: true });
+    await searchLink.click();
     const routeHeading = page.getByRole("heading", {
       level: 1,
       name: "Search portfolio",

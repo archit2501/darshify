@@ -1,22 +1,23 @@
 /// <reference types="node" />
 
 import { readFileSync } from "node:fs";
+import { readStylesheet } from "../test/stylesheets";
+import { PlayerProvider } from "../player/PlayerProvider";
 import { resolve } from "node:path";
-import { useContext } from "react";
 import {
   act,
+  within,
   fireEvent,
   render,
   screen,
   waitFor,
 } from "@testing-library/react";
-import { MotionConfigContext } from "motion/react";
 import {
   createMemoryRouter,
   MemoryRouter,
   RouterProvider,
   useLocation,
-} from "react-router-dom";
+} from "react-router";
 import {
   afterAll,
   afterEach,
@@ -26,16 +27,15 @@ import {
   it,
   vi,
 } from "vitest";
-import {
-  CareerMixProvider,
-  useCareerMix,
-} from "../career-mix/CareerMixContext";
+import { PlayPill } from "../shell/PlayPill";
+import { defaultContext, releaseContext } from "../player/tracks";
+import { portfolio } from "../content/portfolio";
 import { AppShell } from "../shell/AppShell";
-import { MediaCard } from "../shell/MediaCard";
+import { MediaCard } from "../components/MediaCard";
+import { releaseArt } from "../content/artwork";
 import { PlayButton } from "../shell/PlayButton";
-import { Sidebar } from "../shell/Sidebar";
-import { TopBar } from "../shell/TopBar";
-import { MotionProvider } from "./MotionProvider";
+import { LibraryPanel } from "../shell/LibraryPanel";
+import { GlobalTopBar } from "../shell/GlobalTopBar";
 
 const tokenStyles = document.createElement("style");
 const baseStyles = document.createElement("style");
@@ -63,14 +63,8 @@ const memoryStorage = (): Storage => {
 };
 
 beforeAll(() => {
-  tokenStyles.textContent = readFileSync(
-    resolve(process.cwd(), "src/styles/tokens.css"),
-    "utf8",
-  );
-  baseStyles.textContent = readFileSync(
-    resolve(process.cwd(), "src/styles/base.css"),
-    "utf8",
-  );
+  tokenStyles.textContent = readStylesheet("src/styles/tokens.css");
+  baseStyles.textContent = readStylesheet("src/styles/base.css");
   document.head.append(tokenStyles);
   document.head.append(baseStyles);
   Object.defineProperty(HTMLElement.prototype, "scrollTo", {
@@ -95,7 +89,9 @@ afterAll(() => {
 
 const reduceMotion = (matches: boolean) => {
   vi.stubGlobal("matchMedia", (query: string) => ({
-    matches: query === "(prefers-reduced-motion: reduce)" && matches,
+    matches:
+      (query === "(prefers-reduced-motion: reduce)" && matches) ||
+      query === "(min-width: 768px)",
     media: query,
     onchange: null,
     addEventListener: vi.fn(),
@@ -120,7 +116,10 @@ const renderShell = async (reduced: boolean) => {
             element: (
               <>
                 <h1>Portfolio</h1>
-                <CareerMixTrigger />
+                <PlayPill
+                  context={defaultContext}
+                  label="This Is Darshil Jain"
+                />
               </>
             ),
           },
@@ -131,9 +130,9 @@ const renderShell = async (reduced: boolean) => {
   );
 
   const view = render(
-    <CareerMixProvider>
+    <PlayerProvider createAudio={() => null}>
       <RouterProvider router={router} />
-    </CareerMixProvider>,
+    </PlayerProvider>,
   );
   await act(async () => {
     await Promise.resolve();
@@ -141,96 +140,59 @@ const renderShell = async (reduced: boolean) => {
   return view;
 };
 
-function CareerMixTrigger() {
-  const { open } = useCareerMix();
-  return (
-    <button onClick={(event) => open(event.currentTarget)}>
-      Start Career Mix
-    </button>
-  );
-}
-
 afterEach(() => {
   vi.unstubAllGlobals();
 });
 
 describe("editorial motion foundation", () => {
   // Regression: removing the signal token leaves primary actions without the approved shared color contract.
-  it("exposes the approved signal color on the document root", () => {
-    expect(
-      getComputedStyle(document.documentElement)
-        .getPropertyValue("--color-signal")
-        .trim()
-        .toUpperCase(),
-    ).toBe("#1ED760");
-  });
-
-  // Regression: omitting reducedMotion="user" lets translated entrance motion run against the user's OS preference.
-  it("configures Motion to follow the user's reduced-motion preference", () => {
-    reduceMotion(false);
-
-    function PolicyProbe() {
-      return <output>{useContext(MotionConfigContext).reducedMotion}</output>;
-    }
-
-    render(
-      <MotionProvider>
-        <PolicyProbe />
-      </MotionProvider>,
+  it("declares the approved signal color as an always-emitted theme token", () => {
+    const tokens = readFileSync(
+      resolve(process.cwd(), "src/styles/tokens.css"),
+      "utf8",
     );
-
-    expect(screen.getByText("user")).toBeVisible();
+    // `static` makes Tailwind emit every token on :root, including ones only
+    // read from inline styles or scripts.
+    expect(tokens).toMatch(/@theme static \{/);
+    expect(tokens).toMatch(/--color-green:\s*#1ed760;/i);
+    expect(tokens).toMatch(/--color-signal:\s*var\(--color-green\);/);
   });
 
-  // Regression: 32px history buttons and an unconstrained CV link violate the approved 44×44px target floor.
-  it("gives every real TopBar control a 44 by 44 pixel minimum target", () => {
-    reduceMotion(false);
-    const router = createMemoryRouter(
-      [{ path: "/search", element: <TopBar /> }],
-      { initialEntries: ["/search"] },
+  // Regression: the waveform's draw-on must stop for people who reduce motion,
+  // and must end fully drawn (an animation stuck at its start hides the line).
+  it("draws the proof waveform with CSS that honours reduced motion", () => {
+    const base = readStylesheet("src/styles/base.css");
+    expect(base).toMatch(
+      /\.waveform-draw\s*\{[^}]*stroke-dashoffset:\s*1;[^}]*animation:\s*waveform-draw[^}]*forwards;/,
     );
-    render(<RouterProvider router={router} />);
-
-    const targetToken = getComputedStyle(document.documentElement)
-      .getPropertyValue("--target-min")
-      .trim();
-    expect(parseFloat(targetToken) * 16).toBe(44);
-
-    const controls = [
-      screen.getByRole("button", { name: "Back" }),
-      screen.getByRole("button", { name: "Forward" }),
-      screen.getByRole("link", { name: "Download CV" }),
-    ];
-    for (const control of controls) {
-      expect(getComputedStyle(control).minInlineSize).toBe("var(--target-min)");
-      expect(getComputedStyle(control).minBlockSize).toBe("var(--target-min)");
-    }
+    expect(base).toMatch(
+      /prefers-reduced-motion:\s*reduce\)\s*\{\s*\.waveform-draw\s*\{\s*animation:\s*none;\s*stroke-dashoffset:\s*0;/,
+    );
   });
 
-  // Regression: a reduced-motion dock starting translated or transparent hides final UI before animation settles.
-  it("renders the real reduced-motion Career Mix dock in its final visible state", async () => {
+  // Regression: a reduced-motion player starting translated or transparent hides final UI before animation settles.
+  it("renders the always-mounted player bar in its final visible state under reduced motion", async () => {
     await renderShell(true);
 
-    fireEvent.click(screen.getByRole("button", { name: "Start Career Mix" }));
-
-    const dock = screen.getByRole("region", { name: "Career Mix" });
-    expect(dock).toBeInTheDocument();
-    expect(dock.style.transform).not.toContain("translate");
-    expect(dock.style.opacity).not.toBe("0");
+    const player = screen.getByRole("region", { name: "Player" });
+    expect(player.style.transform).not.toContain("translate");
+    expect(player.style.opacity).not.toBe("0");
+    expect(screen.getByRole("button", { name: "Play" })).toBeVisible();
   });
 
   // Regression: reduced motion that only shortens duration makes hover scaling snap instead of suppressing the transform.
   it("suppresses transform state changes on the real reduced-motion controls", async () => {
     await renderShell(true);
-    fireEvent.click(screen.getByRole("button", { name: "Start Career Mix" }));
-    const pause = screen.getByRole("button", { name: "Pause Career Mix" });
-    const cv = screen.getAllByRole("link", { name: "Download CV" })[0];
+    fireEvent.click(
+      screen.getByRole("button", { name: "Play This Is Darshil Jain" }),
+    );
+    const pause = screen.getByRole("button", {
+      name: "Pause This Is Darshil Jain",
+    });
 
     pause.style.transform = "scale(1.05)";
-    cv.style.transform = "scale(1.05)";
 
     expect(getComputedStyle(pause).transform).toBe("none");
-    expect(getComputedStyle(cv).transform).toBe("none");
   });
 
   // Regression: replacing window.localStorage before vi.stubGlobal makes later tests inherit the fake storage.
@@ -244,162 +206,133 @@ describe("editorial motion foundation", () => {
     expect(currentDescriptor?.value).toBe(localStorageDescriptor?.value);
   });
 
-  // Regression: global Space and arrow shortcuts steal normal scrolling, text navigation, and native control interaction.
-  it("leaves ordinary page keys alone while keeping the explicit Career Mix trigger working", async () => {
+  // Regression: global shortcuts must not steal keys from controls, fields or
+  // links, and plain arrows must keep scrolling and text navigation native.
+  it("keeps keys native in controls and for plain arrows, and plays on Space from the page", async () => {
     await renderShell(false);
+    const player = screen.getByRole("region", { name: "Player" });
 
-    const space = new KeyboardEvent("keydown", {
-      key: " ",
-      cancelable: true,
-    });
     const arrow = new KeyboardEvent("keydown", {
       key: "ArrowRight",
       cancelable: true,
     });
-    window.dispatchEvent(space);
     window.dispatchEvent(arrow);
-
-    expect(space.defaultPrevented).toBe(false);
     expect(arrow.defaultPrevented).toBe(false);
-    expect(
-      screen.getByRole("button", { name: "Start Career Mix" }),
-    ).toBeVisible();
-    expect(
-      screen.queryByRole("region", { name: "Career Mix" }),
-    ).not.toBeInTheDocument();
-  });
 
-  // Regression: the shell can accidentally expose dead audio controls even after replacing the visible player.
-  it("keeps simulated playback controls out of the closed product shell", async () => {
-    await renderShell(false);
-
-    expect(
-      screen.queryByRole("slider", { name: "Seek" }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("slider", { name: "Volume" }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", { name: "Shuffle" }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("heading", { name: "Queue" }),
-    ).not.toBeInTheDocument();
-  });
-
-  // Regression: disconnecting the main scroll handler leaves the sticky header permanently transparent.
-  it("updates the shell header tint from real main-region scrolling", async () => {
-    await renderShell(false);
-    const main = screen.getByRole("main");
-    Object.defineProperty(main, "scrollTop", {
-      configurable: true,
-      value: 280,
+    const playButton = screen.getByRole("button", {
+      name: "Play This Is Darshil Jain",
     });
+    const onControl = new KeyboardEvent("keydown", {
+      key: " ",
+      bubbles: true,
+      cancelable: true,
+    });
+    playButton.dispatchEvent(onControl);
+    expect(onControl.defaultPrevented).toBe(false);
+    expect(within(player).getByRole("button", { name: "Play" })).toBeVisible();
 
-    fireEvent.scroll(main);
-
-    const tint = main.querySelector("header > div[aria-hidden]") as HTMLElement;
-    expect(tint.style.opacity).toBe("1");
+    const onPage = new KeyboardEvent("keydown", {
+      key: " ",
+      bubbles: true,
+      cancelable: true,
+    });
+    act(() => {
+      document.body.dispatchEvent(onPage);
+    });
+    expect(onPage.defaultPrevented).toBe(true);
+    expect(within(player).getByRole("button", { name: "Pause" })).toBeVisible();
   });
 
-  // Regression: shell integration can render the dock while leaving its transport callbacks disconnected.
-  it("keeps every Career Mix shell control wired to observable state", async () => {
+  // Regression: a player bar that renders controls without wiring them to the store looks real but does nothing.
+  it("exposes real, wired playback controls in the shell", async () => {
     await renderShell(false);
 
-    fireEvent.click(screen.getByRole("button", { name: "Start Career Mix" }));
-    await waitFor(() =>
-      expect(screen.getByRole("region", { name: "Career Mix" })).toBeVisible(),
-    );
-    fireEvent.click(screen.getByRole("button", { name: "Pause Career Mix" }));
+    const player = screen.getByRole("region", { name: "Player" });
+    expect(within(player).getByRole("slider", { name: "Seek" })).toBeVisible();
     expect(
-      screen.getByRole("button", { name: "Play Career Mix" }),
+      within(player).getByRole("slider", { name: "Volume" }),
     ).toBeVisible();
-    fireEvent.click(screen.getByRole("button", { name: "Next chapter" }));
-    expect(screen.getByRole("heading", { name: "Analyze" })).toBeVisible();
-    fireEvent.click(screen.getByRole("button", { name: "Previous chapter" }));
-    expect(screen.getByRole("heading", { name: "Operate" })).toBeVisible();
-    fireEvent.click(screen.getByRole("button", { name: "Close Career Mix" }));
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Play This Is Darshil Jain" }),
+    );
+    expect(within(player).getByRole("button", { name: "Pause" })).toBeVisible();
+    fireEvent.click(within(player).getByRole("button", { name: "Pause" }));
+    expect(
+      screen.getByRole("button", { name: "Play This Is Darshil Jain" }),
+    ).toBeVisible();
+
+    const firstTitle = within(player).getAllByRole("link")[0]!.textContent;
+    fireEvent.click(within(player).getByRole("button", { name: "Next" }));
     await waitFor(() =>
-      expect(
-        screen.queryByRole("region", { name: "Career Mix" }),
-      ).not.toBeInTheDocument(),
+      expect(within(player).getAllByRole("link")[0]!.textContent).not.toBe(
+        firstTitle,
+      ),
     );
   });
 
   // Regression: a MediaCard can regain a nested fake-play control instead of remaining truthful navigation.
-  it("renders both MediaCard variants as navigation without nested actions", () => {
+  it("renders MediaCard as one link with play beside it, never inside it", () => {
+    const experience = portfolio.collections.find(
+      (item) => item.id === "experience",
+    )!;
     const { rerender } = render(
-      <MemoryRouter>
-        <MediaCard
-          to="/artist"
-          title="Evidence release"
-          subtitle="Sourced result"
-          gradient="linear-gradient(#000,#111)"
-          cover="/cover.png"
-          round
-        />
-      </MemoryRouter>,
+      <PlayerProvider createAudio={() => null}>
+        <MemoryRouter>
+          <MediaCard
+            href="/playlist/experience"
+            title="Evidence release"
+            subtitle="Sourced result"
+            art={releaseArt(experience)}
+            play={{ context: releaseContext(experience) }}
+          />
+        </MemoryRouter>
+      </PlayerProvider>,
     );
 
     expect(screen.getByText("Sourced result")).toBeVisible();
-    expect(
-      screen.getByRole("link", { name: /Evidence release/ }),
-    ).toHaveAttribute("href", "/artist");
-    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+    const link = screen.getByRole("link", { name: "Evidence release" });
+    expect(link).toHaveAttribute("href", "/playlist/experience");
+    const play = screen.getByRole("button", { name: "Play Evidence release" });
+    expect(link).not.toContainElement(play);
 
     rerender(
-      <MemoryRouter>
-        <MediaCard
-          to="/artist"
-          title="Plain release"
-          gradient="linear-gradient(#000,#111)"
-        />
-      </MemoryRouter>,
+      <PlayerProvider createAudio={() => null}>
+        <MemoryRouter>
+          <MediaCard
+            href="/artist"
+            title="Plain release"
+            art={releaseArt(experience)}
+            round
+          />
+        </MemoryRouter>
+      </PlayerProvider>,
     );
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
 
   // Regression: PlayButton icon and accessible name can drift apart when playback changes.
   it("keeps PlayButton action and state labels synchronized", () => {
-    const onClick = vi.fn();
-    const { rerender } = render(
-      <PlayButton label="Start evidence" onClick={onClick} />,
+    const experience = releaseContext(
+      portfolio.collections.find((item) => item.id === "experience")!,
     );
-    fireEvent.click(screen.getByRole("button", { name: "Start evidence" }));
-    expect(onClick).toHaveBeenCalledOnce();
-
-    rerender(<PlayButton playing label="Start evidence" onClick={onClick} />);
-    expect(screen.getByRole("button", { name: "Pause" })).toBeVisible();
-  });
-
-  // Regression: route-specific tint selection can silently fall back when known Artist, Liked, or playlist paths render.
-  it("uses the correct real TopBar tint for every supported route family", () => {
-    const cases = [
-      ["/", "rgb(13, 13, 18)"],
-      ["/artist", "linear-gradient(180deg, rgb(30, 215, 96), rgb(0, 170, 85))"],
-      [
-        "/liked",
-        "linear-gradient(180deg, rgb(74, 0, 224), rgb(179, 179, 255))",
-      ],
-      ["/playlist/experience", "linear-gradient"],
-      ["/playlist/missing", "rgb(13, 13, 18)"],
-    ] as const;
-
-    for (const [path, expected] of cases) {
-      const router = createMemoryRouter(
-        [{ path: "*", element: <TopBar scrollY={280} /> }],
-        { initialEntries: [path] },
-      );
-      const view = render(<RouterProvider router={router} />);
-      const tint = view.container.querySelector("[aria-hidden]") as HTMLElement;
-      expect(tint.style.opacity).toBe("1");
-      expect(tint.style.background).toContain(expected);
-      view.unmount();
-    }
+    render(
+      <PlayerProvider createAudio={() => null}>
+        <PlayButton context={experience} label="Experience" />
+      </PlayerProvider>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Play Experience" }));
+    expect(
+      screen.getByRole("button", { name: "Pause Experience" }),
+    ).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "Pause Experience" }));
+    expect(
+      screen.getByRole("button", { name: "Play Experience" }),
+    ).toBeVisible();
   });
 
   // Regression: history controls can stop calling router navigation while retaining their visual button states.
-  it("keeps TopBar history controls wired to real router navigation", () => {
+  it("keeps the global top bar's history controls wired to real router navigation", () => {
     function LocationProbe() {
       return <output>{useLocation().pathname}</output>;
     }
@@ -409,7 +342,7 @@ describe("editorial motion foundation", () => {
           path: "*",
           element: (
             <>
-              <TopBar />
+              <GlobalTopBar />
               <LocationProbe />
             </>
           ),
@@ -419,19 +352,24 @@ describe("editorial motion foundation", () => {
     );
     render(<RouterProvider router={router} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Back" }));
+    fireEvent.click(screen.getByRole("button", { name: "Go back" }));
     expect(screen.getByText("/first")).toBeVisible();
-    fireEvent.click(screen.getByRole("button", { name: "Forward" }));
+    fireEvent.click(screen.getByRole("button", { name: "Go forward" }));
     expect(screen.getByText("/second")).toBeVisible();
   });
 
-  // Regression: active-route styling callbacks can fail on non-home sidebar entries after route refactors.
-  it("marks each real Sidebar route family active", () => {
+  // Regression: active-route styling callbacks can fail on non-home library entries after route refactors.
+  it("marks each real Your Library route family active", () => {
     for (const path of ["/artist", "/liked", "/playlist/experience"]) {
       const view = render(
-        <MemoryRouter initialEntries={[path]}>
-          <Sidebar />
-        </MemoryRouter>,
+        <PlayerProvider createAudio={() => null}>
+          <MemoryRouter initialEntries={[path]}>
+            <LibraryPanel
+              collapsed={false}
+              onToggleCollapsed={() => undefined}
+            />
+          </MemoryRouter>
+        </PlayerProvider>,
       );
       const current = view.container.querySelector('[aria-current="page"]');
       expect(current).toBeInTheDocument();

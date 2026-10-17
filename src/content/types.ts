@@ -1,18 +1,79 @@
 export type EvidenceStatus = "verified" | "self-reported" | "redacted";
 
+/** How a collection presents itself in the streaming-app metaphor. */
+export type ReleaseType = "Playlist" | "EP" | "Album" | "Single";
+
+export type SongKind =
+  | "experience"
+  | "project"
+  | "leadership"
+  | "achievement"
+  | "education"
+  | "credential";
+
+/** A year ("2024") or ISO year-month ("2026-01"). */
+export type CalendarDate = `${number}` | `${number}-${number}`;
+
+export interface Place {
+  locality: string;
+  city: string;
+  region: string;
+  country: string;
+  countryCode: string;
+}
+
+export interface Institution {
+  name: string;
+  shortName: string;
+  parentName: string;
+  parentShortName: string;
+  place: Place;
+  url?: string;
+}
+
+export interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+export interface ProfileLink {
+  label: string;
+  url: string;
+}
+
+/** A real photo of Darshil, processed at build time into responsive files. */
+export interface Portrait {
+  dominantColor: string;
+  variants: Array<{ width: number; avif: string; webp: string; jpg: string }>;
+}
+
 export interface CandidateProfile {
   name: string;
+  givenName: string;
+  familyName: string;
+  alternateNames: string[];
+  /** One line, used under the name and in metadata. */
   headline: string;
+  /** Two sentences, used where space is short. */
   summary: string;
-  profileArtwork: {
-    artifactId: string;
-    proofId: string;
+  /** Answer-first paragraphs for the About card and AI answer engines. */
+  bio: string[];
+  education: {
+    degree: string;
+    field: string;
+    institution: Institution;
+    start: number;
+    end: number;
   };
+  /** Real photo when one has been supplied; otherwise generated artwork stands in. */
+  portrait: Portrait | null;
   email: string;
   phone: string;
   linkedInUrl: string;
   resumeUrl: string;
+  profiles: ProfileLink[];
   skills: string[];
+  faq: FaqItem[];
 }
 
 export interface EvidenceSource {
@@ -25,11 +86,14 @@ export interface EvidenceSource {
 
 export interface ProofPoint {
   id: string;
+  /** Lower-case noun phrase that follows the value: "résumés screened". */
   label: string;
+  /** Exact display string: "500+", "Top 10%", "4th", "₹50,000+". */
+  display: string;
+  /** Numeric magnitude used for ordering and charts. */
   value: number;
-  unit: string;
   summary: string;
-  period: string;
+  period?: string;
   status: EvidenceStatus;
   sourceIds: string[];
   caseStudyIds: string[];
@@ -38,7 +102,7 @@ export interface ProofPoint {
 export interface Artifact {
   id: string;
   title: string;
-  kind: "document" | "certificate" | "dashboard" | "presentation";
+  kind: "document" | "certificate" | "dashboard" | "presentation" | "letter";
   url?: string;
   alt: string;
   provenance: string;
@@ -61,12 +125,21 @@ export interface CaseStudy {
   title: string;
   organization: string;
   role: string;
-  period: string;
-  kind: "experience" | "project" | "leadership" | "achievement" | "education";
-  recruiterTakeaway: string;
+  /** Display period as written in the résumé; omitted when it lists none. */
+  period?: string;
+  start?: CalendarDate;
+  end?: CalendarDate;
+  kind: SongKind;
+  /** One-line description shown under titles and in metadata. */
+  tagline: string;
   situation: string;
   actions: string[];
   result: string;
+  /** 2-6 short first-person lines, sung in order while the song plays. */
+  lyrics: string[];
+  /** Per-song accent; white text must stay readable (luminance <= 0.18). */
+  color: string;
+  team?: "Individual project" | "Team project";
   featuredProofId: string | null;
   proofIds: string[];
   artifactIds: string[];
@@ -78,11 +151,18 @@ export interface Collection {
   id: string;
   slug: string;
   title: string;
-  themedLabel: string;
+  releaseType: ReleaseType;
   description: string;
-  cover: string;
-  gradient: string;
+  color: string;
   caseStudyIds: string[];
+}
+
+export interface Genre {
+  /** Exactly one of the candidate's skills. */
+  skill: string;
+  slug: string;
+  color: string;
+  description: string;
 }
 
 export interface CaseStudyEvidence {
@@ -92,13 +172,6 @@ export interface CaseStudyEvidence {
   status: EvidenceStatus;
 }
 
-export interface CareerMixChapter {
-  id: string;
-  title: string;
-  summary: string;
-  caseStudyIds: string[];
-}
-
 export interface Portfolio {
   candidate: CandidateProfile;
   sources: EvidenceSource[];
@@ -106,5 +179,5 @@ export interface Portfolio {
   artifacts: Artifact[];
   caseStudies: CaseStudy[];
   collections: Collection[];
-  careerMixChapters: CareerMixChapter[];
+  genres: Genre[];
 }
