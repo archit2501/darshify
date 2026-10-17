@@ -6,7 +6,7 @@ import {
   useNavigate,
   useNavigationType,
   useSearchParams,
-} from "react-router-dom";
+} from "react-router";
 import { portfolio } from "../content/portfolio";
 import {
   BrowseIcon,

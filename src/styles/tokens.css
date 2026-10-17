@@ -33,13 +33,9 @@
   --color-green: #1ed760;
   --color-green-hover: #3be477;
   --color-green-press: #1abc54;
-  --color-negative: #f3727f;
-  --color-warning: #ffa42b;
-  --color-info: #539df5;
 
   /* Legacy names, kept while older components are rebuilt. */
   --color-ink: var(--color-app);
-  --color-panel: var(--color-surface);
   --color-elevated: var(--color-surface-hi);
   --color-line: var(--color-surface-2);
   --color-text: var(--color-fg);
@@ -47,10 +43,8 @@
   --color-signal: var(--color-green);
   --color-bg: var(--color-app);
   --color-card: var(--color-surface-hi);
-  --color-card-hi: var(--color-surface-2);
   --color-accent: var(--color-green);
   --color-sub: var(--color-subdued);
-  --font-ui: var(--font-sans);
   --font-evidence: var(--font-sans);
 
   /* Type scale (Tailwind's xs/sm/base remain 12/14/16 px) */
@@ -72,7 +66,6 @@
   --text-utility: 0.75rem;
   --text-metadata: 0.875rem;
   --text-body: 1rem;
-  --text-card-title: 1.25rem;
   --text-section-title: 1.5rem;
   --text-hero-mobile: 2.5rem;
   --text-hero-desktop: 3.5rem;
@@ -111,35 +104,19 @@
   --player-h: 4.5rem;
   --panel-gap: 0.5rem;
   --lib-w: 20rem;
-  --lib-min: 17.5rem;
-  --lib-max: 26.25rem;
-  --lib-rail: 4.5rem;
   --np-w: 21.25rem;
-  --np-min: 17.5rem;
-  --np-max: 26.25rem;
   --content-x: 1.5rem;
   /* Space above page content: room for the phone's floating top row. */
   --page-top: 1rem;
-  --row-h: 3.5rem;
-  /* WCAG 2.2: 24px minimum on fine pointers, 44px on touch. */
-  --target-fine: 1.5rem;
-  --target-touch: 2.75rem;
+  /* The phone's mini player and tab bar, pinned to the bottom. */
+  --chrome-bottom: calc(9.5rem + env(safe-area-inset-bottom));
 
-  --dur-press: 100ms;
   --dur-hover: 200ms;
   --dur-reveal: 300ms;
-  --dur-color: 500ms;
-  --dur-story: 700ms;
-
-  /* Page colour set per route from the release artwork. */
-  --page-color: #3a3a3a;
 
   /* Legacy variables read by components that have not been rebuilt yet. */
   --target-min: 2.75rem;
   --transition-hover-fast: 120ms;
-  --transition-hover: 180ms;
-  --transition-panel-fast: 200ms;
-  --transition-panel: 260ms;
 }
 
 @media (max-width: 767px) {
@@ -152,7 +129,5 @@
 @media (prefers-reduced-motion: reduce) {
   :root {
     --dur-reveal: 0ms;
-    --dur-color: 0ms;
-    --dur-story: 0ms;
   }
 }

@@ -1,10 +1,16 @@
-import { useCallback, useRef, useState, type CSSProperties } from "react";
-import { Outlet } from "react-router-dom";
-import { Tooltip } from "@base-ui/react/tooltip";
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
+import { Outlet } from "react-router";
 import { useLocalStorage } from "../lib/useLocalStorage";
-import { useIsDesktop } from "../lib/useMediaQuery";
+import { whenIdle } from "../lib/idle";
+import { useIsDesktop, useMediaQuery } from "../lib/useMediaQuery";
 import { useReducedMotion } from "../lib/useReducedMotion";
-import { MotionProvider } from "../motion/MotionProvider";
 import { NowPlayingTitle } from "../player/NowPlayingTitle";
 import { GlobalTopBar } from "./GlobalTopBar";
 import { MobileChrome } from "./MobileChrome";
@@ -19,7 +25,7 @@ import { RouteFocus } from "./RouteFocus";
 import { LIBRARY, useLayoutPrefs } from "./layoutPrefs";
 import { LibraryPanel } from "./LibraryPanel";
 import { Resizer } from "./Resizer";
-import { ShortcutsDialog } from "./ShortcutsDialog";
+import { ShortcutsDialog, TooltipLayer } from "./popups/lazy";
 import { SkipLink } from "./SkipLink";
 import { SHORTCUTS_STORAGE_KEY, usePlayerShortcuts } from "./useShortcuts";
 
@@ -44,100 +50,125 @@ export function AppShell() {
     ? LIBRARY.rail
     : layout.libraryWidth;
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  // The dialog's code loads the first time it opens.
+  const [shortcutsMounted, setShortcutsMounted] = useState(false);
   const [characterKeys, setCharacterKeys] = useLocalStorage(
     SHORTCUTS_STORAGE_KEY,
     true,
   );
-  const showShortcuts = useCallback(() => setShortcutsOpen(true), []);
+  const showShortcuts = useCallback(() => {
+    setShortcutsMounted(true);
+    setShortcutsOpen(true);
+  }, []);
   usePlayerShortcuts({ characterKeys, onShowHelp: showShortcuts });
+  const tooltips = useIdleTooltips();
 
   return (
-    <MotionProvider>
-      <Tooltip.Provider delay={400}>
-        <SkipLink />
-        <NowPlayingTitle />
-        <div
-          ref={frameRef}
-          className="app-frame"
-          data-reduced-motion={reduced}
-          data-panel={panel ? "open" : "closed"}
-          style={{ "--lib-current": `${libraryWidth}px` } as CSSProperties}
-        >
-          <div className="app-top max-md:hidden">
-            <GlobalTopBar onShortcuts={showShortcuts} />
-          </div>
-          <div className="app-library relative max-md:hidden">
-            <LibraryPanel
-              collapsed={layout.libraryCollapsed}
-              onToggleCollapsed={() =>
-                updateLayout({ libraryCollapsed: !layout.libraryCollapsed })
-              }
-            />
-            {layout.libraryCollapsed ? null : (
-              <div className="absolute inset-y-0 -right-[0.3125rem] flex">
-                <Resizer
-                  label="Resize Your Library"
-                  value={layout.libraryWidth}
-                  min={LIBRARY.min}
-                  max={LIBRARY.max}
-                  target={() => frameRef.current}
-                  cssVar="--lib-current"
-                  onCommit={(libraryWidth) => updateLayout({ libraryWidth })}
-                />
-              </div>
-            )}
-          </div>
-          {desktop === true ? null : (
-            <MobileTopBar onShortcuts={showShortcuts} />
-          )}
-          <main
-            id="main-content"
-            ref={mainRef}
-            data-scroll-root
-            className="app-main"
-          >
-            {lyricsView ? (
-              <LyricsView />
-            ) : (
-              <>
-                {/* Page gutters; full-bleed headers pull back out with
-                    the same variables. */}
-                <div className="px-(--content-x) pt-(--page-top) pb-8">
-                  <Outlet />
-                </div>
-                <PageFooter />
-              </>
-            )}
-          </main>
-          <div className="app-panel">
-            {desktop === false ? null : (
-              <>
-                {panel === "now-playing" ? <NowPlayingPanel /> : null}
-                {panel === "queue" ? <QueueView /> : null}
-              </>
-            )}
-          </div>
-          <div className="app-bar">
-            {desktop === false ? null : (
-              <div className="max-md:hidden">
-                <PlayerBar />
-              </div>
-            )}
-            {desktop === true ? null : (
-              <div className="md:hidden">
-                <MobileChrome />
-              </div>
-            )}
-          </div>
+    <>
+      <SkipLink />
+      <NowPlayingTitle />
+      <div
+        ref={frameRef}
+        className="app-frame"
+        data-reduced-motion={reduced}
+        data-panel={panel ? "open" : "closed"}
+        style={{ "--lib-current": `${libraryWidth}px` } as CSSProperties}
+      >
+        <div className="app-top max-md:hidden">
+          <GlobalTopBar onShortcuts={showShortcuts} />
         </div>
-        <RouteFocus mainRef={mainRef} />
-        <ShortcutsDialog
-          open={shortcutsOpen}
-          onOpenChange={setShortcutsOpen}
-          characterKeys={characterKeys}
-          onCharacterKeysChange={setCharacterKeys}
-        />
-      </Tooltip.Provider>
-    </MotionProvider>
+        <div className="app-library relative max-md:hidden">
+          <LibraryPanel
+            collapsed={layout.libraryCollapsed}
+            onToggleCollapsed={() =>
+              updateLayout({ libraryCollapsed: !layout.libraryCollapsed })
+            }
+          />
+          {layout.libraryCollapsed ? null : (
+            <div className="absolute inset-y-0 -right-[0.3125rem] flex">
+              <Resizer
+                label="Resize Your Library"
+                value={layout.libraryWidth}
+                min={LIBRARY.min}
+                max={LIBRARY.max}
+                target={() => frameRef.current}
+                cssVar="--lib-current"
+                onCommit={(libraryWidth) => updateLayout({ libraryWidth })}
+              />
+            </div>
+          )}
+        </div>
+        {desktop === true ? null : <MobileTopBar onShortcuts={showShortcuts} />}
+        <main
+          id="main-content"
+          ref={mainRef}
+          data-scroll-root
+          className="app-main"
+        >
+          {lyricsView ? (
+            <LyricsView />
+          ) : (
+            <>
+              {/* Page gutters; full-bleed headers pull back out with
+                    the same variables. */}
+              <div className="px-(--content-x) pt-(--page-top) pb-8">
+                <Outlet />
+              </div>
+              <PageFooter />
+            </>
+          )}
+        </main>
+        <div className="app-panel">
+          {desktop === false ? null : (
+            <>
+              {panel === "now-playing" ? <NowPlayingPanel /> : null}
+              {panel === "queue" ? <QueueView /> : null}
+            </>
+          )}
+        </div>
+        <div className="app-bar">
+          {desktop === false ? null : (
+            <div className="max-md:hidden">
+              <PlayerBar />
+            </div>
+          )}
+          {desktop === true ? null : (
+            <div className="md:hidden">
+              <MobileChrome />
+            </div>
+          )}
+        </div>
+      </div>
+      <RouteFocus mainRef={mainRef} />
+      {shortcutsMounted ? (
+        <Suspense fallback={null}>
+          <ShortcutsDialog
+            open={shortcutsOpen}
+            onOpenChange={setShortcutsOpen}
+            characterKeys={characterKeys}
+            onCharacterKeysChange={setCharacterKeys}
+          />
+        </Suspense>
+      ) : null}
+      {tooltips ? (
+        <Suspense fallback={null}>
+          <TooltipLayer />
+        </Suspense>
+      ) : null}
+    </>
   );
+}
+
+/**
+ * Tooltips name icon controls for mouse users, so their code loads once a
+ * device that can hover has finished loading the page.
+ */
+function useIdleTooltips() {
+  const canHover = useMediaQuery("(hover: hover) and (pointer: fine)");
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    if (!canHover) return;
+    return whenIdle(() => setReady(true), 500);
+  }, [canHover]);
+  return ready;
 }

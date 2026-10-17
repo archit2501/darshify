@@ -1,5 +1,5 @@
 import type { AnchorHTMLAttributes, MouseEvent, ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import {
   trackOutcome,
   type OutcomeEvent,

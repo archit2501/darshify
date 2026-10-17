@@ -353,3 +353,20 @@ test("the awards' old playlist address permanently redirects to /liked", async (
     page.getByRole("heading", { level: 1, name: "Selected achievements" }),
   ).toBeVisible();
 });
+
+test("the server function imports nothing Vercel's file tracing leaves out", () => {
+  // react-router/dom (also reached through react-router-dom) resolves to a
+  // file Vercel doesn't package, so the function crashed on every
+  // server-rendered request: 404 pages answered 500.
+  const serverDirectory = join(process.cwd(), "build/server");
+  const bundles = readdirSync(serverDirectory, { recursive: true })
+    .map(String)
+    .filter((file) => file.endsWith(".js"));
+  expect(bundles.length).toBeGreaterThan(0);
+  for (const file of bundles) {
+    const code = readFileSync(join(serverDirectory, file), "utf8");
+    expect(code, file).not.toMatch(
+      /["']react-router-dom["']|react-router\/dom/,
+    );
+  }
+});

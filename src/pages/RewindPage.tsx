@@ -5,7 +5,7 @@ import {
   type KeyboardEvent,
   type MouseEvent,
 } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router";
 import { portfolio } from "../content/portfolio";
 import { rewindSlides, type RewindSlide } from "../content/rewind";
 import {
@@ -42,7 +42,7 @@ function Intro({ slide }: { slide: Extract<RewindSlide, { kind: "intro" }> }) {
 function Stat({ slide }: { slide: Extract<RewindSlide, { kind: "stat" }> }) {
   return (
     <div className="flex h-full flex-col justify-center gap-6">
-      <p className="text-lg font-bold text-white/85">{slide.kicker}</p>
+      <p className="text-lg font-bold">{slide.kicker}</p>
       <ul className="space-y-5">
         {slide.stats.map((stat) => (
           <li key={stat.label}>
@@ -53,7 +53,7 @@ function Stat({ slide }: { slide: Extract<RewindSlide, { kind: "stat" }> }) {
           </li>
         ))}
       </ul>
-      <p className="text-sm text-white/80">
+      <p className="text-sm">
         {slide.note}{" "}
         <Link
           to={slide.href}
@@ -69,7 +69,7 @@ function Stat({ slide }: { slide: Extract<RewindSlide, { kind: "stat" }> }) {
 function List({ slide }: { slide: Extract<RewindSlide, { kind: "list" }> }) {
   return (
     <div className="flex h-full flex-col justify-center gap-5">
-      <p className="text-lg font-bold text-white/85">{slide.kicker}</p>
+      <p className="text-lg font-bold">{slide.kicker}</p>
       <h2 className="text-[clamp(1.75rem,8cqi,2.75rem)] leading-tight font-black tracking-[-0.03em] text-balance">
         {slide.title}
       </h2>
@@ -81,7 +81,7 @@ function List({ slide }: { slide: Extract<RewindSlide, { kind: "list" }> }) {
               className="block rounded-row bg-black/20 px-4 py-3 transition-colors hover:bg-black/30"
             >
               <span className="block font-bold">{item.title}</span>
-              <span className="text-sm text-white/80">{item.detail}</span>
+              <span className="text-sm text-white/85">{item.detail}</span>
             </Link>
           </li>
         ))}

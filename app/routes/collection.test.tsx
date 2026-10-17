@@ -6,11 +6,6 @@ import {
   RouterProvider,
   type LoaderFunctionArgs,
 } from "react-router";
-import {
-  MemoryRouter as DomMemoryRouter,
-  Route as DomRoute,
-  Routes as DomRoutes,
-} from "react-router-dom";
 import { PlayerProvider } from "../../src/player/PlayerProvider";
 import { collectionById } from "../../src/content/selectors";
 import { buildNotFoundMeta, buildRouteMeta } from "../../src/seo/meta";
@@ -30,24 +25,9 @@ function renderCollectionRoute(path: string, routePath: string) {
         path: routePath,
         loader,
         element: createElement(
-          DomMemoryRouter,
-          { initialEntries: [path] },
-          createElement(
-            DomRoutes,
-            null,
-            createElement(DomRoute, {
-              path: routePath,
-              element: createElement(
-                PlayerProvider,
-                { createAudio: () => null, children: null },
-                createElement(
-                  ToastProvider,
-                  null,
-                  createElement(CollectionRoute),
-                ),
-              ),
-            }),
-          ),
+          PlayerProvider,
+          { createAudio: () => null, children: null },
+          createElement(ToastProvider, null, createElement(CollectionRoute)),
         ),
       },
     ],

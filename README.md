@@ -57,6 +57,18 @@ npm run indexnow               # after a production deploy: ask Bing and other I
 
 Work follows the research → plan → execute protocol in `.claude-protocol/`. Each task gets its own `feature/<id>-<slug>` branch and a pull request into the integration branch `feature/spotify-immersion`, which merges only when CI (quality → test → build → browser) is green. The finished redesign reaches production in one pull request into `build/darshify`.
 
+## Quality bars
+
+- **Accessibility: WCAG 2.2 AA.**
+  - axe checks every route at phone, tablet and desktop widths, plus open menus, dialogs and both players (`e2e/accessibility.spec.ts`).
+  - Text over colour is checked against every colour in use (`src/content/contrast.test.ts`).
+  - Keyboard-only use, and focus never hidden under the chrome, are covered in `e2e/keyboard.spec.ts`.
+- **Performance.**
+  - At most 170 KB of gzipped JavaScript and 15 KB of CSS before a page is interactive, and one font file.
+  - No long tasks while scrolling (`e2e/performance.spec.ts`).
+  - Menus, dialogs, the phone player and tooltips load on first use.
+- **Coverage.** 90 % on the runtime allowlist in `vite.config.ts`.
+
 ## Owner checklist for search visibility
 
 These steps happen outside the repository, and they matter as much as the code:

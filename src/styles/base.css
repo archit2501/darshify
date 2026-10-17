@@ -11,17 +11,15 @@
     U+2215, U+FEFF, U+FFFD;
 }
 
+/* Figtree's rupee sign, alone (1 KB, scripts/subset-rupee-font.py): the
+   only character the site uses from the 10 KB latin-ext file. */
 @font-face {
   font-family: "Figtree Variable";
   font-style: normal;
   font-display: swap;
   font-weight: 300 900;
-  src: url("@fontsource-variable/figtree/files/figtree-latin-ext-wght-normal.woff2")
-    format("woff2-variations");
-  unicode-range:
-    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304,
-    U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB,
-    U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  src: url("./fonts/figtree-rupee-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+20B9;
 }
 
 /*
@@ -93,6 +91,12 @@
   }
 
   @media (max-width: 767px) {
+    /* Focus and in-page links scroll clear of the floating top row and the
+       mini player and tabs, never under them (WCAG 2.4.11). */
+    html {
+      scroll-padding-block: var(--page-top) var(--chrome-bottom);
+    }
+
     :where(h1) {
       -webkit-hyphens: auto;
       hyphens: auto;
@@ -123,7 +127,7 @@
     min-width: 0;
     background: var(--color-surface);
     /* Clears the mini player and tab bar pinned to the bottom. */
-    padding-bottom: calc(9.5rem + env(safe-area-inset-bottom));
+    padding-bottom: var(--chrome-bottom);
   }
 
   .app-bar {
@@ -249,24 +253,14 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* Legacy evidence voice: now the same sans, kept until components move. */
-  .evidence-metadata {
-    font-size: 0.875rem;
-    font-variant-numeric: tabular-nums;
-    font-weight: 600;
-  }
-
-  .reading-measure {
-    inline-size: min(100%, 72ch);
-  }
-
-  /* Range inputs: scrubber and volume. Fill comes from --range-pct. */
+  /* Range inputs: scrubber and volume. Fill comes from --range-pct. The
+     input is a 24px target (WCAG 2.5.8); the track inside stays 4px. */
   .range {
     --range-pct: 0%;
     --range-fill: var(--color-fg);
     appearance: none;
     -webkit-appearance: none;
-    block-size: 0.75rem;
+    block-size: 1.5rem;
     inline-size: 100%;
     margin: 0;
     background: transparent;
@@ -351,11 +345,7 @@
     }
   }
 
-  /* The phone player's scrubber: a 24px target with the thumb always on. */
-  .range-sheet {
-    block-size: 1.5rem;
-  }
-
+  /* The phone player's scrubber keeps its thumb on. */
   .range-sheet::-webkit-slider-thumb {
     opacity: 1;
   }
@@ -367,7 +357,7 @@
   /* Notices sit just above the player: the mini player and tabs on phones,
      the player bar from 768px. */
   .toast-region {
-    bottom: calc(9.5rem + env(safe-area-inset-bottom));
+    bottom: var(--chrome-bottom);
   }
 
   @media (min-width: 768px) {
@@ -459,10 +449,14 @@
     animation: rewind-drift 10s ease-in-out infinite alternate;
   }
 
+  /* Both blobs shade, never lighten: slide colours sit near the 4.5:1
+     limit for white text, so the slide colour must stay the lightest
+     thing behind any text (src/content/contrast.test.ts). */
   .rewind-blob-a {
     top: -22%;
     right: -28%;
-    background: #fff;
+    background: #000;
+    opacity: 0.22;
   }
 
   .rewind-blob-b {
@@ -494,6 +488,27 @@
     .rewind-blob,
     .rewind-slide:not([hidden]) {
       animation: none !important;
+    }
+  }
+
+  /* The proof waveform's line draws itself once. pathLength="1" makes one
+     dash the whole line, so the offset runs from hidden to drawn. */
+  .waveform-draw {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: waveform-draw 700ms ease-out forwards;
+  }
+
+  @keyframes waveform-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .waveform-draw {
+      animation: none;
+      stroke-dashoffset: 0;
     }
   }
 

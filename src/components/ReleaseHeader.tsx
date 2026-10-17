@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { artistArt, type CoverArt } from "../content/artwork";
 import { portfolio } from "../content/portfolio";
 import type { Portrait } from "../content/types";
@@ -56,9 +56,9 @@ export function ReleaseHeader({
           {title}
         </h1>
         {description ? (
-          <p className="max-w-3xl text-sm text-white/75">{description}</p>
+          <p className="max-w-3xl text-sm text-white/85">{description}</p>
         ) : null}
-        <p className="flex flex-wrap items-center gap-x-1 text-sm text-white/75">
+        <p className="flex flex-wrap items-center gap-x-1 text-sm text-white/85">
           <Link
             to="/artist"
             className="mr-0.5 flex items-center gap-1.5 font-bold text-fg hover:underline"

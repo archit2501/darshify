@@ -1,5 +1,7 @@
 import { Drawer } from "@base-ui/react/drawer";
-import { Link } from "react-router-dom";
+import type { RefObject } from "react";
+import { Link } from "react-router";
+import { playerSurface } from "../content/color";
 import { portfolio } from "../content/portfolio";
 import {
   CheckCircleIcon,
@@ -37,22 +39,35 @@ import { Visualizer } from "./Visualizer";
  * the song's colour; scrolling on shows the lyrics, the artist, credits and
  * what plays next, as in the mobile app. Must render inside a Drawer.Root.
  */
-export function FullScreenPlayer({ onClose }: { onClose: () => void }) {
+export function FullScreenPlayer({
+  onClose,
+  finalFocus,
+}: {
+  onClose: () => void;
+  /** Where focus goes when the player closes: the mini player. */
+  finalFocus?: RefObject<HTMLElement | null>;
+}) {
   const context = usePlayer((state) => state.context);
   const currentId = usePlayer((state) => state.currentId);
   const track = trackById(currentId);
   if (!track) return null;
+  const surface = playerSurface(track.art.color);
 
   return (
     <Drawer.Portal>
       <Drawer.Backdrop className="fixed inset-0 z-50 bg-black opacity-[calc(0.6*(1-var(--drawer-swipe-progress)))] transition-opacity duration-[450ms] data-ending-style:opacity-0 data-starting-style:opacity-0 data-swiping:duration-0 motion-reduce:transition-none" />
       <Drawer.Viewport className="fixed inset-0 z-50">
-        <Drawer.Popup className="h-dvh w-full overflow-y-auto overscroll-contain bg-surface outline-none [transform:translateY(var(--drawer-swipe-movement-y))] transition-transform duration-[450ms] ease-[cubic-bezier(0.32,0.72,0,1)] data-ending-style:[transform:translateY(100%)] data-ending-style:duration-[calc(var(--drawer-swipe-strength)*400ms)] data-starting-style:[transform:translateY(100%)] data-swiping:select-none data-swiping:duration-0 motion-reduce:transition-none">
+        <Drawer.Popup
+          finalFocus={finalFocus ?? true}
+          className="h-dvh w-full overflow-y-auto overscroll-contain bg-surface outline-none [transform:translateY(var(--drawer-swipe-movement-y))] transition-transform duration-[450ms] ease-[cubic-bezier(0.32,0.72,0,1)] data-ending-style:[transform:translateY(100%)] data-ending-style:duration-[calc(var(--drawer-swipe-strength)*400ms)] data-starting-style:[transform:translateY(100%)] data-swiping:select-none data-swiping:duration-0 motion-reduce:transition-none"
+        >
           <Drawer.Content>
             <div
               className="flex min-h-dvh flex-col px-6 pt-[max(env(safe-area-inset-top),0.75rem)] pb-[max(env(safe-area-inset-bottom),1.5rem)]"
               style={{
-                backgroundImage: `linear-gradient(180deg, ${track.art.color} 0%, color-mix(in srgb, ${track.art.color} 45%, var(--color-surface)) 70%, var(--color-surface) 100%)`,
+                // Stops follow the screen, not the scroll height, so the text
+                // over the colour always has the same contrast.
+                backgroundImage: `linear-gradient(180deg, ${surface} 0, color-mix(in srgb, ${surface} 45%, var(--color-surface)) 70dvh, var(--color-surface) 100dvh)`,
               }}
             >
               <header className="flex items-center gap-2">
@@ -63,7 +78,7 @@ export function FullScreenPlayer({ onClose }: { onClose: () => void }) {
                   <ChevronDownIcon />
                 </Drawer.Close>
                 <Drawer.Title className="min-w-0 flex-1 text-center">
-                  <span className="block text-[0.6875rem] font-semibold tracking-[0.08em] text-white/75 uppercase">
+                  <span className="block text-[0.6875rem] font-semibold tracking-[0.08em] text-white/80 uppercase">
                     Playing from {playingFrom(context)}
                   </span>
                   <span className="block truncate text-sm font-bold">
@@ -134,7 +149,7 @@ function SheetPlayer({ onClose }: { onClose: () => void }) {
           <Link
             to="/artist"
             onClick={onClose}
-            className="block truncate text-white/75"
+            className="block truncate text-white/80"
           >
             {portfolio.candidate.name}
           </Link>
@@ -197,7 +212,7 @@ function SheetPlayer({ onClose }: { onClose: () => void }) {
         <a
           href={portfolio.candidate.resumeUrl}
           download
-          className="flex h-10 items-center gap-2 rounded-full text-sm font-semibold text-white/75"
+          className="flex h-10 items-center gap-2 rounded-full text-sm font-semibold text-white/80"
         >
           <DownloadIcon size={20} /> Download CV
         </a>

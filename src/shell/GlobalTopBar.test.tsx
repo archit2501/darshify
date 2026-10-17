@@ -1,10 +1,6 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { useRef } from "react";
-import {
-  createMemoryRouter,
-  RouterProvider,
-  useLocation,
-} from "react-router-dom";
+import { createMemoryRouter, RouterProvider, useLocation } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { absoluteUrl } from "../seo/site";
 import { portfolio } from "../content/portfolio";
@@ -129,7 +125,12 @@ describe("GlobalTopBar", () => {
 
   it("opens the account menu with every way to reach Darshil", async () => {
     const writeText = vi.fn(() => Promise.resolve());
-    vi.stubGlobal("navigator", { ...navigator, clipboard: { writeText } });
+    // Only the clipboard is faked: the menu's code (loaded on first open)
+    // reads the real navigator.
+    Object.defineProperty(window.navigator, "clipboard", {
+      configurable: true,
+      value: { writeText },
+    });
     renderTopBar();
     fireEvent.click(
       screen.getByRole("button", {
@@ -149,6 +150,7 @@ describe("GlobalTopBar", () => {
     );
     // Shared links point at the live site, even from a preview deploy.
     expect(writeText).toHaveBeenCalledWith(absoluteUrl("/artist"));
+    Reflect.deleteProperty(window.navigator, "clipboard");
   });
 });
 

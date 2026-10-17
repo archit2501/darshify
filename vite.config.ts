@@ -7,7 +7,7 @@ const coverageScope = process.env.COVERAGE_SCOPE;
 const designSystemRuntime = [
   "src/lib/useReducedMotion.ts",
   "src/lib/useMediaQuery.ts",
-  "src/motion/MotionProvider.tsx",
+  "src/lib/idle.ts",
   "src/shell/AppShell.tsx",
   "src/shell/PlayButton.tsx",
   "src/shell/LibraryPanel.tsx",
@@ -40,6 +40,11 @@ const semanticShellRuntime = [
   "src/shell/songActions.ts",
   "src/shell/SongMenu.tsx",
   "src/shell/ReleaseMenu.tsx",
+  "src/shell/popups/lazy.ts",
+  "src/shell/popups/triggers.ts",
+  "src/shell/popups/Menus.tsx",
+  "src/shell/popups/PhonePlayer.tsx",
+  "src/shell/popups/TooltipLayer.tsx",
   "src/shell/ShortcutsDialog.tsx",
   "src/shell/useShortcuts.ts",
   "src/components/MediaCard.tsx",
@@ -125,6 +130,11 @@ const coverageRuntime =
 
 export default defineConfig({
   plugins: [tailwindcss(), ...(process.env.VITEST ? [react()] : reactRouter())],
+  build: {
+    // Fonts stay files: inlined into the stylesheet as base64 they'd
+    // download on every page and barely compress.
+    assetsInlineLimit: (file) => (file.endsWith(".woff2") ? false : undefined),
+  },
   server: {
     watch: {
       ignored: ["**/.react-router/**", "**/.vercel/**", "**/build/**"],

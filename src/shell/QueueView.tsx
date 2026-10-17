@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { CloseIcon } from "../icons/icons";
 import { usePlayer, usePlayerActions } from "../player/hooks";
 import { trackById } from "../player/tracks";

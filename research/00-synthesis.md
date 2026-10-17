@@ -80,3 +80,15 @@
 - About 15 tests encode the recruiter-first stance and must be rewritten deliberately. The Spotify-logo facsimile guard stays.
 - 28 hard-coded route and social-card counts; social cards must be regenerated whenever titles or routes change.
 - The prerendered HTML must keep main content, H1s and links (e2e "core content without JavaScript" checks).
+
+## Learnings during delivery
+
+- **4.1.2: the contact answer leaked the email.** The FAQ's "How do I contact Darshil Jain?" printed the address into FAQPage JSON-LD and `llms.txt`. It now points to the Email and LinkedIn buttons, and tests keep the email and phone out of every machine-readable file.
+- **4.2.1: Base UI and Motion sat on every page's critical path.** Base UI with floating-ui was ~62 KB gzipped, Motion ~25 KB, and initial JS was ~250 KB against a 170 KB budget. Menus, dialogs, the phone player's drawer and tooltips now load on first use behind plain server-rendered buttons, which keeps the prerendered HTML unchanged. Initial JS is now ~150 KB.
+- **4.2.1: this supersedes C4's "Motion as the only animation runtime".** Motion's one use (the proof waveform's draw-on) is CSS now, so CSS is the only animation runtime.
+- **4.2.1: Tailwind 4 scanned the whole repository.** Plans, research and old docs added ~1.4 KB gzipped of unused CSS. Sources are now limited to `src/` and `app/`.
+- **4.2.1: `new AudioContext()` can block for ~200 ms.** This is browser audio-device setup. The engine is now built in idle time after the visitor's first click or key press, so Play only resumes it.
+- **4.2.1: axe can't measure text over gradients.** The colour rules are unit-tested across every song, release, genre and Rewind colour (`src/content/contrast.test.ts`). Two Rewind colours were deepened slightly. Text on player surfaces is ≥80% white over the song colour 20% darker.
+- **4.2.1: phones need `scroll-padding` under fixed chrome.** Without it, keyboard focus slid under the mini player and tab bar (WCAG 2.4.11).
+- **4.2.1: Figtree's Latin subset has no rupee sign.** A 1 KB glyph subset replaces the 10 KB latin-ext file.
+- **4.2.1: the server function crashed on Vercel.** Every server-rendered request (unknown URLs, bad slugs) answered 500 `FUNCTION_INVOCATION_FAILED`. The cause: `react-router-dom` pulls in `react-router/dom`, a file Vercel's file tracing leaves out of the function. Production, built in August, was unaffected, but any rebuild would have broken it. Imports now come from `react-router` only, and ESLint plus a check on the server bundle guard it. Lesson: validate the deployed preview, not just the local server.

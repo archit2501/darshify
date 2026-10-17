@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router";
 import { BrowseTile } from "../components/BrowseTile";
 import { SearchField } from "../components/SearchField";
 import { SearchResults } from "../components/SearchResults";

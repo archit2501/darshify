@@ -1,3 +1,7 @@
-@import "tailwindcss";
+/* Classes come from the app's code only, not from docs, plans or research
+   notes in the repository (which would add unused CSS). */
+@import "tailwindcss" source(none);
+@source "./";
+@source "../app";
 @import "./styles/tokens.css";
 @import "./styles/base.css";

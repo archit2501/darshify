@@ -102,7 +102,7 @@ export function rewindSlides(): RewindSlide[] {
     {
       kind: "stat",
       id: "figmenta",
-      color: "#0d73ec",
+      color: "#0c6cde",
       kicker: "Busiest stretch, at Figmenta",
       stats: [stat("figmenta-resumes"), stat("figmenta-projects")],
       note: "Jan–Feb 2026, from Darshil Jain's résumé.",
@@ -123,7 +123,7 @@ export function rewindSlides(): RewindSlide[] {
     {
       kind: "stat",
       id: "igniters",
-      color: "#e8115b",
+      color: "#da1056",
       kicker: "Built from zero",
       stats: [stat("igniters-members"), stat("converge-participants")],
       note: "The Igniters Club chapter, and Converge 2026.",
