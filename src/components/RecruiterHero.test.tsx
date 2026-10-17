@@ -2,7 +2,6 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import { portfolio } from "../content/portfolio";
-import { artifactById } from "../content/selectors";
 import { RecruiterHero } from "./RecruiterHero";
 
 beforeEach(() => {
@@ -79,14 +78,9 @@ describe("RecruiterHero", () => {
       </MemoryRouter>,
     );
 
-    const artwork = portfolio.candidate.profileArtwork;
-    const artifact = artifactById(artwork.artifactId);
-    expect(artifact).toBeDefined();
-    if (!artifact?.image) return;
-    expect(screen.getByRole("img", { name: artifact.alt })).toHaveAttribute(
-      "src",
-      artifact.image.src,
-    );
+    const cover = document.querySelector('[data-cover="darshil-jain"] img');
+    expect(cover).toHaveAttribute("src", "/covers/artist.svg");
+    expect(cover).toHaveAttribute("alt", "");
     expect(
       screen.getByRole("img", {
         name: /Darshil Jain's one-page résumé covering education/i,

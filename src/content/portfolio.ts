@@ -1,3 +1,4 @@
+import { portrait } from "./portrait.generated";
 import type { CaseStudy, Portfolio, ProofPoint } from "./types";
 
 // Every fact below comes from Darshil Jain's résumé (public/Darshil_Jain_Resume.pdf).
@@ -5,7 +6,6 @@ import type { CaseStudy, Portfolio, ProofPoint } from "./types";
 // instead of repeating a disclaimer next to every number.
 const RESUME_SOURCE_ID = "darshil-resume";
 const RESUME_ARTIFACT_ID = "darshil-resume-pdf";
-const PROFILE_ARTIFACT_ID = "darshil-profile-square";
 const LOR_ARTIFACT_ID = "mj-letter-of-recommendation";
 
 const resumeProof = (
@@ -589,10 +589,7 @@ export const portfolio: Portfolio = {
       start: 2024,
       end: 2027,
     },
-    profileArtwork: {
-      artifactId: PROFILE_ARTIFACT_ID,
-      proofId: "figmenta-resumes",
-    },
+    portrait,
     email: "darshijain0809@gmail.com",
     phone: "+91 9268264843",
     linkedInUrl: "https://www.linkedin.com/in/darshil-jain-611a3332b",
@@ -856,21 +853,6 @@ export const portfolio: Portfolio = {
       sourceIds: [RESUME_SOURCE_ID],
       status: "self-reported",
     },
-    {
-      id: PROFILE_ARTIFACT_ID,
-      title: "Darshil Jain profile cover",
-      kind: "presentation",
-      alt: "Darshil Jain profile cover: 500+ résumés screened at Figmenta.",
-      provenance:
-        "Typographic cover generated from the résumé's 500+ résumés screened figure.",
-      sourceIds: [RESUME_SOURCE_ID],
-      status: "self-reported",
-      image: {
-        src: "/artifacts/profile-square.svg",
-        width: 800,
-        height: 800,
-      },
-    },
   ],
   caseStudies,
   collections: [
@@ -881,8 +863,6 @@ export const portfolio: Portfolio = {
       releaseType: "Playlist",
       description:
         "The essential Darshil Jain: operations, strategy, people and leadership, in eight songs.",
-      cover: "/artifacts/profile-square.svg",
-      gradient: "linear-gradient(135deg,#0f6e4f,#062a1e)",
       color: "#0f6e4f",
       caseStudyIds: ["r1", "l1", "r2", "p1", "p2", "r3", "a3", "a2"],
     },
@@ -893,8 +873,6 @@ export const portfolio: Portfolio = {
       releaseType: "EP",
       description:
         "Three internships across operations and human resources, 2025–2026.",
-      cover: "/artifacts/experience.svg",
-      gradient: "linear-gradient(135deg,#2d46b9,#101a4a)",
       color: "#2d46b9",
       caseStudyIds: ["r1", "r2", "r3"],
     },
@@ -905,8 +883,6 @@ export const portfolio: Portfolio = {
       releaseType: "Album",
       description:
         "Consulting, strategy and analytics: a paid startup engagement, an IIT Guwahati capstone, an expansion case and a dashboard.",
-      cover: "/artifacts/projects.svg",
-      gradient: "linear-gradient(135deg,#b8336a,#4a1029)",
       color: "#b8336a",
       caseStudyIds: ["p1", "p2", "p3", "p4"],
     },
@@ -917,8 +893,6 @@ export const portfolio: Portfolio = {
       releaseType: "Single",
       description:
         "Igniters Club: a campus chapter grown from zero to 80+ members, and a 1,000-person fest.",
-      cover: "/artifacts/skills.svg",
-      gradient: "linear-gradient(135deg,#c2491d,#4d1a08)",
       color: "#c2491d",
       caseStudyIds: ["l1"],
     },
@@ -929,8 +903,6 @@ export const portfolio: Portfolio = {
       releaseType: "Playlist",
       description:
         "Every role and project, sorted by the skills it put to work.",
-      cover: "/artifacts/skills.svg",
-      gradient: "linear-gradient(135deg,#107a65,#05302a)",
       color: "#107a65",
       caseStudyIds: ["r1", "r2", "r3", "p1", "p2", "p3", "p4", "l1"],
     },
@@ -941,8 +913,6 @@ export const portfolio: Portfolio = {
       releaseType: "EP",
       description:
         "Programs from Hult Prize IIT Bombay, IIT Guwahati and IIM Bangalore.",
-      cover: "/artifacts/certifications.svg",
-      gradient: "linear-gradient(135deg,#1d6fa5,#0a2a40)",
       color: "#1d6fa5",
       caseStudyIds: ["c1", "c2", "c3"],
     },
@@ -953,8 +923,6 @@ export const portfolio: Portfolio = {
       releaseType: "Playlist",
       description:
         "A business plan win, a national championship final, 4th at IIM Calcutta and top 10% at IIT Guwahati.",
-      cover: "/artifacts/achievements.svg",
-      gradient: "linear-gradient(135deg,#503aa8,#8d8dda)",
       color: "#503aa8",
       caseStudyIds: ["a3", "a1", "a2", "a4"],
     },
@@ -965,8 +933,6 @@ export const portfolio: Portfolio = {
       releaseType: "Album",
       description:
         "BBA at Maharaja Surajmal Institute (CGPA 9.39) and Class XII (88%).",
-      cover: "/artifacts/education.svg",
-      gradient: "linear-gradient(135deg,#8a6a12,#3a2c06)",
       color: "#8a6a12",
       caseStudyIds: ["e1", "e2"],
     },

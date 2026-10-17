@@ -1,3 +1,4 @@
+import { releaseArt } from "../content/artwork";
 import { useCareerMix } from "../career-mix/CareerMixContext";
 import { RecruiterHero } from "../components/RecruiterHero";
 import { Shelf } from "../shell/Shelf";
@@ -46,8 +47,8 @@ export function Home({ initialGreeting }: { initialGreeting: string }) {
               eyebrow={`${caseStudy.kind} · ${caseStudy.organization}`}
               actionLabel="Read case study"
               evidenceKind={caseStudy.kind}
-              gradient={collection.gradient}
-              cover={collection.cover}
+              gradient={releaseArt(collection).gradient}
+              cover={releaseArt(collection).src}
             />
           );
         })}
@@ -71,8 +72,8 @@ export function Home({ initialGreeting }: { initialGreeting: string }) {
             eyebrow="Evidence category"
             actionLabel="Explore collection"
             evidenceKind="collection"
-            gradient={collection.gradient}
-            cover={collection.cover}
+            gradient={releaseArt(collection).gradient}
+            cover={releaseArt(collection).src}
           />
         ))}
       </Shelf>

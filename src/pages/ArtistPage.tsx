@@ -1,13 +1,13 @@
 import { Link } from "react-router-dom";
 import { useCareerMix } from "../career-mix/CareerMixContext";
 import { ContactActions } from "../components/ContactActions";
-import { EvidenceCover } from "../components/EvidenceCover";
+import { Cover } from "../shell/Cover";
+import { artistArt } from "../content/artwork";
 import { ProofTrackRow } from "../components/ProofTrackRow";
 import { ProofWaveform } from "../components/ProofWaveform";
 import { ReleaseCard } from "../components/ReleaseCard";
 import { portfolio } from "../content/portfolio";
 import {
-  artifactById,
   caseStudyById,
   caseStudyEvidenceById,
   proofById,
@@ -44,12 +44,6 @@ const education = ["e1", "e2"].map((id) => {
   if (!caseStudy) throw new Error(`Missing profile education: ${id}`);
   return caseStudy;
 });
-
-const profileArtwork = (() => {
-  const artwork = artifactById(portfolio.candidate.profileArtwork.artifactId);
-  if (!artwork?.image) throw new Error("Missing candidate profile artwork");
-  return artwork;
-})();
 
 const sectionClass = "mt-12 scroll-mt-24";
 const sectionHeadingClass = "text-section-title font-black text-text";
@@ -133,7 +127,11 @@ export function ArtistPage() {
           </div>
 
           <div className="hidden overflow-hidden rounded-lg border border-line shadow-xl sm:block">
-            <EvidenceCover artifact={profileArtwork} aspect="1:1" priority />
+            <Cover
+              art={artistArt}
+              portrait={portfolio.candidate.portrait}
+              priority
+            />
           </div>
         </div>
       </section>

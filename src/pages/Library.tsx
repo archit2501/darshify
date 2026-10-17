@@ -1,3 +1,4 @@
+import { releaseArt } from "../content/artwork";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { portfolio } from "../content/portfolio";
@@ -29,8 +30,8 @@ function LibraryRelease({ collection }: { collection: Collection }) {
         className="group grid h-full grid-cols-[5rem_minmax(0,1fr)] gap-4 rounded-lg border border-line bg-elevated p-3 transition-colors duration-[var(--transition-hover)] hover:border-muted sm:grid-cols-1 sm:p-4"
       >
         <Art
-          src={collection.cover}
-          gradient={collection.gradient}
+          src={releaseArt(collection).src}
+          gradient={releaseArt(collection).gradient}
           alt=""
           className="aspect-square rounded-md shadow-lg"
         />

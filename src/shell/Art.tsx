@@ -1,13 +1,5 @@
-const authoredDimensions: Record<string, { width: number; height: number }> = {
-  "/artifacts/profile-wide.svg": { width: 1280, height: 720 },
-  "/artifacts/profile-square.svg": { width: 800, height: 800 },
-  "/artifacts/experience.svg": { width: 800, height: 800 },
-  "/artifacts/projects.svg": { width: 800, height: 800 },
-  "/artifacts/skills.svg": { width: 800, height: 800 },
-  "/artifacts/certifications.svg": { width: 800, height: 800 },
-  "/artifacts/achievements.svg": { width: 800, height: 800 },
-  "/artifacts/education.svg": { width: 800, height: 800 },
-};
+// Generated covers (scripts/generate-covers.ts) are all 600 by 600.
+const COVER_SIZE = 600;
 
 // Renderer for authored presentation covers. EvidenceCover is used when a
 // surface owns a typed Artifact rather than a typed Collection cover.
@@ -24,7 +16,9 @@ export function Art({
   alt?: string;
   priority?: boolean;
 }) {
-  const dimensions = src ? authoredDimensions[src] : undefined;
+  const dimensions = src?.startsWith("/covers/")
+    ? { width: COVER_SIZE, height: COVER_SIZE }
+    : undefined;
 
   return (
     <div

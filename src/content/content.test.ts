@@ -4,9 +4,6 @@ import type { EvidenceStatus, ReleaseType } from "./types";
 import { relativeLuminance } from "./color";
 import { validatePortfolio } from "./validate";
 
-const candidateArtwork = (candidate: typeof portfolio.candidate) =>
-  candidate.profileArtwork;
-
 const expectedFeaturedProofByCaseId: Record<string, string | null> = {
   r1: "figmenta-resumes",
   r2: "psr-clients",
@@ -92,71 +89,19 @@ describe("portfolio content", () => {
     );
   });
 
-  // Regression: a profile cover outside typed content can retain a stale quantitative claim after its canonical proof changes.
-  it("models candidate artwork as an image-backed artifact tied to its canonical proof", () => {
-    const artwork = candidateArtwork(portfolio.candidate);
+  it("publishes no placeholder as a photo and validates a supplied portrait", () => {
+    expect(portfolio.candidate.portrait).toBeNull();
 
-    expect(artwork).toEqual({
-      artifactId: "darshil-profile-square",
-      proofId: "figmenta-resumes",
-    });
-
-    if (!artwork) return;
-    const artifact = portfolio.artifacts.find(
-      (item) => item.id === artwork.artifactId,
-    );
-    const proof = portfolio.proofPoints.find(
-      (item) => item.id === artwork.proofId,
-    );
-
-    expect(artifact?.image?.src).toBe("/artifacts/profile-square.svg");
-    expect(artifact?.sourceIds).toEqual(["darshil-resume"]);
-    expect(artifact?.provenance).toContain("500+ résumés");
-    expect(proof?.value).toBe(500);
-    expect(proof?.display).toBe("500+");
-    expect(proof?.label).toBe("résumés screened");
-  });
-
-  it("rejects unresolved or differently sourced candidate artwork evidence", () => {
-    const missingArtifact = structuredClone(portfolio);
-    missingArtifact.candidate.profileArtwork = {
-      artifactId: "missing-artifact",
-      proofId: "figmenta-resumes",
+    const withPortrait = structuredClone(portfolio);
+    withPortrait.candidate.portrait = {
+      dominantColor: "#fafafa",
+      variants: [],
     };
+    const errors = validatePortfolio(withPortrait);
 
-    expect(validatePortfolio(missingArtifact)).toContain(
-      "Candidate profile artwork references unknown artifact missing-artifact",
-    );
-
-    const missingProof = structuredClone(portfolio);
-    const missingProofArtwork = candidateArtwork(missingProof.candidate);
-    expect(missingProofArtwork).toBeDefined();
-    if (!missingProofArtwork) return;
-    missingProofArtwork.proofId = "missing-proof";
-
-    expect(validatePortfolio(missingProof)).toContain(
-      "Candidate profile artwork references unknown proof missing-proof",
-    );
-
-    const differentlySourced = structuredClone(portfolio);
-    const artwork = candidateArtwork(differentlySourced.candidate);
-    expect(artwork).toBeDefined();
-    if (!artwork) return;
-    const artworkArtifact = differentlySourced.artifacts.find(
-      (item) => item.id === artwork.artifactId,
-    );
-    expect(artworkArtifact).toBeDefined();
-    if (!artworkArtifact) return;
-    artworkArtifact.sourceIds = ["different-source"];
-    differentlySourced.sources.push({
-      id: "different-source",
-      title: "Different source",
-      kind: "public-link",
-      note: "A real but unrelated source.",
-    });
-
-    expect(validatePortfolio(differentlySourced)).toContain(
-      "Candidate profile artwork darshil-profile-square and proof figmenta-resumes must share an evidence source",
+    expect(errors).toContain("Candidate portrait has no image variants");
+    expect(errors).toContain(
+      "Candidate portrait colour #fafafa is too light for white text",
     );
   });
 
