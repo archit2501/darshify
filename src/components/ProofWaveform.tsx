@@ -59,7 +59,7 @@ export function ProofWaveform({
         role="img"
         aria-labelledby={`${titleId} ${descriptionId}`}
         viewBox={`0 0 ${width} ${height}`}
-        className="block h-auto w-full"
+        className={`block h-auto w-full ${compact ? "max-sm:hidden" : ""}`}
       >
         <title id={titleId}>Career Proof Waveform</title>
         <desc id={descriptionId}>

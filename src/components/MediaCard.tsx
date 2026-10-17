@@ -21,6 +21,10 @@ export interface MediaCardProps {
   play?: { context: PlayContext; trackId?: string };
   /** The item's right-click menu. */
   menu?: { kind: "release" | "song"; id: string };
+  /** What the card is (song kind or "collection"), for styling and tests. */
+  kind?: string;
+  /** A fuller accessible name for the card's link, e.g. "Read case study: …". */
+  linkLabel?: string;
 }
 
 const cardClass =
@@ -42,6 +46,8 @@ export function MediaCard({
   round = false,
   play,
   menu,
+  kind,
+  linkLabel,
 }: MediaCardProps) {
   const playingHere = usePlayer(
     (state) =>
@@ -77,6 +83,7 @@ export function MediaCard({
       <h3 className="truncate font-bold">
         <Link
           to={href}
+          aria-label={linkLabel}
           className="after:absolute after:inset-0 after:rounded-panel focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-fg"
         >
           {title}
@@ -92,7 +99,7 @@ export function MediaCard({
     return (
       <ReleaseContextMenu
         releaseId={menu.id}
-        render={<article className={cardClass} />}
+        render={<article data-evidence-kind={kind} className={cardClass} />}
       >
         {body}
       </ReleaseContextMenu>
@@ -103,11 +110,15 @@ export function MediaCard({
       <SongContextMenu
         songId={menu.id}
         context={play?.context}
-        render={<article className={cardClass} />}
+        render={<article data-evidence-kind={kind} className={cardClass} />}
       >
         {body}
       </SongContextMenu>
     );
   }
-  return <article className={cardClass}>{body}</article>;
+  return (
+    <article data-evidence-kind={kind} className={cardClass}>
+      {body}
+    </article>
+  );
 }

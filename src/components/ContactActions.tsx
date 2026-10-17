@@ -8,6 +8,8 @@ export type ContactActionsPlacement = "hero" | "rail" | "topbar";
 interface ContactActionsProps {
   candidate: CandidateProfile;
   placement: ContactActionsPlacement;
+  /** On phones, Email and LinkedIn become 44px icon buttons (names kept). */
+  compactOnPhones?: boolean;
   onAction?: (
     action: ContactAction,
     placement: ContactActionsPlacement,
@@ -26,9 +28,13 @@ const baseActionClass =
 export function ContactActions({
   candidate,
   placement,
+  compactOnPhones = false,
   onAction,
 }: ContactActionsProps) {
   const labelClass = placement === "topbar" ? "sr-only" : undefined;
+  const secondaryLabel =
+    labelClass ?? (compactOnPhones ? "max-sm:sr-only" : undefined);
+  const secondaryShape = compactOnPhones ? "max-sm:w-11 max-sm:px-0" : "";
   const track = (action: ContactAction) => () => onAction?.(action, placement);
 
   return (
@@ -56,10 +62,10 @@ export function ContactActions({
         properties={{ placement }}
         onClick={track("email")}
         data-motion-transform
-        className={`${baseActionClass} border border-line text-white hover:border-white`}
+        className={`${baseActionClass} ${secondaryShape} border border-line text-white hover:border-white`}
       >
         <MailIcon size={18} />
-        <span className={labelClass}>Email</span>
+        <span className={secondaryLabel}>Email</span>
       </OutcomeLink>
       <OutcomeLink
         href={candidate.linkedInUrl}
@@ -69,10 +75,10 @@ export function ContactActions({
         rel="noreferrer noopener"
         onClick={track("linkedin")}
         data-motion-transform
-        className={`${baseActionClass} border border-line text-white hover:border-white`}
+        className={`${baseActionClass} ${secondaryShape} border border-line text-white hover:border-white`}
       >
         <LinkedInIcon size={18} />
-        <span className={labelClass}>LinkedIn</span>
+        <span className={secondaryLabel}>LinkedIn</span>
       </OutcomeLink>
     </div>
   );

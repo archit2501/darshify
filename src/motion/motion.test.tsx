@@ -33,7 +33,8 @@ import { PlayPill } from "../shell/PlayPill";
 import { defaultContext, releaseContext } from "../player/tracks";
 import { portfolio } from "../content/portfolio";
 import { AppShell } from "../shell/AppShell";
-import { MediaCard } from "../shell/MediaCard";
+import { MediaCard } from "../components/MediaCard";
+import { releaseArt } from "../content/artwork";
 import { PlayButton } from "../shell/PlayButton";
 import { LibraryPanel } from "../shell/LibraryPanel";
 import { GlobalTopBar } from "../shell/GlobalTopBar";
@@ -279,34 +280,41 @@ describe("editorial motion foundation", () => {
   });
 
   // Regression: a MediaCard can regain a nested fake-play control instead of remaining truthful navigation.
-  it("renders both MediaCard variants as navigation without nested actions", () => {
+  it("renders MediaCard as one link with play beside it, never inside it", () => {
+    const experience = portfolio.collections.find(
+      (item) => item.id === "experience",
+    )!;
     const { rerender } = render(
-      <MemoryRouter>
-        <MediaCard
-          to="/artist"
-          title="Evidence release"
-          subtitle="Sourced result"
-          gradient="linear-gradient(#000,#111)"
-          cover="/cover.png"
-          round
-        />
-      </MemoryRouter>,
+      <PlayerProvider createAudio={() => null}>
+        <MemoryRouter>
+          <MediaCard
+            href="/playlist/experience"
+            title="Evidence release"
+            subtitle="Sourced result"
+            art={releaseArt(experience)}
+            play={{ context: releaseContext(experience) }}
+          />
+        </MemoryRouter>
+      </PlayerProvider>,
     );
 
     expect(screen.getByText("Sourced result")).toBeVisible();
-    expect(
-      screen.getByRole("link", { name: /Evidence release/ }),
-    ).toHaveAttribute("href", "/artist");
-    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+    const link = screen.getByRole("link", { name: "Evidence release" });
+    expect(link).toHaveAttribute("href", "/playlist/experience");
+    const play = screen.getByRole("button", { name: "Play Evidence release" });
+    expect(link).not.toContainElement(play);
 
     rerender(
-      <MemoryRouter>
-        <MediaCard
-          to="/artist"
-          title="Plain release"
-          gradient="linear-gradient(#000,#111)"
-        />
-      </MemoryRouter>,
+      <PlayerProvider createAudio={() => null}>
+        <MemoryRouter>
+          <MediaCard
+            href="/artist"
+            title="Plain release"
+            art={releaseArt(experience)}
+            round
+          />
+        </MemoryRouter>
+      </PlayerProvider>,
     );
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
