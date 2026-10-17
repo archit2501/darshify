@@ -1,15 +1,15 @@
 import { render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
-import { CareerMixProvider } from "../career-mix/CareerMixContext";
+import { PlayerProvider } from "../player/PlayerProvider";
 import { ArtistPage } from "./ArtistPage";
 
 const renderArtist = () =>
   render(
     <MemoryRouter>
-      <CareerMixProvider>
+      <PlayerProvider createAudio={() => null}>
         <ArtistPage />
-      </CareerMixProvider>
+      </PlayerProvider>
     </MemoryRouter>,
   );
 

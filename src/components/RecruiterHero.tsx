@@ -7,8 +7,9 @@ import {
   sourceById,
 } from "../content/selectors";
 import { formatProofValue } from "../content/waveform";
-import { PlayIcon } from "../icons/icons";
 import { ContactActions } from "./ContactActions";
+import { PlayPill } from "../shell/PlayPill";
+import { defaultContext } from "../player/tracks";
 import { EvidenceCover } from "./EvidenceCover";
 import { Cover } from "../shell/Cover";
 import { artistArt } from "../content/artwork";
@@ -51,13 +52,7 @@ const {
   };
 })();
 
-export function RecruiterHero({
-  greeting,
-  onStartCareerMix,
-}: {
-  greeting: string;
-  onStartCareerMix: (trigger: HTMLButtonElement) => void;
-}) {
+export function RecruiterHero({ greeting }: { greeting: string }) {
   return (
     <section
       aria-label="Recruiter briefing"
@@ -109,15 +104,7 @@ export function RecruiterHero({
 
           <div className="mt-4 flex flex-wrap items-start gap-3">
             <ContactActions candidate={portfolio.candidate} placement="hero" />
-            <button
-              type="button"
-              onClick={(event) => onStartCareerMix(event.currentTarget)}
-              data-motion-transform
-              className="interactive-target inline-flex items-center justify-center gap-2 rounded-full border border-text px-4 text-sm font-bold text-text transition-transform duration-[var(--transition-hover-fast)] motion-safe:hover:scale-[1.02]"
-            >
-              <PlayIcon />
-              Start Career Mix
-            </button>
+            <PlayPill context={defaultContext} label="This Is Darshil Jain" />
           </div>
 
           <div className="mt-3 max-w-xl">

@@ -1,26 +1,24 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
-import {
-  CareerMixProvider,
-  useCareerMix,
-} from "../career-mix/CareerMixContext";
+import { usePlayer } from "../player/hooks";
+import { PlayerProvider } from "../player/PlayerProvider";
 import { Home } from "./Home";
 import { portfolio } from "../content/portfolio";
 
-function MixState() {
+function PlayerState() {
   return (
-    <output aria-label="Career Mix state">{useCareerMix().state.status}</output>
+    <output aria-label="Player state">{usePlayer((s) => s.status)}</output>
   );
 }
 
 const renderHome = () =>
   render(
     <MemoryRouter>
-      <CareerMixProvider>
+      <PlayerProvider createAudio={() => null}>
         <Home initialGreeting="Good morning" />
-        <MixState />
-      </CareerMixProvider>
+        <PlayerState />
+      </PlayerProvider>
     </MemoryRouter>,
   );
 
@@ -45,7 +43,7 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("Home recruiter briefing", () => {
-  it("uses one identity heading and starts the truthful Career Mix", () => {
+  it("uses one identity heading and plays This Is Darshil Jain", () => {
     renderHome();
 
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
@@ -56,10 +54,10 @@ describe("Home recruiter briefing", () => {
     expect(screen.queryByText("Your Top Hits")).not.toBeInTheDocument();
     expect(screen.queryByText("Quick picks")).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "Start Career Mix" }));
-    expect(screen.getByLabelText("Career Mix state")).toHaveTextContent(
-      "playing",
+    fireEvent.click(
+      screen.getByRole("button", { name: "Play This Is Darshil Jain" }),
     );
+    expect(screen.getByLabelText("Player state")).toHaveTextContent("playing");
   });
 
   it("renders exactly three typed Recruiter Essentials in the locked order", () => {

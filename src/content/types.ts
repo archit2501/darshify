@@ -172,13 +172,6 @@ export interface CaseStudyEvidence {
   status: EvidenceStatus;
 }
 
-export interface CareerMixChapter {
-  id: string;
-  title: string;
-  summary: string;
-  caseStudyIds: string[];
-}
-
 export interface Portfolio {
   candidate: CandidateProfile;
   sources: EvidenceSource[];
@@ -187,5 +180,4 @@ export interface Portfolio {
   caseStudies: CaseStudy[];
   collections: Collection[];
   genres: Genre[];
-  careerMixChapters: CareerMixChapter[];
 }

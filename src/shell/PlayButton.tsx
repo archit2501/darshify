@@ -1,28 +1,47 @@
-import { PlayIcon, PauseIcon } from "../icons/icons";
+import { PauseIcon, PlayIcon } from "../icons/icons";
+import { usePlayer, usePlayerActions } from "../player/hooks";
+import type { PlayContext } from "../player/tracks";
 
+/**
+ * The big green button. Given a play context it plays that list, and turns
+ * into Pause while that list is the one playing (play pauses and resumes it).
+ * Pass `trackId` to start from a particular song.
+ */
 export function PlayButton({
-  playing = false,
-  onClick,
-  size = 48,
-  label = "Play",
+  context,
+  trackId,
+  label,
+  size = 56,
+  className = "",
 }: {
-  playing?: boolean;
-  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  context: PlayContext;
+  trackId?: string;
+  /** What is being played, e.g. "Experience". */
+  label: string;
   size?: number;
-  label?: string;
+  className?: string;
 }) {
+  const playing = usePlayer(
+    (state) =>
+      state.status === "playing" &&
+      state.context.id === context.id &&
+      (!trackId || state.currentId === trackId),
+  );
+  const { toggleContext } = usePlayerActions();
+
   return (
     <button
-      onClick={onClick}
-      aria-label={playing ? "Pause" : label}
+      type="button"
+      aria-label={`${playing ? "Pause" : "Play"} ${label}`}
+      onClick={() => toggleContext(context, trackId)}
       data-motion-transform
-      className="grid place-items-center rounded-full bg-accent text-black shadow-lg motion-safe:hover:scale-105 motion-safe:active:scale-95 transition-transform"
+      className={`grid shrink-0 place-items-center rounded-full bg-green text-black shadow-play transition-[transform,background-color] duration-(--dur-hover) hover:bg-green-hover active:scale-96 motion-safe:hover:scale-104 ${className}`}
       style={{ width: size, height: size }}
     >
       {playing ? (
-        <PauseIcon size={size * 0.42} />
+        <PauseIcon size={Math.round(size * 0.42)} />
       ) : (
-        <PlayIcon size={size * 0.46} />
+        <PlayIcon size={Math.round(size * 0.46)} />
       )}
     </button>
   );

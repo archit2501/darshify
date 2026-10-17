@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import { portfolio } from "../content/portfolio";
 import { RecruiterHero } from "./RecruiterHero";
+import { PlayerProvider } from "../player/PlayerProvider";
 
 beforeEach(() => {
   vi.stubGlobal("matchMedia", (query: string) => ({
@@ -21,15 +22,12 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe("RecruiterHero", () => {
   it("presents the candidate, proposition, sourced proof, and every first-view conversion", () => {
-    const onStartCareerMix = vi.fn();
-
     render(
-      <MemoryRouter>
-        <RecruiterHero
-          greeting="Good morning"
-          onStartCareerMix={onStartCareerMix}
-        />
-      </MemoryRouter>,
+      <PlayerProvider createAudio={() => null}>
+        <MemoryRouter>
+          <RecruiterHero greeting="Good morning" />
+        </MemoryRouter>
+      </PlayerProvider>,
     );
 
     expect(
@@ -63,19 +61,22 @@ describe("RecruiterHero", () => {
       portfolio.candidate.linkedInUrl,
     );
 
-    const trigger = screen.getByRole("button", {
-      name: "Start Career Mix",
-    });
-    fireEvent.click(trigger);
-    expect(onStartCareerMix).toHaveBeenCalledWith(trigger);
+    fireEvent.click(
+      screen.getByRole("button", { name: "Play This Is Darshil Jain" }),
+    );
+    expect(
+      screen.getByRole("button", { name: "Pause This Is Darshil Jain" }),
+    ).toBeVisible();
     expect(screen.getByText("Good morning")).toHaveClass("sr-only");
   });
 
   it("renders the candidate artwork, proof cover, and compact proof waveform", () => {
     render(
-      <MemoryRouter>
-        <RecruiterHero greeting="Hello" onStartCareerMix={() => undefined} />
-      </MemoryRouter>,
+      <PlayerProvider createAudio={() => null}>
+        <MemoryRouter>
+          <RecruiterHero greeting="Hello" />
+        </MemoryRouter>
+      </PlayerProvider>,
     );
 
     const cover = document.querySelector('[data-cover="darshil-jain"] img');

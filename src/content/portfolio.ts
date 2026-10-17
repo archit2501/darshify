@@ -1011,24 +1011,4 @@ export const portfolio: Portfolio = {
       description: "Shared workspaces that keep teams in sync.",
     },
   ],
-  careerMixChapters: [
-    {
-      id: "operate",
-      title: "Operate",
-      summary: "Build visibility, workflows and continuity.",
-      caseStudyIds: ["r1", "r2", "r3"],
-    },
-    {
-      id: "analyze",
-      title: "Analyze",
-      summary: "Turn research and data into practical recommendations.",
-      caseStudyIds: ["p1", "p2", "p3", "p4"],
-    },
-    {
-      id: "lead",
-      title: "Lead",
-      summary: "Build teams and deliver shared outcomes.",
-      caseStudyIds: ["l1"],
-    },
-  ],
 };

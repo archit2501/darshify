@@ -60,7 +60,6 @@ export const validatePortfolio = (value: Portfolio): string[] => {
     ["case study", value.caseStudies.map((item) => item.id)],
     ["collection", value.collections.map((item) => item.id)],
     ["genre", value.genres.map((item) => item.slug)],
-    ["career mix chapter", value.careerMixChapters.map((item) => item.id)],
   ] as const;
 
   for (const [entityName, ids] of entityGroups) {
@@ -273,7 +272,7 @@ export const validatePortfolio = (value: Portfolio): string[] => {
   }
 
   const validateCaseStudyRefs = (
-    ownerType: "Collection" | "Career mix chapter",
+    ownerType: "Collection",
     ownerId: string,
     ids: string[],
   ) => {
@@ -299,13 +298,6 @@ export const validatePortfolio = (value: Portfolio): string[] => {
       ...colorErrors(`Collection ${collection.id}`, collection.color),
     );
     validateCaseStudyRefs("Collection", collection.id, collection.caseStudyIds);
-  }
-  for (const chapter of value.careerMixChapters) {
-    validateCaseStudyRefs(
-      "Career mix chapter",
-      chapter.id,
-      chapter.caseStudyIds,
-    );
   }
 
   const genreSkills = new Set(value.genres.map((genre) => genre.skill));
