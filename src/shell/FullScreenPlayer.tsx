@@ -27,6 +27,8 @@ import {
   NextInQueueCard,
 } from "./NowPlayingCards";
 import { Scrubber } from "./Scrubber";
+import { useToggleSave } from "./songActions";
+import { SongMenu } from "./SongMenu";
 import { Visualizer } from "./Visualizer";
 
 /**
@@ -68,7 +70,12 @@ export function FullScreenPlayer({ onClose }: { onClose: () => void }) {
                     {context.title}
                   </span>
                 </Drawer.Title>
-                <span aria-hidden="true" className="size-11 shrink-0" />
+                <SongMenu
+                  songId={track.id}
+                  context={context}
+                  size="lg"
+                  className="-mr-2"
+                />
               </header>
               <SheetPlayer onClose={onClose} />
             </div>
@@ -95,15 +102,9 @@ function SheetPlayer({ onClose }: { onClose: () => void }) {
   const shuffle = usePlayer((state) => state.shuffle);
   const repeat = usePlayer((state) => state.repeat);
   const saved = usePlayer((state) => state.saved.includes(state.currentId));
-  const {
-    toggle,
-    next,
-    previous,
-    toggleShuffle,
-    cycleRepeat,
-    toggleSave,
-    toggleLyrics,
-  } = usePlayerActions();
+  const { toggle, next, previous, toggleShuffle, cycleRepeat, toggleLyrics } =
+    usePlayerActions();
+  const toggleSave = useToggleSave();
   const track = trackById(currentId)!;
   const repeatLabel =
     repeat === "off"

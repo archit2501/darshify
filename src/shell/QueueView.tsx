@@ -5,6 +5,11 @@ import { trackById } from "../player/tracks";
 import { Cover } from "./Cover";
 import { Equalizer } from "./Equalizer";
 import { IconButton } from "./IconButton";
+import { SongContextMenu, SongMenu } from "./SongMenu";
+
+/** Row "…" buttons appear on hover or focus, and always on touch screens. */
+const revealOnHover =
+  "opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 data-popup-open:opacity-100 [@media(hover:none)]:opacity-100";
 
 const shallowEqual = (a: readonly string[], b: readonly string[]) =>
   a.length === b.length && a.every((value, index) => value === b[index]);
@@ -17,7 +22,8 @@ export function QueueView() {
   const currentId = usePlayer((state) => state.currentId);
   const playing = usePlayer((state) => state.status === "playing");
   const queue = usePlayer((state) => state.queue, shallowEqual);
-  const contextTitle = usePlayer((state) => state.context.title);
+  const context = usePlayer((state) => state.context);
+  const contextTitle = context.title;
   const upcoming = usePlayer(
     (state) =>
       state.order
@@ -47,9 +53,15 @@ export function QueueView() {
           <h3 id="queue-now" className="mb-2 font-bold">
             Now playing
           </h3>
-          <Link
-            to={now.href}
-            className="flex items-center gap-3 rounded-row p-2 hover:bg-tint"
+          <SongContextMenu
+            songId={now.id}
+            context={context}
+            render={
+              <Link
+                to={now.href}
+                className="flex items-center gap-3 rounded-row p-2 hover:bg-tint"
+              />
+            }
           >
             <Cover art={now.art} size="sm" />
             <span className="min-w-0 flex-1">
@@ -59,7 +71,7 @@ export function QueueView() {
               </span>
             </span>
             {playing ? <Equalizer /> : null}
-          </Link>
+          </SongContextMenu>
         </section>
       ) : null}
 
@@ -72,9 +84,12 @@ export function QueueView() {
             {queue.map((id, index) => {
               const track = trackById(id)!;
               return (
-                <li
+                <SongContextMenu
                   key={`${id}-${index}`}
-                  className="group flex items-center gap-1 rounded-row hover:bg-tint"
+                  songId={id}
+                  render={
+                    <li className="group flex items-center gap-1 rounded-row pr-1 hover:bg-tint" />
+                  }
                 >
                   <button
                     type="button"
@@ -89,13 +104,14 @@ export function QueueView() {
                       </span>
                     </span>
                   </button>
+                  <SongMenu songId={id} className={revealOnHover} />
                   <IconButton
                     label={`Remove ${track.title} from queue`}
                     onClick={() => removeFromQueue(index)}
                   >
                     <CloseIcon size={14} />
                   </IconButton>
-                </li>
+                </SongContextMenu>
               );
             })}
           </ol>
@@ -113,11 +129,18 @@ export function QueueView() {
             {upcoming.map((id, offset) => {
               const track = trackById(id)!;
               return (
-                <li key={id}>
+                <SongContextMenu
+                  key={id}
+                  songId={id}
+                  context={context}
+                  render={
+                    <li className="group flex items-center gap-1 rounded-row pr-1 hover:bg-tint" />
+                  }
+                >
                   <button
                     type="button"
                     onClick={() => playAt(position + 1 + offset)}
-                    className="flex w-full min-w-0 items-center gap-3 rounded-row p-2 text-left hover:bg-tint"
+                    className="flex min-w-0 flex-1 items-center gap-3 p-2 text-left"
                   >
                     <Cover art={track.art} size="sm" />
                     <span className="min-w-0">
@@ -127,7 +150,12 @@ export function QueueView() {
                       </span>
                     </span>
                   </button>
-                </li>
+                  <SongMenu
+                    songId={id}
+                    context={context}
+                    className={revealOnHover}
+                  />
+                </SongContextMenu>
               );
             })}
           </ol>

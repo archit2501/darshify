@@ -19,7 +19,11 @@ function canGoBack() {
  * and a compact Download CV pill. Each control carries its own backdrop so
  * it stays legible over any header colour. The lyrics view has its own.
  */
-export function MobileTopBar() {
+export function MobileTopBar({
+  onShortcuts,
+}: {
+  onShortcuts?: () => void;
+} = {}) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const lyricsView = usePlayer((state) => state.lyricsView);
@@ -31,7 +35,7 @@ export function MobileTopBar() {
     <div className="pointer-events-none fixed inset-x-0 top-0 z-30 flex items-center justify-between px-3 pt-[max(env(safe-area-inset-top),0.5rem)] md:hidden">
       <div className="pointer-events-auto">
         {atRoot ? (
-          <AccountMenu />
+          <AccountMenu onShortcuts={onShortcuts} />
         ) : (
           <button
             type="button"

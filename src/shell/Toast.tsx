@@ -1,32 +1,70 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+import { ToastContext } from "./toastContext";
 
-type Toast = { id: number; text: string };
-const ToastCtx = createContext<(text: string) => void>(() => {});
-// eslint-disable-next-line react-refresh/only-export-components
-export const useToast = () => useContext(ToastCtx);
+interface Notice {
+  id: number;
+  text: string;
+}
 
-let _id = 0;
+export const TOAST_MS = 3000;
+const MAX_VISIBLE = 3;
+
+/**
+ * Notices like the app's ("Added to queue", "Link copied"): a blue tile
+ * centred above the player, newest last. The polite live region is always
+ * mounted, so a screen reader hears each notice once, as it arrives.
+ */
 export function ToastProvider({ children }: { children: ReactNode }) {
-  const [toasts, setToasts] = useState<Toast[]>([]);
-  const push = (text: string) => {
-    const id = ++_id;
-    setToasts((t) => [...t, { id, text }]);
-    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 2400);
-  };
+  const [notices, setNotices] = useState<Notice[]>([]);
+  const nextId = useRef(0);
+  const timers = useRef(new Set<number>());
+
+  useEffect(() => {
+    const pending = timers.current;
+    return () => {
+      pending.forEach((timer) => window.clearTimeout(timer));
+      pending.clear();
+    };
+  }, []);
+
+  const notify = useCallback((text: string) => {
+    nextId.current += 1;
+    const id = nextId.current;
+    setNotices((current) => [
+      ...current.slice(-(MAX_VISIBLE - 1)),
+      { id, text },
+    ]);
+    const timer = window.setTimeout(() => {
+      timers.current.delete(timer);
+      setNotices((current) => current.filter((notice) => notice.id !== id));
+    }, TOAST_MS);
+    timers.current.add(timer);
+  }, []);
+
   return (
-    <ToastCtx.Provider value={push}>
+    <ToastContext.Provider value={notify}>
       {children}
-      <div className="fixed bottom-28 left-1/2 -translate-x-1/2 z-[60] flex flex-col items-center gap-2">
-        {toasts.map((t) => (
-          <div
-            key={t.id}
-            className="bg-accent text-black font-bold text-sm rounded-md px-4 py-2 shadow-lg animate-[toastin_.2s_ease-out]"
+      <div
+        role="status"
+        aria-live="polite"
+        aria-label="Notifications"
+        className="toast-region pointer-events-none fixed inset-x-0 z-[60] flex flex-col items-center gap-2 px-4"
+      >
+        {notices.map((notice) => (
+          <p
+            key={notice.id}
+            className="toast-in max-w-full rounded-art bg-announce px-4 py-3 text-sm font-semibold text-fg shadow-menu"
           >
-            {t.text}
-          </div>
+            {notice.text}
+          </p>
         ))}
       </div>
-      <style>{`@keyframes toastin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}`}</style>
-    </ToastCtx.Provider>
+    </ToastContext.Provider>
   );
 }

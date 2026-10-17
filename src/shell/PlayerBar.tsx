@@ -24,6 +24,8 @@ import { trackById } from "../player/tracks";
 import { Cover } from "./Cover";
 import { IconButton } from "./IconButton";
 import { Scrubber } from "./Scrubber";
+import { useToggleSave } from "./songActions";
+import { SongContextMenu } from "./SongMenu";
 
 /**
  * The always-mounted player bar: what's playing on the left, transport and
@@ -45,12 +47,17 @@ export function PlayerBar() {
 
 function NowPlayingSummary() {
   const currentId = usePlayer((state) => state.currentId);
+  const context = usePlayer((state) => state.context);
   const saved = usePlayer((state) => state.saved.includes(state.currentId));
-  const { toggleSave } = usePlayerActions();
+  const toggleSave = useToggleSave();
   const track = trackById(currentId);
   if (!track) return <div />;
   return (
-    <div className="flex min-w-0 items-center gap-3">
+    <SongContextMenu
+      songId={track.id}
+      context={context}
+      render={<div className="flex min-w-0 items-center gap-3" />}
+    >
       <Cover art={track.art} size="md" />
       <div className="min-w-0">
         <Link
@@ -73,7 +80,7 @@ function NowPlayingSummary() {
       >
         {saved ? <CheckCircleIcon size={16} /> : <PlusCircleIcon size={16} />}
       </IconButton>
-    </div>
+    </SongContextMenu>
   );
 }
 

@@ -15,6 +15,8 @@
   --color-surface-hi: #1f1f1f;
   --color-surface-2: #2a2a2a;
   --color-menu: #282828;
+  /* Notices (toasts): white text on this blue is 5.3:1. */
+  --color-announce: #2a6bc0;
   --color-tint: rgb(255 255 255 / 0.07);
   --color-tint-hover: rgb(255 255 255 / 0.1);
   --color-tint-strong: rgb(255 255 255 / 0.2);

@@ -364,6 +364,29 @@
     opacity: 1;
   }
 
+  /* Notices sit just above the player: the mini player and tabs on phones,
+     the player bar from 768px. */
+  .toast-region {
+    bottom: calc(9.5rem + env(safe-area-inset-bottom));
+  }
+
+  @media (min-width: 768px) {
+    .toast-region {
+      bottom: calc(var(--player-h) + 1.5rem);
+    }
+  }
+
+  .toast-in {
+    animation: toast-in 200ms cubic-bezier(0.3, 0, 0, 1);
+  }
+
+  @keyframes toast-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.5rem) scale(0.98);
+    }
+  }
+
   /* Marquee: a long title drifts across and back (Marquee.tsx measures it). */
   .marquee[data-overflow="true"] {
     text-overflow: clip;

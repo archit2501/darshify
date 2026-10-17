@@ -11,16 +11,12 @@ import {
   UserIcon,
 } from "../icons/icons";
 import { Cover } from "./Cover";
+import { useCopyLink } from "./songActions";
 import {
   menuItemClass,
   menuPopupClass,
   menuSeparatorClass,
 } from "./menuStyles";
-
-const copyProfileLink = () => {
-  const url = new URL("/artist", window.location.origin).href;
-  void navigator.clipboard?.writeText(url).catch(() => undefined);
-};
 
 /**
  * The avatar menu is where the desktop app keeps account actions; here it
@@ -28,6 +24,7 @@ const copyProfileLink = () => {
  */
 export function AccountMenu({ onShortcuts }: { onShortcuts?: () => void }) {
   const { candidate } = portfolio;
+  const copyLink = useCopyLink();
   return (
     <Menu.Root>
       <Menu.Trigger
@@ -77,7 +74,10 @@ export function AccountMenu({ onShortcuts }: { onShortcuts?: () => void }) {
               <ExternalLinkIcon size={14} className="ml-auto text-subdued" />
             </Menu.LinkItem>
             <Menu.Separator className={menuSeparatorClass} />
-            <Menu.Item onClick={copyProfileLink} className={menuItemClass}>
+            <Menu.Item
+              onClick={() => void copyLink("/artist")}
+              className={menuItemClass}
+            >
               <LinkIcon size={16} /> Copy profile link
             </Menu.Item>
             {onShortcuts ? (

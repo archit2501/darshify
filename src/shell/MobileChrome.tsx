@@ -17,6 +17,7 @@ import { durationOf } from "../player/reducer";
 import { trackById } from "../player/tracks";
 import { Cover } from "./Cover";
 import { FullScreenPlayer } from "./FullScreenPlayer";
+import { useToggleSave } from "./songActions";
 
 /**
  * The phone's bottom chrome: a mini player in the playing song's colour,
@@ -51,7 +52,8 @@ function MiniPlayer() {
     (state, elapsed) =>
       Math.round((elapsed / (durationOf(state) || 1)) * 1000) / 1000,
   );
-  const { toggle, toggleSave } = usePlayerActions();
+  const { toggle } = usePlayerActions();
+  const toggleSave = useToggleSave();
   const track = trackById(currentId);
   if (!track) return null;
 

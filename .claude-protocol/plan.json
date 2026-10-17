@@ -380,7 +380,7 @@
               "dependencies": ["2.2.2"],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
               "ciJobs": ["quality", "test", "build", "browser"],
-              "status": "in_progress",
+              "status": "done",
               "criticalPath": true,
               "parallelizable": false
             }
@@ -403,15 +403,18 @@
               "timeComplexity": "n/a",
               "spaceComplexity": "n/a",
               "files": [
-                "src/shell/ContextMenu.tsx",
+                "src/shell/SongMenu.tsx",
+                "src/shell/ReleaseMenu.tsx",
+                "src/shell/songActions.ts",
                 "src/shell/Toast.tsx",
+                "src/shell/toastContext.ts",
                 "src/shell/useShortcuts.ts",
                 "src/shell/ShortcutsDialog.tsx"
               ],
               "dependencies": ["2.3.1"],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
               "ciJobs": ["quality", "test", "build", "browser"],
-              "status": "todo",
+              "status": "in_progress",
               "criticalPath": true,
               "parallelizable": false
             }

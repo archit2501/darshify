@@ -11,6 +11,7 @@ import {
   LyricsCard,
   NextInQueueCard,
 } from "./NowPlayingCards";
+import { SongMenu } from "./SongMenu";
 import { Visualizer } from "./Visualizer";
 
 /**
@@ -19,8 +20,9 @@ import { Visualizer } from "./Visualizer";
  * the artist card and what plays next.
  */
 export function NowPlayingPanel() {
-  const contextTitle = usePlayer((state) => state.context.title);
-  const contextHref = usePlayer((state) => state.context.href);
+  const context = usePlayer((state) => state.context);
+  const contextTitle = context.title;
+  const contextHref = context.href;
   const currentId = usePlayer((state) => state.currentId);
   const playing = usePlayer((state) => state.status === "playing");
   const { closePanel } = usePlayerActions();
@@ -39,6 +41,7 @@ export function NowPlayingPanel() {
         >
           {contextTitle}
         </Link>
+        <SongMenu songId={track.id} context={context} />
         <IconButton label="Hide now playing view" onClick={closePanel}>
           <CloseIcon size={16} />
         </IconButton>

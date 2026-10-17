@@ -152,7 +152,7 @@ describe("QueueView", () => {
     );
     expect(store.getState().currentId).toBe("l1");
     fireEvent.click(
-      within(queue).getByRole("button", { name: /Human Resources Intern/ }),
+      within(queue).getByRole("button", { name: /^Human Resources Intern/ }),
     );
     expect(store.getState().currentId).toBe("r3");
     expect(screen.getByText("Nothing else in this list.")).toBeVisible();

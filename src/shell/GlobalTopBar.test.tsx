@@ -6,6 +6,7 @@ import {
   useLocation,
 } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { absoluteUrl } from "../seo/site";
 import { portfolio } from "../content/portfolio";
 import { PlayerProvider } from "../player/PlayerProvider";
 import { GlobalTopBar } from "./GlobalTopBar";
@@ -146,7 +147,8 @@ describe("GlobalTopBar", () => {
     fireEvent.click(
       screen.getByRole("menuitem", { name: "Copy profile link" }),
     );
-    expect(writeText).toHaveBeenCalledWith(`${window.location.origin}/artist`);
+    // Shared links point at the live site, even from a preview deploy.
+    expect(writeText).toHaveBeenCalledWith(absoluteUrl("/artist"));
   });
 });
 

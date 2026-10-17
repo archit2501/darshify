@@ -18,7 +18,9 @@ test("mobile search is labelled, does not steal focus, and exposes stable groupe
     page.getByRole("region", { name: "Achievements" }),
   ).toBeVisible();
   await expect(page.getByRole("region", { name: "Skills" })).toBeVisible();
-  await expect(page.getByRole("status")).toContainText("matches for");
+  await expect(page.getByRole("main").getByRole("status")).toContainText(
+    "matches for",
+  );
   await expect(
     page.getByRole("region", { name: "Projects" }),
   ).not.toHaveAttribute("aria-live");
@@ -29,7 +31,7 @@ test("mobile search is labelled, does not steal focus, and exposes stable groupe
   ).toHaveAttribute("href", "/case-studies/zautoai-strategy-consulting");
 
   await search.fill("definitely absent");
-  await expect(page.getByRole("status")).toContainText(
+  await expect(page.getByRole("main").getByRole("status")).toContainText(
     "No results for “definitely absent”",
   );
 });
