@@ -27,6 +27,7 @@ npm ci                  # install
 npm run dev             # dev server on http://localhost:5173
 npm run check           # format, lint, type-check, coverage (90% gate) and build
 npm run test:e2e        # build, then Playwright + axe browser tests
+E2E_BASE_URL=https://<deployment> npx playwright test   # the same browser tests against a Vercel preview or production
 npm run build           # production build with prerendered HTML in build/client
 ```
 
@@ -78,3 +79,4 @@ These steps happen outside the repository, and they matter as much as the code:
 3. **Search engines.** Verify the site in Google Search Console and Bing Webmaster Tools, submit `/sitemap.xml`, and request indexing for `/` and `/artist`. After each production deploy, run `npm run indexnow`.
 4. **Profiles.** Use the same headline everywhere ("Darshil Jain · Operations & Strategy · BBA, MSI Delhi · Founder, Igniters Club"), set a custom LinkedIn URL, and link the site from LinkedIn, Unstop and the résumé's Portfolio link.
 5. **Mentions.** Ask Igniters Club, Unstop and competition organizers to link to the site.
+6. **Other profiles.** Add each public profile (Unstop and others) to `profiles` in `src/content/portfolio.ts`. They become the structured data's `sameAs` links, which tell search engines they all belong to one Darshil Jain.

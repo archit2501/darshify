@@ -37,7 +37,7 @@ export function buildPersonJsonLd(candidate: CandidateProfile) {
     url: `${CANONICAL_SITE_ORIGIN}/artist`,
     mainEntityOfPage: { "@id": PROFILE_ID },
     ...(photo ? { image: `${CANONICAL_SITE_ORIGIN}${photo}` } : {}),
-    sameAs: [candidate.linkedInUrl],
+    sameAs: candidate.profiles.map(({ url }) => url),
     knowsAbout: candidate.skills,
     alumniOf: {
       "@type": "CollegeOrUniversity",

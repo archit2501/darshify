@@ -7,7 +7,7 @@
     "stateFile": ".Codex-protocol/state.json",
     "note": "Recruiter-first redesign (Codex). Tasks 4.1.1 in progress, 4.2.1 and 4.3.1 todo at handover."
   },
-  "currentTaskId": "4.2.1",
+  "currentTaskId": "4.3.1",
   "lastQuestionAsked": 10,
   "decisions": {
     "scope": "large",
@@ -27,6 +27,6 @@
     "accessibility_target": "wcag-2.2-aa"
   },
   "researchComplete": true,
-  "lastUpdated": "2026-10-17T07:39:05.700Z",
+  "lastUpdated": "2026-10-17T07:58:45.022Z",
   "planGenerated": true
 }
