@@ -100,9 +100,9 @@ export function AppShell() {
               <LyricsView />
             ) : (
               <>
-                {/* Pages own their gutters once rebuilt (sprint 3); older
-                    pages still rely on this padding. */}
-                <div className="px-4 pt-16 pb-8 md:px-6 md:pt-4">
+                {/* Page gutters; full-bleed headers pull back out with
+                    the same variables. */}
+                <div className="px-(--content-x) pt-(--page-top) pb-8">
                   <Outlet />
                 </div>
                 <PageFooter />
