@@ -5,22 +5,22 @@ import { CANONICAL_SITE_ORIGIN } from "../src/seo/meta";
 const caseStudyPath = (slug: string) => `/case-studies/${slug}`;
 
 const expectedFeaturedProofByCaseId: Record<string, string | undefined> = {
-  r1: "500+ résumés",
-  r2: "70+ clients",
-  r3: "500+ profiles",
+  r1: "500+",
+  r2: "70+",
+  r3: "500+",
   p1: undefined,
-  p2: "10 top percent",
+  p2: "Top 10%",
   p3: undefined,
-  p4: "5+ metrics",
-  l1: "1,000+ participants",
+  p4: "5+",
+  l1: "1,000+",
   a1: undefined,
-  a2: "4 position",
+  a2: "4th",
   a3: undefined,
-  a4: "10 top percent",
-  e1: "9.39 CGPA",
+  a4: "Top 10%",
+  e1: "9.39",
   e2: "88%",
   c1: undefined,
-  c2: "10 top percent",
+  c2: "Top 10%",
   c3: undefined,
 };
 
@@ -82,7 +82,7 @@ test.describe("shareable evidence-rich case studies", () => {
           );
         }
         await expect(
-          page.getByRole("link", { name: "Open source artifact" }),
+          page.getByRole("link", { name: "Open source artifact" }).first(),
         ).toHaveAttribute("href", portfolio.candidate.resumeUrl);
         await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
           "href",
@@ -138,7 +138,7 @@ test.describe("shareable evidence-rich case studies", () => {
         });
 
         const header = page.locator("article > header");
-        await expect(header).toContainText(caseStudy.recruiterTakeaway);
+        await expect(header).toContainText(caseStudy.tagline);
         await expect(header).toContainText(caseStudy.result);
         await expect(header).toContainText("Darshil Jain résumé");
         await expect(header).toContainText("self-reported");

@@ -51,7 +51,7 @@ for (const viewport of viewports) {
     }
     await expect(
       evidenceList.getByRole("link", {
-        name: /Projects tracked.*35\+ projects.*Jan 2026.*Darshil Jain résumé.*self-reported/i,
+        name: /projects tracked.*35\+.*Jan 2026.*Darshil Jain résumé.*self-reported/i,
       }),
     ).toBeVisible();
 

@@ -19,15 +19,15 @@ describe("ProofTrackRow", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: "Operations Internship at Figmenta",
+        name: "Operations Intern at Figmenta",
       }),
     ).toBeVisible();
     expect(screen.getByText("Figmenta · Jan 2026 – Feb 2026")).toBeVisible();
-    expect(screen.getByText("500+ résumés")).toBeVisible();
+    expect(screen.getByText("500+")).toBeVisible();
     expect(screen.getByText("Darshil Jain résumé")).toBeVisible();
     expect(screen.getByText("self-reported")).toBeVisible();
     expect(screen.getByText(/^Outcome:/).parentElement).toHaveTextContent(
-      "improved workflow visibility",
+      "workflow visibility",
     );
 
     const action = screen.getByRole("link", { name: "Read case study" });
@@ -53,7 +53,7 @@ describe("ProofTrackRow", () => {
     );
 
     expect(screen.getByText("Résumé-listed evidence")).toBeVisible();
-    expect(screen.queryByText("Projects tracked")).not.toBeInTheDocument();
+    expect(screen.queryByText("projects tracked")).not.toBeInTheDocument();
     expect(screen.getByText("Darshil Jain résumé")).toBeVisible();
   });
 });

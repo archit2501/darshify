@@ -70,10 +70,10 @@ describe("CareerMixProvider", () => {
 
     expect(screen.getByLabelText("chapter")).toHaveTextContent("Operate");
     expect(screen.getByLabelText("takeaway")).toHaveTextContent(
-      "Build visibility, workflows, and continuity.",
+      "Build visibility, workflows and continuity.",
     );
     expect(screen.getByLabelText("evidence")).toHaveTextContent(
-      "Projects tracked",
+      "projects tracked",
     );
     expect(screen.getByLabelText("href")).toHaveTextContent(
       "/case-studies/figmenta-operations-intern",
@@ -83,7 +83,7 @@ describe("CareerMixProvider", () => {
     fireEvent.click(screen.getByRole("button", { name: "Next" }));
     expect(screen.getByLabelText("chapter")).toHaveTextContent("Analyze");
     expect(screen.getByLabelText("evidence")).toHaveTextContent(
-      "Program recognition",
+      "of program participants",
     );
     expect(screen.getByLabelText("elapsed")).toHaveTextContent("20000");
     expect(Number(screen.getByLabelText("ratio").textContent)).toBeCloseTo(

@@ -57,14 +57,15 @@ function expectNoSimulatedMetadata(
   }
 }
 
+// Spotify's vocabulary (Playlist, EP, songs) is the agreed presentation; what
+// stays banned is invented popularity and playback data.
 const routedPlaybackFictions = [
-  "Playlist",
-  "songs",
   "on repeat",
-  "essential tracks",
   "500,000",
   "4:20",
-  "98,400 monthly listeners",
+  "98,400",
+  "monthly listeners",
+  "Verified",
 ];
 
 function memoryStorage(): Storage {
@@ -126,7 +127,9 @@ describe("routed portfolio pages without the legacy player runtime", () => {
       screen.getByRole("region", { name: "Recruiter Essentials" }),
     ).toBeVisible();
     expect(
-      screen.getAllByText("Operations and recruitment internships.")[0],
+      screen.getAllByText(
+        "Three internships across operations and human resources, 2025–2026.",
+      )[0],
     ).toBeVisible();
     expect(
       screen.getAllByRole("link", { name: /Achievements/ })[0],
@@ -135,7 +138,7 @@ describe("routed portfolio pages without the legacy player runtime", () => {
 
     fireEvent.click(
       screen.getByRole("link", {
-        name: /Skills in context.*Explore collection/,
+        name: /Skills Mix.*Explore collection/,
       }),
     );
     expect(screen.getByLabelText("Current route")).toHaveTextContent(
@@ -156,7 +159,9 @@ describe("routed portfolio pages without the legacy player runtime", () => {
       screen.getByRole("link", { name: "Explore Experience" }),
     ).toHaveAttribute("href", "/playlist/experience");
     expect(
-      screen.getByText("Operations and recruitment internships."),
+      screen.getByText(
+        "Three internships across operations and human resources, 2025–2026.",
+      ),
     ).toBeVisible();
     expectNoSimulatedMetadata(view.container, routedPlaybackFictions);
 
@@ -234,9 +239,7 @@ describe("routed portfolio pages without the legacy player runtime", () => {
     expect(
       screen.queryByRole("button", { name: /Like|Unlike/ }),
     ).not.toBeInTheDocument();
-    fireEvent.contextMenu(
-      screen.getByText("Operations Internship at Figmenta"),
-    );
+    fireEvent.contextMenu(screen.getByText("Operations Intern at Figmenta"));
     expect(screen.queryByText("Add to queue")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Start Career Mix" }));
     expect(screen.getByLabelText("Career Mix state")).toHaveTextContent(
@@ -257,13 +260,13 @@ describe("routed portfolio pages without the legacy player runtime", () => {
     expect(screen.getByRole("heading", { name: "Projects" })).toBeVisible();
     const strategyCase = screen
       .getByRole("heading", {
-        name: "ZautoAI Strategy Consulting Engagement",
+        name: "Strategy Consulting for ZautoAI",
       })
       .closest("article");
     expect(strategyCase).not.toBeNull();
     expect(
       within(strategyCase!).getByRole("link", {
-        name: "Read ZautoAI Strategy Consulting Engagement",
+        name: "Read Strategy Consulting for ZautoAI",
       }),
     ).toHaveAttribute("href", "/case-studies/zautoai-strategy-consulting");
     expectNoSimulatedMetadata(view.container, ["920,000", "3:52"]);
@@ -300,7 +303,7 @@ describe("routed portfolio pages without the legacy player runtime", () => {
     ).toBeVisible();
     expect(
       screen.getByText(
-        "Competition results listed in the candidate-provided résumé.",
+        "A business plan win, a national championship final, 4th at IIM Calcutta and top 10% at IIT Guwahati.",
       ),
     ).toBeVisible();
     expectNoSimulatedMetadata(view.container, routedPlaybackFictions);

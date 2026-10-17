@@ -42,7 +42,7 @@ export function Home({ initialGreeting }: { initialGreeting: string }) {
               key={caseStudy.id}
               to={`/case-studies/${caseStudy.slug}`}
               title={caseStudy.title}
-              subtitle={caseStudy.recruiterTakeaway}
+              subtitle={caseStudy.tagline}
               eyebrow={`${caseStudy.kind} · ${caseStudy.organization}`}
               actionLabel="Read case study"
               evidenceKind={caseStudy.kind}

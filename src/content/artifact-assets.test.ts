@@ -37,7 +37,7 @@ describe("authored evidence SVGs", () => {
     const text = visibleText(filename);
 
     expect(text).toContain(formatProofValue(proof));
-    expect(text).toContain(proof.label);
+    expect(text.toLowerCase()).toContain(proof.label.toLowerCase());
     expect(text).toContain(proof.period);
     expect(text).toContain(proof.status);
     for (const sourceId of proof.sourceIds) {

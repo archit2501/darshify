@@ -33,25 +33,25 @@ describe("Search professional discovery", () => {
   });
 
   it.each([
-    ["organization", "Figmenta", "Operations Internship at Figmenta"],
-    ["skill", "Microsoft Excel", "Operations Internship at Figmenta"],
-    ["situation", "team transition", "Operations Internship at PSR Compliance"],
+    ["organization", "Figmenta", "Operations Intern at Figmenta"],
+    ["skill", "Microsoft Excel", "Operations Intern at Figmenta"],
+    ["situation", "team transition", "Operations Intern at PSR Compliance"],
     [
       "action",
       "behavioral nudges",
-      "Telemedicine Consulting and Analytics Capstone",
+      "Consulting & Analytics Capstone, IIT Guwahati",
     ],
     [
       "result",
       "publication-ready",
       "Haldiram's International Expansion Strategy",
     ],
-    ["takeaway", "operating visibility", "Operations Internship at Figmenta"],
     [
-      "source",
-      "Candidate-authored source",
-      "Operations Internship at Figmenta",
+      "tagline",
+      "hiring workflow it can reuse",
+      "Operations Intern at Figmenta",
     ],
+    ["source", "one-page résumé", "Operations Intern at Figmenta"],
   ])("matches %s evidence deterministically", (_field, query, title) => {
     renderSearch();
     fireEvent.change(screen.getByRole("searchbox"), {
@@ -80,7 +80,7 @@ describe("Search professional discovery", () => {
     const projects = screen.getByRole("region", { name: "Projects" });
     expect(
       within(projects).getByRole("link", {
-        name: "Read ZautoAI Strategy Consulting Engagement",
+        name: "Read Strategy Consulting for ZautoAI",
       }),
     ).toHaveAttribute("href", "/case-studies/zautoai-strategy-consulting");
 
@@ -93,7 +93,7 @@ describe("Search professional discovery", () => {
   it("keeps education and certifications out of Achievements", () => {
     renderSearch();
     fireEvent.change(screen.getByRole("searchbox"), {
-      target: { value: "candidate-authored source" },
+      target: { value: "one-page résumé" },
     });
 
     const achievements = screen.getByRole("region", { name: "Achievements" });
@@ -104,17 +104,17 @@ describe("Search professional discovery", () => {
 
     expect(
       within(achievements).getByRole("heading", {
-        name: "BPlan Showdown Winner",
+        name: "Winner, BPlan Showdown",
       }),
     ).toBeVisible();
     expect(
       within(achievements).queryByRole("heading", {
-        name: "BBA in Business and Industry",
+        name: "BBA (Business & Industry)",
       }),
     ).not.toBeInTheDocument();
     expect(
       within(education).getByRole("heading", {
-        name: "BBA in Business and Industry",
+        name: "BBA (Business & Industry)",
       }),
     ).toBeVisible();
     expect(

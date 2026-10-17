@@ -24,7 +24,7 @@ test("mobile search is labelled, does not steal focus, and exposes stable groupe
   ).not.toHaveAttribute("aria-live");
   await expect(
     page.getByRole("link", {
-      name: "Read ZautoAI Strategy Consulting Engagement",
+      name: "Read Strategy Consulting for ZautoAI",
     }),
   ).toHaveAttribute("href", "/case-studies/zautoai-strategy-consulting");
 
@@ -41,10 +41,10 @@ test("category identity and result groups do not leak shared résumé prose", as
   const search = page.getByRole("searchbox");
 
   const cases: Array<[string, string, string]> = [
-    ["projects", "Projects", "ZautoAI Strategy Consulting Engagement"],
-    ["leadership", "Leadership", "Founder and President of Igniters Club"],
+    ["projects", "Projects", "Strategy Consulting for ZautoAI"],
+    ["leadership", "Leadership", "Founder & President, Igniters Club"],
     ["certifications", "Certifications", "Winter Consulting Program"],
-    ["education", "Education", "BBA in Business and Industry"],
+    ["education", "Education", "BBA (Business & Industry)"],
   ];
 
   for (const [query, group, title] of cases) {

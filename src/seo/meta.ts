@@ -100,7 +100,7 @@ const resolveRoute = (input: RouteMetaInput) => {
       id: `case-study:${input.caseStudy.id}` as RouteId,
       path: `/case-studies/${input.caseStudy.slug}`,
       title: `${input.caseStudy.title} | Darshify`,
-      description: `${input.caseStudy.recruiterTakeaway} ${input.caseStudy.organization}, ${input.caseStudy.period}.`,
+      description: `${input.caseStudy.tagline} ${input.caseStudy.organization}, ${input.caseStudy.period}.`,
       type: "article",
     };
   }

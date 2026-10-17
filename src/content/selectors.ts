@@ -159,7 +159,7 @@ const searchableCaseStudies = portfolio.caseStudies.map((item) => {
         item.role,
         item.period,
         item.kind,
-        item.recruiterTakeaway,
+        item.tagline,
         item.situation,
         ...item.actions,
         item.result,

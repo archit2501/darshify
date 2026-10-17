@@ -46,7 +46,7 @@ function ResultCard({ item }: { item: CaseStudy }) {
           {item.role} · {item.period}
         </p>
         <p className="mt-3 max-w-[65ch] text-metadata leading-relaxed text-muted">
-          {item.recruiterTakeaway}
+          {item.tagline}
         </p>
         <Link
           to={`/case-studies/${item.slug}`}

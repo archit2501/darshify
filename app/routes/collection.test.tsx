@@ -115,7 +115,7 @@ describe("collection route", () => {
     ).toBeVisible();
     const firstAchievement = screen
       .getByRole("heading", {
-        name: "National Business Plan Championship Finalist",
+        name: "Finalist, 13th National Business Plan Championship",
       })
       .closest("article");
     expect(firstAchievement).not.toBeNull();

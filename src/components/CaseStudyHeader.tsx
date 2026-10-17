@@ -39,7 +39,7 @@ export function CaseStudyHeader({
             Recruiter takeaway
           </p>
           <p className="mt-2 font-bold leading-snug text-text">
-            {caseStudy.recruiterTakeaway}
+            {caseStudy.tagline}
           </p>
         </div>
 

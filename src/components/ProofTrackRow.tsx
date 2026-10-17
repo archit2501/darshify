@@ -32,7 +32,7 @@ export function ProofTrackRow({
             {caseStudy.organization} · {caseStudy.period}
           </p>
           <p className="mt-3 max-w-[65ch] font-bold text-text">
-            {caseStudy.recruiterTakeaway}
+            {caseStudy.tagline}
           </p>
           <p className="mt-2 max-w-[72ch] text-metadata leading-relaxed text-muted">
             <span className="font-bold text-text">Outcome:</span>{" "}

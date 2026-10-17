@@ -36,9 +36,9 @@ describe("portfolio selectors", () => {
   });
 
   it("searches canonical source provenance without shared artifact prose", () => {
-    expect(
-      searchPortfolio("candidate-authored source").map((item) => item.id),
-    ).toEqual(portfolio.caseStudies.map((item) => item.id));
+    expect(searchPortfolio("one-page résumé").map((item) => item.id)).toEqual(
+      portfolio.caseStudies.map((item) => item.id),
+    );
   });
 
   it.each([
@@ -59,12 +59,12 @@ describe("portfolio selectors", () => {
   );
 
   it("retains item and source evidence without indexing shared résumé category prose", () => {
-    expect(searchPortfolio("dashboard creator").map((item) => item.id)).toEqual(
+    expect(searchPortfolio("dashboard builder").map((item) => item.id)).toEqual(
       ["p4"],
     );
-    expect(
-      searchPortfolio("candidate-authored source").map((item) => item.id),
-    ).toEqual(portfolio.caseStudies.map((item) => item.id));
+    expect(searchPortfolio("one-page résumé").map((item) => item.id)).toEqual(
+      portfolio.caseStudies.map((item) => item.id),
+    );
   });
 
   it("keeps the median cost of 1,000 searches below the local 50ms guardrail", () => {
@@ -73,7 +73,7 @@ describe("portfolio selectors", () => {
       "Strategic Analysis",
       "behavioral nudges",
       "publication-ready",
-      "candidate-authored source",
+      "one-page résumé",
       "not present",
     ];
     const batches: number[] = [];

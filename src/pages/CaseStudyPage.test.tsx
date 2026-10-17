@@ -136,8 +136,10 @@ describe("case-study pages", () => {
       ).toHaveLength(1);
       expect(header).toHaveTextContent(caseStudy.organization);
       expect(header).toHaveTextContent(caseStudy.role);
-      expect(header).toHaveTextContent(caseStudy.period);
-      expect(header).toHaveTextContent(caseStudy.recruiterTakeaway);
+      if (caseStudy.period) {
+        expect(header).toHaveTextContent(caseStudy.period);
+      }
+      expect(header).toHaveTextContent(caseStudy.tagline);
       expect(header).toHaveTextContent(caseStudy.result);
 
       const expectedFeaturedProofId =
