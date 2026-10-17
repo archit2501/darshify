@@ -456,7 +456,7 @@
               "dependencies": ["2.4.1"],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
               "ciJobs": ["quality", "test", "build", "browser"],
-              "status": "in_progress",
+              "status": "done",
               "criticalPath": true,
               "parallelizable": false
             },
@@ -472,15 +472,19 @@
               "timeComplexity": "n/a",
               "spaceComplexity": "n/a",
               "files": [
+                "src/pages/ReleaseView.tsx",
                 "src/pages/PlaylistPage.tsx",
                 "src/pages/LikedSongs.tsx",
                 "app/routes/collection.tsx",
-                "vercel.json"
+                "src/content/selectors.ts",
+                "src/seo/meta.ts",
+                "vercel.json",
+                "public/sitemap.xml"
               ],
               "dependencies": ["3.1.1"],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
               "ciJobs": ["quality", "test", "build", "browser"],
-              "status": "todo",
+              "status": "in_progress",
               "criticalPath": true,
               "parallelizable": false
             },

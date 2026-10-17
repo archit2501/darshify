@@ -1,6 +1,7 @@
 import type { MetaDescriptor } from "react-router";
 import { portfolio } from "../content/portfolio";
 import type { CaseStudy, Collection } from "../content/types";
+import { LIKED_RELEASE_ID } from "../content/selectors";
 import { CANONICAL_SITE_ORIGIN, absoluteUrl } from "./site";
 
 export { CANONICAL_SITE_ORIGIN } from "./site";
@@ -36,11 +37,14 @@ const fixedRoutes: CanonicalRoute[] = [
 
 export const canonicalRouteInventory: CanonicalRoute[] = [
   ...fixedRoutes,
-  ...portfolio.collections.map((collection) => ({
-    id: `collection:${collection.id}` as const,
-    path: `/playlist/${collection.id}`,
-    meta: { kind: "collection" as const, collection },
-  })),
+  ...portfolio.collections
+    // The awards are canonical at /liked; /playlist/achievements redirects.
+    .filter((collection) => collection.id !== LIKED_RELEASE_ID)
+    .map((collection) => ({
+      id: `collection:${collection.id}` as const,
+      path: `/playlist/${collection.id}`,
+      meta: { kind: "collection" as const, collection },
+    })),
   ...portfolio.caseStudies.map((caseStudy) => ({
     id: `case-study:${caseStudy.id}` as const,
     path: `/case-studies/${caseStudy.slug}`,

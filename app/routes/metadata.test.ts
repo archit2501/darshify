@@ -3,6 +3,7 @@
 import { describe, expect, it } from "vitest";
 import type { LoaderFunctionArgs } from "react-router";
 import { portfolio } from "../../src/content/portfolio";
+import { LIKED_RELEASE_ID } from "../../src/content/selectors";
 import { buildNotFoundMeta, buildRouteMeta } from "../../src/seo/meta";
 import { buildCreativeWorkJsonLd } from "../../src/seo/structuredData";
 import { meta as homeMeta } from "./home";
@@ -40,12 +41,15 @@ describe("route metadata adapters", () => {
       buildRouteMeta({ kind: "liked" }),
     );
 
-    portfolio.collections.forEach((collection) => {
-      const loaded = collectionLoader(args({ id: collection.id }));
-      expect(collectionMeta({ data: loaded } as never)).toEqual(
-        buildRouteMeta({ kind: "collection", collection }),
-      );
-    });
+    // The awards redirect to /liked, so they have no /playlist page of their own.
+    portfolio.collections
+      .filter((collection) => collection.id !== LIKED_RELEASE_ID)
+      .forEach((collection) => {
+        const loaded = collectionLoader(args({ id: collection.id }));
+        expect(collectionMeta({ data: loaded } as never)).toEqual(
+          buildRouteMeta({ kind: "collection", collection }),
+        );
+      });
   });
 
   it("publishes canonical case metadata plus supported CreativeWork JSON-LD", () => {

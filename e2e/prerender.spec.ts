@@ -23,10 +23,12 @@ const prerenderRoutes: ReadonlyArray<{
   heading: string | RegExp;
 }> = [
   ...fixedRoutes,
-  ...portfolio.collections.map((collection) => ({
-    path: `/playlist/${collection.id}`,
-    heading: collection.title,
-  })),
+  ...portfolio.collections
+    .filter((collection) => collection.id !== "achievements")
+    .map((collection) => ({
+      path: `/playlist/${collection.id}`,
+      heading: collection.title,
+    })),
   ...portfolio.caseStudies.map((caseStudy) => ({
     path: `/case-studies/${caseStudy.slug}`,
     heading: caseStudy.title,
@@ -319,4 +321,22 @@ test("routing regression: internal links retain client-side navigation", async (
   ).toBeVisible();
   await page.waitForLoadState("networkidle");
   expect(errors).toEqual([]);
+});
+
+test("the awards' old playlist address permanently redirects to /liked", async ({
+  request,
+  page,
+}) => {
+  const response = await request.get("/playlist/achievements", {
+    maxRedirects: 0,
+  });
+  expect(response.status()).toBe(301);
+  expect(response.headers()["location"]).toBe("/liked");
+
+  await page.goto("/playlist/achievements");
+  // The local static server adds a trailing slash to prerendered folders.
+  await expect(page).toHaveURL(/\/liked\/?$/);
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Selected achievements" }),
+  ).toBeVisible();
 });

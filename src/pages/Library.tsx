@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { portfolio } from "../content/portfolio";
 import type { Collection } from "../content/types";
 import { Art } from "../shell/Art";
+import { releaseHref } from "../content/selectors";
 
 type Filter = "all" | Collection["id"];
 type Sort = "portfolio" | "az";
@@ -18,8 +19,7 @@ const libraryReleases = portfolio.collections.map((collection) => ({
   ),
 }));
 
-const collectionHref = (collection: Collection) =>
-  collection.id === "achievements" ? "/liked" : `/playlist/${collection.id}`;
+const collectionHref = (collection: Collection) => releaseHref(collection);
 
 function LibraryRelease({ collection }: { collection: Collection }) {
   return (

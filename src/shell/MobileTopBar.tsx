@@ -32,7 +32,7 @@ export function MobileTopBar({
   const atRoot = TAB_ROOTS.has(pathname.replace(/(.)\/+$/, "$1"));
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 top-0 z-30 flex items-center justify-between px-3 pt-[max(env(safe-area-inset-top),0.5rem)] md:hidden">
+    <div className="pointer-events-none fixed inset-x-0 top-0 z-40 flex items-center justify-between px-3 pt-[max(env(safe-area-inset-top),0.5rem)] md:hidden">
       <div className="pointer-events-auto">
         {atRoot ? (
           <AccountMenu onShortcuts={onShortcuts} />

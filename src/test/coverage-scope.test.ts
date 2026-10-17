@@ -24,6 +24,7 @@ const taskRuntimeModules = [
   "src/pages/Library.tsx",
   "src/pages/LikedSongs.tsx",
   "src/pages/PlaylistPage.tsx",
+  "src/pages/ReleaseView.tsx",
   "src/pages/Search.tsx",
   "src/analytics/outcomes.ts",
   "src/seo/meta.ts",

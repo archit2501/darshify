@@ -1,5 +1,5 @@
 import { portfolio } from "./portfolio";
-import type { CaseStudy, CaseStudyEvidence } from "./types";
+import type { Collection, CaseStudy, CaseStudyEvidence } from "./types";
 
 const normalize = (value: string) =>
   value.normalize("NFKD").replace(/\p{M}/gu, "").toLowerCase().trim();
@@ -206,6 +206,13 @@ export const proofById = (id: string) => proofIdMap.get(id);
 export const sourceById = (id: string) => sourceIdMap.get(id);
 export const artifactById = (id: string) => artifactIdMap.get(id);
 export const collectionById = (id: string) => collectionIdMap.get(id);
+
+/** The awards are served as Liked Songs, at /liked. */
+export const LIKED_RELEASE_ID = "achievements";
+
+/** Where a release lives: /playlist/:id, or /liked for the awards. */
+export const releaseHref = (release: Pick<Collection, "id">) =>
+  release.id === LIKED_RELEASE_ID ? "/liked" : `/playlist/${release.id}`;
 export const caseStudyEvidenceById = (id: string) =>
   caseStudyEvidenceIdMap.get(id);
 export const professionalCategoryForCaseStudy = (id: string) =>
