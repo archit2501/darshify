@@ -33,7 +33,7 @@ export function buildCreativeWorkJsonLd(
     "@type": "CreativeWork",
     "@id": `${url}#work`,
     name: caseStudy.title,
-    description: caseStudy.recruiterTakeaway,
+    description: caseStudy.tagline,
     url,
     genre: caseStudy.kind,
     temporalCoverage: caseStudy.period,

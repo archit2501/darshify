@@ -65,13 +65,13 @@ describe("Artist recruiter profile", () => {
       name: "Candidate proposition",
     });
     const featuredProof = within(proposition).getByRole("article", {
-      name: "Featured proof: Résumés screened",
+      name: "Featured proof: résumés screened",
     });
 
-    expect(within(featuredProof).getByText("500+ résumés")).toBeVisible();
+    expect(within(featuredProof).getByText("500+")).toBeVisible();
     expect(
       within(featuredProof).getByText(
-        "Résumés screened during hiring support.",
+        "Résumés screened during hiring support at Figmenta.",
       ),
     ).toBeVisible();
     expect(

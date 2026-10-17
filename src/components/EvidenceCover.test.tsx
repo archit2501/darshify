@@ -53,8 +53,8 @@ describe("EvidenceCover", () => {
     });
     expect(graphic.tagName.toLowerCase()).toBe("svg");
     expect(screen.getByText("Figmenta")).toBeVisible();
-    expect(screen.getByText("Projects tracked")).toBeVisible();
-    expect(screen.getByText("35+ projects")).toBeVisible();
+    expect(screen.getByText("projects tracked")).toBeVisible();
+    expect(screen.getByText("35+")).toBeVisible();
     expect(screen.getByText("Experience")).toBeVisible();
     expect(screen.getByText("Jan 2026 – Feb 2026")).toBeVisible();
     expect(screen.getByText("Darshil Jain résumé")).toBeVisible();
@@ -91,7 +91,7 @@ describe("EvidenceCover", () => {
     render(<EvidenceCover artifact={portfolio.artifacts[0]} aspect="16:9" />);
 
     const provenance = [
-      screen.getByText("Projects tracked"),
+      screen.getByText("projects tracked"),
       screen.getByText("Jan 2026 – Feb 2026"),
       screen.getByText("Darshil Jain résumé"),
       screen.getByText("self-reported"),

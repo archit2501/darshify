@@ -6,6 +6,7 @@ import {
   useCareerMix,
 } from "../career-mix/CareerMixContext";
 import { Home } from "./Home";
+import { portfolio } from "../content/portfolio";
 
 function MixState() {
   return (
@@ -96,7 +97,7 @@ describe("Home recruiter briefing", () => {
       name: "Evidence collections",
     });
     const cards = within(collections).getAllByRole("article");
-    expect(cards).toHaveLength(6);
+    expect(cards).toHaveLength(portfolio.collections.length);
     expect(
       cards.every((card) => card.dataset.evidenceKind === "collection"),
     ).toBe(true);

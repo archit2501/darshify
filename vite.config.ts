@@ -51,6 +51,7 @@ const cumulativeRedesignRuntime = [
   "src/components/SearchField.tsx",
   "src/components/SearchResults.tsx",
   "src/content/artifactFallback.ts",
+  "src/content/color.ts",
   "src/content/portfolio.ts",
   "src/content/selectors.ts",
   "src/content/validate.ts",

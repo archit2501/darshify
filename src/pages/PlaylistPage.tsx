@@ -42,7 +42,7 @@ export function PlaylistPage() {
             {collection.description}
           </p>
           <p className="mt-3 font-evidence text-utility text-muted">
-            <span className="text-text">{collection.themedLabel}</span> ·{" "}
+            <span className="text-text">{collection.releaseType}</span> ·{" "}
             {evidence.length} evidence{" "}
             {evidence.length === 1 ? "item" : "items"}
           </p>

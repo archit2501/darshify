@@ -6,22 +6,14 @@ export interface WaveformDatum {
   label: string;
   value: number;
   displayValue: string;
-  period: string;
+  period?: string;
   status: EvidenceStatus;
   sourceLabel: string;
   caseStudyUrl: string;
   normalizedHeight: number;
 }
 
-const numberFormatter = new Intl.NumberFormat("en-IN", {
-  maximumFractionDigits: 2,
-});
-
-export const formatProofValue = (point: ProofPoint): string => {
-  const number = numberFormatter.format(point.value);
-  const separator = point.unit.startsWith("+") || point.unit === "%" ? "" : " ";
-  return `${number}${separator}${point.unit}`.trim();
-};
+export const formatProofValue = (point: ProofPoint): string => point.display;
 
 export function buildWaveformData(
   proofPoints: readonly ProofPoint[],

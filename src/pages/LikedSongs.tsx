@@ -40,7 +40,7 @@ export function LikedSongs() {
             {achievements.description}
           </p>
           <p className="mt-3 font-evidence text-utility text-muted">
-            <span className="text-text">{achievements.themedLabel}</span> ·{" "}
+            <span className="text-text">{achievements.releaseType}</span> ·{" "}
             {achievementEvidence.length} résumé-listed recognition items
           </p>
         </div>

@@ -26,7 +26,7 @@ export function ReleaseCard({ collection }: { collection: Collection }) {
           {collection.title}
         </h3>
         <p className="mt-1 font-evidence text-utility text-muted">
-          {collection.themedLabel}
+          {collection.releaseType}
         </p>
         <p className="mt-3 text-metadata leading-relaxed text-muted">
           {collection.description}

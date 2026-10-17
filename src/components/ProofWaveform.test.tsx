@@ -28,9 +28,9 @@ describe("buildWaveformData", () => {
     expect(data).toEqual([
       {
         id: "figmenta-projects",
-        label: "Projects tracked",
+        label: "projects tracked",
         value: 35,
-        displayValue: "35+ projects",
+        displayValue: "35+",
         period: "Jan 2026 – Feb 2026",
         status: "self-reported",
         sourceLabel: "Darshil Jain résumé",
@@ -39,9 +39,9 @@ describe("buildWaveformData", () => {
       },
       {
         id: "figmenta-team-members",
-        label: "Team members supported",
+        label: "team members on the dashboard",
         value: 15,
-        displayValue: "15+ team members",
+        displayValue: "15+",
         period: "Jan 2026 – Feb 2026",
         status: "self-reported",
         sourceLabel: "Darshil Jain résumé",
@@ -50,9 +50,9 @@ describe("buildWaveformData", () => {
       },
       {
         id: "figmenta-resumes",
-        label: "Résumés screened",
+        label: "résumés screened",
         value: 500,
-        displayValue: "500+ résumés",
+        displayValue: "500+",
         period: "Jan 2026 – Feb 2026",
         status: "self-reported",
         sourceLabel: "Darshil Jain résumé",
@@ -69,7 +69,7 @@ describe("buildWaveformData", () => {
       id: "zero-proof",
       label: "No recorded count",
       value: 0,
-      unit: "items",
+      display: "0",
     };
 
     expect(buildWaveformData([])).toEqual([]);
@@ -78,7 +78,7 @@ describe("buildWaveformData", () => {
         id: "zero-proof",
         label: "No recorded count",
         value: 0,
-        displayValue: "0 items",
+        displayValue: "0",
         period: "Jan 2026 – Feb 2026",
         status: "self-reported",
         sourceLabel: "Darshil Jain résumé",
@@ -134,16 +134,16 @@ describe("ProofWaveform", () => {
       "/case-studies/figmenta-operations-intern",
       "/case-studies/figmenta-operations-intern",
     ]);
-    expect(links[0]).toHaveTextContent("Projects tracked");
-    expect(links[0]).toHaveTextContent("35+ projects");
+    expect(links[0]).toHaveTextContent("projects tracked");
+    expect(links[0]).toHaveTextContent("35+");
     expect(links[0]).toHaveTextContent("Darshil Jain résumé");
     expect(links[0]).toHaveTextContent("self-reported");
 
     const peaks = graphic.querySelectorAll("[data-proof-id]");
     expect(peaks).toHaveLength(3);
     expect(peaks[0]).toHaveAttribute("data-proof-id", "figmenta-projects");
-    expect(peaks[0]).toHaveAttribute("data-label", "Projects tracked");
-    expect(peaks[0]).toHaveAttribute("data-value", "35+ projects");
+    expect(peaks[0]).toHaveAttribute("data-label", "projects tracked");
+    expect(peaks[0]).toHaveAttribute("data-value", "35+");
     expect(peaks[0]).toHaveAttribute(
       "data-case-study-url",
       "/case-studies/figmenta-operations-intern",

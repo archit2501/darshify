@@ -13,7 +13,7 @@ const normalize = (value: string) =>
 const libraryReleases = portfolio.collections.map((collection) => ({
   collection,
   searchText: normalize(
-    `${collection.title} ${collection.description} ${collection.themedLabel}`,
+    `${collection.title} ${collection.description} ${collection.releaseType}`,
   ),
 }));
 
@@ -45,7 +45,7 @@ function LibraryRelease({ collection }: { collection: Collection }) {
             {collection.title}
           </h2>
           <p className="mt-1 font-evidence text-utility text-muted">
-            Release: {collection.themedLabel}
+            Release: {collection.releaseType}
           </p>
           <p className="mt-3 text-metadata leading-relaxed text-muted">
             {collection.description}

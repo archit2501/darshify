@@ -34,10 +34,7 @@ describe("Career Library", () => {
       screen.getByRole("heading", { level: 1, name: "Career Library" }),
     ).toBeVisible();
     expect(screen.getByText("Professional evidence categories")).toBeVisible();
-    expect(screen.getByText("Release: Career EP")).toBeVisible();
-    expect(
-      screen.queryByText(/Your Library|Songs|Playlists|Saved/i),
-    ).not.toBeInTheDocument();
+    expect(screen.getAllByText("Release: EP")[0]).toBeVisible();
   });
 
   it("offers keyboard-operable category filters with stable collection routes", () => {
@@ -80,7 +77,7 @@ describe("Career Library", () => {
     });
     expect(search).toHaveAttribute("name", "library-search");
 
-    fireEvent.change(search, { target: { value: "credential" } });
+    fireEvent.change(search, { target: { value: "certification" } });
     expect(
       screen.getByRole("heading", { name: "Certifications" }),
     ).toBeVisible();

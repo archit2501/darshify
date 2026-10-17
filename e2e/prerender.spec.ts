@@ -80,7 +80,7 @@ test("artifact regression: the build contains the complete independent route inv
     .map((path) => relative(buildClientDirectory, path))
     .sort();
 
-  expect(new Set(expectedDocuments).size).toBe(28);
+  expect(new Set(expectedDocuments).size).toBe(canonicalRouteInventory.length);
   expect(prerenderRoutes.map(({ path }) => path)).toEqual(
     canonicalRouteInventory.map(({ path }) => path),
   );
@@ -165,7 +165,7 @@ test("artifact regression: the build contains the complete independent route inv
       return createHash("sha256").update(asset).digest("hex");
     },
   );
-  expect(new Set(socialCardHashes).size).toBe(28);
+  expect(new Set(socialCardHashes).size).toBe(canonicalRouteInventory.length);
   expect(socialCardBytes).toBeLessThan(2_500_000);
 
   expect(readFileSync(join(buildClientDirectory, "robots.txt"), "utf8")).toBe(
@@ -211,7 +211,7 @@ test.describe("production HTML without JavaScript", () => {
     ).toBeVisible();
     await expect(
       page.getByText(
-        "Built operating visibility and reusable hiring workflows for an Asia team.",
+        "Built the Asia team's project dashboard and a hiring workflow it can reuse.",
         { exact: true },
       ),
     ).toBeVisible();
@@ -251,9 +251,9 @@ test.describe("production HTML without JavaScript", () => {
       await expect(
         page.getByRole("link", { name: "Back to Home" }),
       ).toHaveAttribute("href", "/");
-      await expect(
-        page.getByText("Operations Internship at Figmenta"),
-      ).toHaveCount(0);
+      await expect(page.getByText("Operations Intern at Figmenta")).toHaveCount(
+        0,
+      );
     }
   });
 });

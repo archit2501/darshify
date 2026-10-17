@@ -45,8 +45,8 @@ describe("RecruiterHero", () => {
     const proof = screen.getByRole("group", {
       name: "Featured recruiter proof",
     });
-    expect(within(proof).getByText("500+ résumés")).toBeVisible();
-    expect(within(proof).getByText("Résumés screened")).toBeVisible();
+    expect(within(proof).getByText("500+")).toBeVisible();
+    expect(within(proof).getByText("résumés screened")).toBeVisible();
     expect(within(proof).getByText("Darshil Jain résumé")).toBeVisible();
     expect(within(proof).getByText("Jan 2026 – Feb 2026")).toBeVisible();
     expect(within(proof).getByText("self-reported")).toBeVisible();
@@ -89,7 +89,7 @@ describe("RecruiterHero", () => {
     );
     expect(
       screen.getByRole("img", {
-        name: /Darshil Jain's résumé containing education/i,
+        name: /Darshil Jain's one-page résumé covering education/i,
       }),
     ).toBeInTheDocument();
     const waveform = screen.getByRole("region", {
@@ -105,7 +105,7 @@ describe("RecruiterHero", () => {
     expect(within(evidence).getAllByRole("link")).toHaveLength(3);
     expect(
       within(evidence).getByRole("link", {
-        name: /Projects tracked.*35\+ projects.*Jan 2026.*Darshil Jain résumé.*self-reported/i,
+        name: /projects tracked.*35\+.*Jan 2026.*Darshil Jain résumé.*self-reported/i,
       }),
     ).toBeInTheDocument();
   });

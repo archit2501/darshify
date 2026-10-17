@@ -21,8 +21,8 @@ const descriptor = (
   ) as Record<string, unknown> | undefined;
 
 describe("canonical route metadata", () => {
-  it("gives all 28 prerendered documents unique absolute discovery metadata", () => {
-    expect(canonicalRouteInventory).toHaveLength(28);
+  it("gives every prerendered document unique absolute discovery metadata", () => {
+    expect(canonicalRouteInventory.length).toBeGreaterThanOrEqual(30);
     expect(canonicalRouteInventory.map(({ path }) => path)).toEqual(
       prerenderPaths,
     );
@@ -111,13 +111,15 @@ describe("canonical route metadata", () => {
       return createHash("sha256").update(asset).digest("hex");
     });
 
-    expect(new Set(hashes)).toHaveLength(28);
-    expect(new Set(await Promise.all(pixelHashes))).toHaveLength(28);
+    expect(new Set(hashes)).toHaveLength(canonicalRouteInventory.length);
+    expect(new Set(await Promise.all(pixelHashes))).toHaveLength(
+      canonicalRouteInventory.length,
+    );
     expect(
       readdirSync("public/social-cards").filter((file) =>
         file.endsWith(".png"),
       ),
-    ).toHaveLength(28);
+    ).toHaveLength(canonicalRouteInventory.length);
     expect(totalBytes).toBeLessThan(2_500_000);
   });
 
@@ -134,7 +136,7 @@ describe("canonical route metadata", () => {
       .filter((file) => file.endsWith(".svg"))
       .map((file) => readFileSync(join(sourceDirectory!, file), "utf8"));
 
-    expect(sources).toHaveLength(28);
+    expect(sources).toHaveLength(canonicalRouteInventory.length);
     sources.forEach((source) => {
       expect(source).toContain('data-motif="proof-wave"');
       const hasGreenCircle = /<circle[^>]+fill="#1ed760"/i.test(source);

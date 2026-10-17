@@ -160,7 +160,7 @@ export function CaseStudyPage({ caseStudy }: { caseStudy: CaseStudy }) {
                       {item.title}
                     </span>
                     <span className="mt-2 text-metadata text-muted">
-                      {item.recruiterTakeaway}
+                      {item.tagline}
                     </span>
                   </Link>
                 </li>

@@ -17,7 +17,7 @@ describe("ReleaseCard", () => {
 
     expect(screen.getByText("Professional category")).toBeVisible();
     expect(screen.getByRole("heading", { name: "Experience" })).toBeVisible();
-    expect(screen.getByText("Career EP")).toBeVisible();
+    expect(screen.getByText("EP")).toBeVisible();
     expect(
       screen.getByRole("link", { name: /Explore Experience/i }),
     ).toHaveAttribute("href", "/playlist/experience");
@@ -36,6 +36,6 @@ describe("ReleaseCard", () => {
     expect(
       screen.getByRole("link", { name: /Explore Achievements/i }),
     ).toHaveAttribute("href", "/liked");
-    expect(screen.getByText("Recognition EP")).toBeVisible();
+    expect(screen.getByText("Playlist")).toBeVisible();
   });
 });

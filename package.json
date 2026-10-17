@@ -18,7 +18,8 @@
     "test:coverage:design-system": "COVERAGE_SCOPE=design-system vitest run --coverage src/motion/motion.test.tsx src/lib/useReducedMotion.test.ts",
     "pretest:e2e": "npm run build",
     "test:e2e": "playwright test",
-    "check": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build"
+    "check": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
+    "generate:crawl": "vite-node scripts/generate-crawl-files.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

@@ -80,10 +80,10 @@ describe("CareerMixDock", () => {
     expect(screen.getByText("Chapter 1 of 3")).toBeVisible();
     expect(screen.getByRole("heading", { name: "Operate" })).toBeVisible();
     expect(
-      screen.getByText("Build visibility, workflows, and continuity."),
+      screen.getByText("Build visibility, workflows and continuity."),
     ).toBeVisible();
     expect(
-      screen.getByRole("link", { name: "Evidence: Projects tracked" }),
+      screen.getByRole("link", { name: "Evidence: projects tracked" }),
     ).toHaveAttribute("href", "/case-studies/figmenta-operations-intern");
     expect(
       screen.getByRole("progressbar", { name: "Career Mix total progress" }),
@@ -118,7 +118,7 @@ describe("CareerMixDock", () => {
     fireEvent.click(screen.getByRole("button", { name: "Start Career Mix" }));
 
     const controls = [
-      screen.getByRole("link", { name: "Evidence: Projects tracked" }),
+      screen.getByRole("link", { name: "Evidence: projects tracked" }),
       screen.getByRole("button", { name: "Previous chapter" }),
       screen.getByRole("button", { name: "Pause Career Mix" }),
       screen.getByRole("button", { name: "Next chapter" }),
