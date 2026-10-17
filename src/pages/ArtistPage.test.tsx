@@ -24,16 +24,15 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("Artist recruiter profile", () => {
-  it("orders proposition, proof, releases, profile detail, and conversion", () => {
+  it("orders proposition, popular songs, discography, about, answers and conversion", () => {
     renderArtist();
 
     const sections = [
       screen.getByRole("region", { name: "Candidate proposition" }),
-      screen.getByRole("region", { name: "Selected Impact" }),
-      screen.getByRole("region", { name: "Proof Waveform" }),
-      screen.getByRole("region", { name: "Career Releases" }),
+      screen.getByRole("region", { name: "Popular" }),
+      screen.getByRole("region", { name: "Discography" }),
       screen.getByRole("region", { name: "About Darshil Jain" }),
-      screen.getByRole("region", { name: "Education and skills" }),
+      screen.getByRole("region", { name: "Frequently asked questions" }),
       screen.getByRole("region", { name: "Availability" }),
       screen.getByRole("region", { name: "Start a conversation" }),
     ];
@@ -46,16 +45,35 @@ describe("Artist recruiter profile", () => {
     }
   });
 
-  it("renders three sourced impact rows with visible actions", () => {
+  it("lists the popular songs with their sourced impact and real playback", () => {
     renderArtist();
 
-    const impact = screen.getByRole("region", { name: "Selected Impact" });
-    expect(within(impact).getAllByRole("article")).toHaveLength(3);
+    const popular = screen.getByRole("region", { name: "Popular" });
+    const rows = within(popular).getAllByRole("row").slice(1);
+    expect(rows).toHaveLength(5);
     expect(
-      within(impact).getAllByRole("link", { name: "Read case study" }),
-    ).toHaveLength(3);
-    expect(within(impact).getAllByText("Darshil Jain résumé")).toHaveLength(3);
-    expect(within(impact).getAllByText(/^Outcome:/)).toHaveLength(3);
+      within(rows[0]!).getByRole("link", {
+        name: "Operations Intern at Figmenta",
+      }),
+    ).toHaveAttribute("href", "/case-studies/figmenta-operations-intern");
+    expect(rows[0]).toHaveTextContent("500+ résumés screened");
+    expect(
+      within(rows[0]!).getByRole("button", {
+        name: "Play Operations Intern at Figmenta",
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("answers the questions people ask, in page text", () => {
+    renderArtist();
+
+    const faq = screen.getByRole("region", {
+      name: "Frequently asked questions",
+    });
+    expect(within(faq).getByText("Who is Darshil Jain?")).toBeVisible();
+    expect(
+      within(faq).getByText(/BBA \(Business & Industry\) student at Maharaja/),
+    ).toBeVisible();
   });
 
   it("surfaces a complete canonical proof claim in the proposition", () => {

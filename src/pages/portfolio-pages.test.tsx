@@ -201,7 +201,9 @@ describe("routed portfolio pages without the legacy player runtime", () => {
     expect(
       screen.queryByRole("button", { name: /Like|Unlike/ }),
     ).not.toBeInTheDocument();
-    expect(screen.getByText("Figmenta · Jan 2026 – Feb 2026")).toBeVisible();
+    const popular = screen.getByRole("table", { name: "Popular songs" });
+    expect(popular).toHaveTextContent("Figmenta");
+    expect(popular).toHaveTextContent("Jan 2026");
     expectNoSimulatedMetadata(view.container, [
       "98,400 monthly listeners",
       "500,000",

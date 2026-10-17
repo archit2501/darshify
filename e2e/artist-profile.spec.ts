@@ -9,8 +9,8 @@ test("mobile Artist prioritizes proposition and sourced impact before releases",
   const proposition = page.getByRole("region", {
     name: "Candidate proposition",
   });
-  const impact = page.getByRole("region", { name: "Selected Impact" });
-  const releases = page.getByRole("region", { name: "Career Releases" });
+  const impact = page.getByRole("region", { name: "Popular" });
+  const releases = page.getByRole("region", { name: "Discography" });
 
   await expect(
     proposition.getByRole("heading", { level: 1, name: "Darshil Jain" }),
@@ -47,10 +47,9 @@ test("mobile Artist prioritizes proposition and sourced impact before releases",
   expect(featuredProofBox!.y + featuredProofBox!.height).toBeLessThanOrEqual(
     844,
   );
-  await expect(impact.locator("article")).toHaveCount(3);
-  await expect(
-    impact.getByRole("link", { name: "Read case study" }),
-  ).toHaveCount(3);
+  // Header row plus the five popular songs, each linking to its page.
+  await expect(impact.getByRole("row")).toHaveCount(6);
+  await expect(impact.locator('a[href^="/case-studies/"]')).toHaveCount(5);
 
   const impactBox = await impact.boundingBox();
   const releasesBox = await releases.boundingBox();

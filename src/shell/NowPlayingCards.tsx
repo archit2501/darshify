@@ -117,7 +117,7 @@ export function CreditsCard({ songId }: { songId: string }) {
   );
 }
 
-/** The artist card: photo or cover, the summary and a LinkedIn "Follow". */
+/** The artist card: photo or cover, the summary and "Connect" (LinkedIn). */
 export function ArtistCard({ onNavigate }: { onNavigate?: () => void }) {
   const id = useId();
   return (
@@ -153,7 +153,7 @@ export function ArtistCard({ onNavigate }: { onNavigate?: () => void }) {
           rel="noopener noreferrer"
           className="inline-flex h-8 items-center rounded-full border border-icon-off px-4 text-sm font-bold transition-[border-color,transform] hover:border-fg motion-safe:hover:scale-104"
         >
-          Follow
+          Connect
         </a>
       </div>
     </section>
