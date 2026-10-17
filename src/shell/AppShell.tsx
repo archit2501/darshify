@@ -8,6 +8,7 @@ import { useReducedMotion } from "../lib/useReducedMotion";
 import { MotionProvider } from "../motion/MotionProvider";
 import { RouteFocus } from "./RouteFocus";
 import { SkipLink } from "./SkipLink";
+import { NowPlayingTitle } from "../player/NowPlayingTitle";
 
 export function AppShell() {
   const reduced = useReducedMotion();
@@ -17,6 +18,7 @@ export function AppShell() {
   return (
     <MotionProvider>
       <SkipLink />
+      <NowPlayingTitle />
       <div
         className="h-screen flex flex-col bg-bg"
         data-reduced-motion={reduced}
