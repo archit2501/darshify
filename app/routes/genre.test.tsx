@@ -74,7 +74,7 @@ describe("skill (genre) pages", () => {
     );
     const [title] = buildRouteMeta({ kind: "genre", genre: strategic });
     expect(title).toEqual({
-      title: "Strategic Analysis · Darshil Jain | Darshify",
+      title: "Strategic Analysis — Darshil Jain | Darshify",
     });
   });
 

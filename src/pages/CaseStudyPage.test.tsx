@@ -20,7 +20,12 @@ import { artifactById, proofById, sourceById } from "../content/selectors";
 import { formatProofValue } from "../content/waveform";
 import CaseStudyRoute, { loader, meta } from "../../app/routes/case-study";
 import { buildRouteMeta } from "../seo/meta";
-import { buildCreativeWorkJsonLd } from "../seo/structuredData";
+import {
+  buildCreativeWorkJsonLd,
+  buildGraph,
+  buildPersonJsonLd,
+  buildWebSiteJsonLd,
+} from "../seo/structuredData";
 
 const { trackOutcome } = vi.hoisted(() => ({ trackOutcome: vi.fn() }));
 vi.mock("../analytics/outcomes", async (importOriginal) => ({
@@ -268,9 +273,10 @@ describe("case-study pages", () => {
       expect(descriptors).toEqual([
         ...buildRouteMeta({ kind: "case-study", caseStudy }),
         {
-          "script:ld+json": buildCreativeWorkJsonLd(
-            caseStudy,
-            portfolio.candidate,
+          "script:ld+json": buildGraph(
+            buildCreativeWorkJsonLd(caseStudy, portfolio.candidate),
+            buildPersonJsonLd(portfolio.candidate),
+            buildWebSiteJsonLd(),
           ),
         },
       ]);

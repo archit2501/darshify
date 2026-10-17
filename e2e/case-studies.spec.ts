@@ -90,7 +90,7 @@ test.describe("shareable evidence-rich case studies", () => {
         );
         await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
           "content",
-          `${caseStudy.title} | Darshify`,
+          `${caseStudy.title} — Darshil Jain | Darshify`,
         );
         const structuredData = await page
           .locator('script[type="application/ld+json"]')

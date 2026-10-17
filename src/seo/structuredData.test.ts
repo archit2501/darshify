@@ -3,29 +3,90 @@
 import { describe, expect, it } from "vitest";
 import { portfolio } from "../content/portfolio";
 import { CANONICAL_SITE_ORIGIN } from "./meta";
-import { buildCreativeWorkJsonLd, buildPersonJsonLd } from "./structuredData";
+import {
+  PERSON_ID,
+  PROFILE_ID,
+  WEBSITE_ID,
+  buildCreativeWorkJsonLd,
+  buildFaqJsonLd,
+  buildGraph,
+  buildPersonJsonLd,
+  buildProfilePageJsonLd,
+  buildWebSiteJsonLd,
+} from "./structuredData";
 
 describe("supported structured data", () => {
   it("builds Person JSON-LD only from typed candidate claims", () => {
     const person = buildPersonJsonLd(portfolio.candidate);
 
-    expect(person).toEqual({
+    expect(person).toMatchObject({
       "@context": "https://schema.org",
       "@type": "Person",
-      "@id": `${CANONICAL_SITE_ORIGIN}/artist#person`,
+      "@id": PERSON_ID,
       name: "Darshil Jain",
+      givenName: "Darshil",
+      familyName: "Jain",
+      alternateName: ["Darshil"],
       description: portfolio.candidate.summary,
-      jobTitle: portfolio.candidate.headline,
       url: `${CANONICAL_SITE_ORIGIN}/artist`,
+      mainEntityOfPage: { "@id": PROFILE_ID },
       sameAs: ["https://www.linkedin.com/in/darshil-jain-611a3332b"],
       knowsAbout: portfolio.candidate.skills,
+      alumniOf: {
+        "@type": "CollegeOrUniversity",
+        name: "Maharaja Surajmal Institute",
+        parentOrganization: {
+          name: "Guru Gobind Singh Indraprastha University",
+        },
+      },
     });
+    // Awards are the résumé's own competition results, nothing more.
+    expect(person.award).toEqual(
+      portfolio.caseStudies
+        .filter((item) => item.kind === "achievement")
+        .map((item) => `${item.title} (${item.organization})`),
+    );
 
     expect(JSON.stringify(person)).not.toMatch(
-      /award|verified|rating|followers|listeners|plays/i,
+      /verified|rating|followers|listeners|plays/i,
     );
     expect(JSON.stringify(person)).not.toContain(portfolio.candidate.email);
     expect(JSON.stringify(person)).not.toContain(portfolio.candidate.phone);
+  });
+
+  it("describes the site, the profile page and the answers as one graph", () => {
+    const graph = buildGraph(
+      buildWebSiteJsonLd(),
+      buildProfilePageJsonLd(portfolio.candidate),
+      buildFaqJsonLd(portfolio.candidate),
+    );
+    expect(graph["@context"]).toBe("https://schema.org");
+    const [website, profile, faq] = graph["@graph"] as Array<
+      Record<string, unknown>
+    >;
+    expect(website).not.toHaveProperty("@context");
+    expect(website).toMatchObject({
+      "@type": "WebSite",
+      "@id": WEBSITE_ID,
+      url: CANONICAL_SITE_ORIGIN,
+      about: { "@id": PERSON_ID },
+      potentialAction: {
+        "@type": "SearchAction",
+        target: {
+          urlTemplate: `${CANONICAL_SITE_ORIGIN}/search?q={search_term_string}`,
+        },
+      },
+    });
+    expect(profile).toMatchObject({
+      "@type": "ProfilePage",
+      "@id": PROFILE_ID,
+      mainEntity: { "@id": PERSON_ID },
+      isPartOf: { "@id": WEBSITE_ID },
+    });
+    expect(faq).toMatchObject({ "@type": "FAQPage" });
+    expect((faq!.mainEntity as unknown[]).length).toBe(
+      portfolio.candidate.faq.length,
+    );
   });
 
   it("builds CreativeWork JSON-LD from one typed case study without inventing authority", () => {
@@ -41,8 +102,9 @@ describe("supported structured data", () => {
       genre: "experience",
       temporalCoverage: "Jan 2026 – Feb 2026",
       keywords: caseStudy.skills,
+      isPartOf: { "@id": WEBSITE_ID },
       creator: {
-        "@id": `${CANONICAL_SITE_ORIGIN}/artist#person`,
+        "@id": PERSON_ID,
         "@type": "Person",
         name: "Darshil Jain",
       },
