@@ -30,6 +30,16 @@ export interface PlayContext {
   trackIds: string[];
 }
 
+/** "Playing from playlist", "… from EP", "… from artist" and so on. */
+export function playingFrom(context: PlayContext): string {
+  if (context.kind !== "release") return context.kind;
+  const release = portfolio.collections.find(
+    (candidate) => `release:${candidate.id}` === context.id,
+  );
+  const type = release?.releaseType ?? "Playlist";
+  return type === "EP" ? type : type.toLowerCase();
+}
+
 export const INTRO_MS = 1200;
 export const OUTRO_MS = 1600;
 

@@ -345,7 +345,7 @@
               "dependencies": ["2.2.1"],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
               "ciJobs": ["quality", "test", "build", "browser"],
-              "status": "in_progress",
+              "status": "done",
               "criticalPath": true,
               "parallelizable": false
             }
@@ -370,12 +370,17 @@
               "files": [
                 "src/shell/MobileChrome.tsx",
                 "src/shell/FullScreenPlayer.tsx",
-                "src/shell/BottomNav.tsx"
+                "src/shell/MobileTopBar.tsx",
+                "src/shell/Scrubber.tsx",
+                "src/shell/NowPlayingCards.tsx",
+                "src/shell/Marquee.tsx",
+                "src/lib/useMediaQuery.ts",
+                "src/shell/AppShell.tsx"
               ],
               "dependencies": ["2.2.2"],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
               "ciJobs": ["quality", "test", "build", "browser"],
-              "status": "todo",
+              "status": "in_progress",
               "criticalPath": true,
               "parallelizable": false
             }

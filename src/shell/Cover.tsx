@@ -34,8 +34,9 @@ const radiusFor = (size: CoverSize, round: boolean) => {
 };
 
 /**
- * Square cover artwork. Covers are decorative (alt="") because every place
- * that shows one also shows the title as text next to it.
+ * Square cover artwork (or another shape via an `aspect-*` class). Covers
+ * are decorative (alt="") because every place that shows one also shows the
+ * title as text next to it.
  */
 export function Cover({
   art,
@@ -59,7 +60,7 @@ export function Cover({
   return (
     <div
       data-cover={art.seed}
-      className={`@container relative aspect-square shrink-0 overflow-hidden ${radiusFor(size, round)} ${className}`}
+      className={`@container relative shrink-0 overflow-hidden ${/\baspect-/.test(className) ? "" : "aspect-square"} ${radiusFor(size, round)} ${className}`}
       style={style}
     >
       {portrait ? (

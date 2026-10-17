@@ -147,12 +147,15 @@ test.describe("shareable evidence-rich case studies", () => {
 
         const headerBounds = await header.boundingBox();
         expect(headerBounds, caseStudy.slug).not.toBeNull();
+        // On phones the mini player and tab bar cover the bottom of the screen.
+        const visibleBottom =
+          viewport.label === "mobile"
+            ? (await page.locator(".app-bar").boundingBox())!.y
+            : viewport.height;
         expect(
           headerBounds!.y + headerBounds!.height,
           caseStudy.slug,
-        ).toBeLessThanOrEqual(
-          viewport.height - (viewport.label === "mobile" ? 64 : 0),
-        );
+        ).toBeLessThanOrEqual(visibleBottom);
       }
     });
   }

@@ -2,8 +2,14 @@ import type { ReactNode } from "react";
 
 // Darshify's own icon set: a 24px grid, 2px round strokes for outline glyphs
 // and soft-cornered fills for transport controls. Decorative by default; pass
-// `title` only when an icon is the sole label of something.
-type IconProps = { size?: number; className?: string; title?: string };
+// `title` only when an icon is the sole label of something. `strong` thickens
+// outline glyphs, the way the app marks the selected tab.
+type IconProps = {
+  size?: number;
+  className?: string;
+  title?: string;
+  strong?: boolean;
+};
 
 function Svg({
   size = 24,
@@ -11,6 +17,7 @@ function Svg({
   title,
   children,
   stroke = false,
+  strong = false,
 }: IconProps & { children: ReactNode; stroke?: boolean }) {
   return (
     <svg
@@ -23,7 +30,7 @@ function Svg({
       focusable="false"
       fill={stroke ? "none" : "currentColor"}
       stroke={stroke ? "currentColor" : undefined}
-      strokeWidth={stroke ? 2 : undefined}
+      strokeWidth={stroke ? (strong ? 2.75 : 2) : undefined}
       strokeLinecap={stroke ? "round" : undefined}
       strokeLinejoin={stroke ? "round" : undefined}
     >
