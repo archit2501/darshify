@@ -33,6 +33,10 @@ const prerenderRoutes: ReadonlyArray<{
     path: `/case-studies/${caseStudy.slug}`,
     heading: caseStudy.title,
   })),
+  ...portfolio.genres.map((genre) => ({
+    path: `/genre/${genre.slug}`,
+    heading: genre.skill,
+  })),
 ];
 
 const htmlPathForRoute = (path: string) =>

@@ -12,5 +12,6 @@ export default [
     id: "routes/collection-liked",
   }),
   route("case-studies/:slug", "routes/case-study.tsx"),
+  route("genre/:slug", "routes/genre.tsx"),
   route("*", "routes/not-found.tsx"),
 ] satisfies RouteConfig;

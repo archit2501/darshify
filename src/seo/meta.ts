@@ -1,6 +1,6 @@
 import type { MetaDescriptor } from "react-router";
 import { portfolio } from "../content/portfolio";
-import type { CaseStudy, Collection } from "../content/types";
+import type { CaseStudy, Collection, Genre } from "../content/types";
 import { LIKED_RELEASE_ID } from "../content/selectors";
 import { CANONICAL_SITE_ORIGIN, absoluteUrl } from "./site";
 
@@ -16,10 +16,14 @@ type FixedRouteMeta =
 export type RouteMetaInput =
   | FixedRouteMeta
   | { kind: "collection"; collection: Collection }
-  | { kind: "case-study"; caseStudy: CaseStudy };
+  | { kind: "case-study"; caseStudy: CaseStudy }
+  | { kind: "genre"; genre: Genre };
 
 export type RouteId =
-  FixedRouteMeta["kind"] | `collection:${string}` | `case-study:${string}`;
+  | FixedRouteMeta["kind"]
+  | `collection:${string}`
+  | `case-study:${string}`
+  | `genre:${string}`;
 
 export interface CanonicalRoute {
   id: RouteId;
@@ -49,6 +53,11 @@ export const canonicalRouteInventory: CanonicalRoute[] = [
     id: `case-study:${caseStudy.id}` as const,
     path: `/case-studies/${caseStudy.slug}`,
     meta: { kind: "case-study" as const, caseStudy },
+  })),
+  ...portfolio.genres.map((genre) => ({
+    id: `genre:${genre.slug}` as const,
+    path: `/genre/${genre.slug}`,
+    meta: { kind: "genre" as const, genre },
   })),
 ];
 
@@ -106,6 +115,19 @@ const resolveRoute = (input: RouteMetaInput) => {
       title: `${input.caseStudy.title} | Darshify`,
       description: `${input.caseStudy.tagline} ${input.caseStudy.organization}, ${input.caseStudy.period}.`,
       type: "article",
+    };
+  }
+
+  if (input.kind === "genre") {
+    const count = portfolio.caseStudies.filter((song) =>
+      song.skills.includes(input.genre.skill),
+    ).length;
+    return {
+      id: `genre:${input.genre.slug}` as RouteId,
+      path: `/genre/${input.genre.slug}`,
+      title: `${input.genre.skill} · Darshil Jain | Darshify`,
+      description: `${input.genre.description} Darshil Jain's ${input.genre.skill.toLowerCase()} work: ${count} ${count === 1 ? "example" : "examples"} from the résumé.`,
+      type: "website",
     };
   }
 

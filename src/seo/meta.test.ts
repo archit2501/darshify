@@ -24,9 +24,13 @@ const descriptor = (
 describe("canonical route metadata", () => {
   it("gives every prerendered document unique absolute discovery metadata", () => {
     // Five fixed routes, every release except the awards (canonical at
-    // /liked) and every song.
+    // /liked), every song and every skill.
     expect(canonicalRouteInventory.length).toBe(
-      5 + portfolio.collections.length - 1 + portfolio.caseStudies.length,
+      5 +
+        portfolio.collections.length -
+        1 +
+        portfolio.caseStudies.length +
+        portfolio.genres.length,
     );
     expect(canonicalRouteInventory.map(({ path }) => path)).toEqual(
       prerenderPaths,
@@ -92,7 +96,9 @@ describe("canonical route metadata", () => {
           ? `Evidence collection · ${meta.collection.title}`
           : meta.kind === "case-study"
             ? `${meta.caseStudy.kind[0].toUpperCase()}${meta.caseStudy.kind.slice(1)} case study`
-            : fixedCategory[meta.kind];
+            : meta.kind === "genre"
+              ? `Skill · ${meta.genre.skill}`
+              : fixedCategory[meta.kind];
       const embeddedIdentity = asset.toString("utf8");
 
       expect(imageUrl.search).toBe("");
