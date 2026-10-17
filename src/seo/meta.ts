@@ -1,9 +1,9 @@
 import type { MetaDescriptor } from "react-router";
 import { portfolio } from "../content/portfolio";
 import type { CaseStudy, Collection } from "../content/types";
+import { CANONICAL_SITE_ORIGIN, absoluteUrl } from "./site";
 
-export const CANONICAL_SITE_ORIGIN =
-  "https://wrapped-portfolio.vercel.app" as const;
+export { CANONICAL_SITE_ORIGIN } from "./site";
 
 type FixedRouteMeta =
   | { kind: "home" }
@@ -79,8 +79,7 @@ const fixedCopy: Record<
   },
 };
 
-const canonicalUrl = (path: string) =>
-  `${CANONICAL_SITE_ORIGIN}${path === "/" ? "" : path}`;
+const canonicalUrl = absoluteUrl;
 
 export const socialCardPathForRouteId = (routeId: RouteId) =>
   `/social-cards/${routeId.replace(":", "-")}.png`;

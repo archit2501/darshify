@@ -1,5 +1,11 @@
 import { createElement } from "react";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createMemoryRouter,
@@ -89,10 +95,14 @@ describe("case-study pages", () => {
     renderCaseStudy(caseStudy.slug);
 
     await screen.findByRole("heading", { level: 1, name: caseStudy.title });
-    expect(trackOutcome).toHaveBeenCalledWith("case_study_open", {
-      caseStudyId: "r1",
-      placement: "case-study",
-    });
+    // The open event fires from a passive effect, which can flush after the
+    // heading is already in the DOM on a busy runner.
+    await waitFor(() =>
+      expect(trackOutcome).toHaveBeenCalledWith("case_study_open", {
+        caseStudyId: "r1",
+        placement: "case-study",
+      }),
+    );
 
     const sourceLinks = screen.getAllByRole("link", {
       name: "Darshil Jain résumé",

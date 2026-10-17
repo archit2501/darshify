@@ -1,235 +1,1392 @@
 <!doctype html>
 <html lang="en" data-theme="dark">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="robots" content="noindex" />
-<title>Darshify v3: Spotify immersion + name SEO — plan</title>
-<style>
-  :root {
-    --bg: #000; --panel: #121212; --raised: #1f1f1f; --hi: #2a2a2a;
-    --text: #fff; --muted: #b3b3b3; --line: rgb(255 255 255 / 0.1);
-    --green: #1ed760; --amber: #ffa42b; --red: #f3727f; --blue: #539df5;
-    --crit: rgb(30 215 96 / 0.12);
-  }
-  [data-theme="light"] {
-    --bg: #f4f4f4; --panel: #fff; --raised: #f0f0f0; --hi: #e4e4e4;
-    --text: #121212; --muted: #555; --line: rgb(0 0 0 / 0.12);
-    --green: #12823b; --amber: #9a5b00; --red: #b3261e; --blue: #1d5fbf;
-    --crit: rgb(18 130 59 / 0.1);
-  }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--text);
-    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-  .wrap { max-width: 1100px; margin: 0 auto; padding: 24px 16px 64px; }
-  header.top { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end;
-    justify-content: space-between; margin-bottom: 16px; }
-  h1 { font-size: clamp(1.6rem, 4vw, 2.6rem); line-height: 1.05; margin: 4px 0 0; letter-spacing: -0.03em; }
-  .eyebrow { color: var(--muted); font-size: 13px; }
-  .meta { color: var(--muted); font-size: 13px; margin-top: 6px; }
-  .bar { height: 6px; background: var(--hi); border-radius: 99px; overflow: hidden; margin: 14px 0 6px; }
-  .bar > i { display: block; height: 100%; background: var(--green); width: 0; transition: width .3s; }
-  .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 16px 0; }
-  .chip { border: 0; border-radius: 99px; padding: 6px 14px; min-height: 32px; cursor: pointer;
-    background: var(--raised); color: var(--text); font: inherit; font-size: 14px; }
-  .chip[aria-pressed="true"] { background: var(--text); color: var(--bg); }
-  .chip:focus-visible, select:focus-visible, summary:focus-visible, button:focus-visible {
-    outline: 2px solid var(--text); outline-offset: 2px; }
-  .spacer { flex: 1; }
-  details.sprint, details.phase { background: var(--panel); border-radius: 8px; margin: 10px 0; }
-  details.phase { background: var(--raised); margin: 8px 12px; }
-  summary { cursor: pointer; padding: 12px 16px; list-style: none; display: flex; gap: 10px; align-items: baseline; }
-  summary::-webkit-details-marker { display: none; }
-  summary::before { content: "▸"; color: var(--muted); transition: transform .15s; }
-  details[open] > summary::before { transform: rotate(90deg); }
-  .sprint > summary { font-size: 18px; font-weight: 800; }
-  .phase > summary { font-weight: 700; }
-  .count { color: var(--muted); font-weight: 400; font-size: 13px; margin-left: auto; white-space: nowrap; }
-  .task { margin: 8px 12px 12px; padding: 12px 14px; border-radius: 6px; background: var(--panel);
-    border-left: 3px solid transparent; }
-  .task.crit { border-left-color: var(--green); background: linear-gradient(90deg, var(--crit), transparent 60%), var(--panel); }
-  .task-head { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
-  .tid { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 13px; min-width: 3.2em; }
-  .ttitle { font-weight: 700; flex: 1 1 260px; }
-  .badge { font-size: 12px; border-radius: 4px; padding: 2px 6px; background: var(--hi); color: var(--muted); white-space: nowrap; }
-  .badge.crit { color: var(--green); }
-  .badge.par { color: var(--blue); }
-  select.status { font: inherit; font-size: 13px; border-radius: 99px; padding: 4px 10px; border: 1px solid var(--line);
-    background: var(--raised); color: var(--text); }
-  .status[data-s="done"] { color: var(--green); }
-  .status[data-s="in_progress"] { color: var(--amber); }
-  .status[data-s="blocked"] { color: var(--red); }
-  .task ul { margin: 8px 0 6px 18px; padding: 0; color: var(--text); }
-  .task li { margin: 3px 0; }
-  .facts { display: grid; grid-template-columns: max-content 1fr; gap: 2px 12px; font-size: 13px; color: var(--muted); margin-top: 6px; }
-  .facts code { color: var(--text); font-size: 12px; word-break: break-word; }
-  .decisions { background: var(--panel); border-radius: 8px; padding: 4px 0; margin: 10px 0 18px; }
-  .decisions dl { margin: 0; padding: 0 16px 12px; display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; font-size: 14px; }
-  .decisions dt { color: var(--muted); }
-  .decisions dd { margin: 0; }
-  .hidden { display: none !important; }
-  @media (max-width: 640px) { .decisions dl, .facts { grid-template-columns: 1fr; } }
-  @media print {
-    :root, [data-theme] { --bg: #fff; --panel: #fff; --raised: #fff; --hi: #eee; --text: #000; --muted: #444; --line: #ccc; --green: #0a6b2e; --crit: transparent; }
-    .toolbar, #theme { display: none; }
-    details > summary::before { content: ""; }
-    details.sprint, details.phase, .task { break-inside: avoid; border: 1px solid #ccc; }
-    select.status { border: 0; appearance: none; padding: 0; }
-  }
-</style>
-</head>
-<body>
-<div class="wrap">
-  <header class="top">
-    <div>
-      <div class="eyebrow">Protocol plan · scope <span id="scope"></span> · integration branch <code id="branch"></code></div>
-      <h1 id="title"></h1>
-      <div class="meta" id="meta"></div>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Darshify v3: Spotify immersion + name SEO — plan</title>
+    <style>
+      :root {
+        --bg: #000;
+        --panel: #121212;
+        --raised: #1f1f1f;
+        --hi: #2a2a2a;
+        --text: #fff;
+        --muted: #b3b3b3;
+        --line: rgb(255 255 255 / 0.1);
+        --green: #1ed760;
+        --amber: #ffa42b;
+        --red: #f3727f;
+        --blue: #539df5;
+        --crit: rgb(30 215 96 / 0.12);
+      }
+      [data-theme="light"] {
+        --bg: #f4f4f4;
+        --panel: #fff;
+        --raised: #f0f0f0;
+        --hi: #e4e4e4;
+        --text: #121212;
+        --muted: #555;
+        --line: rgb(0 0 0 / 0.12);
+        --green: #12823b;
+        --amber: #9a5b00;
+        --red: #b3261e;
+        --blue: #1d5fbf;
+        --crit: rgb(18 130 59 / 0.1);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font:
+          15px/1.5 system-ui,
+          -apple-system,
+          "Segoe UI",
+          Roboto,
+          sans-serif;
+      }
+      .wrap {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 24px 16px 64px;
+      }
+      header.top {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin-bottom: 16px;
+      }
+      h1 {
+        font-size: clamp(1.6rem, 4vw, 2.6rem);
+        line-height: 1.05;
+        margin: 4px 0 0;
+        letter-spacing: -0.03em;
+      }
+      .eyebrow {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .meta {
+        color: var(--muted);
+        font-size: 13px;
+        margin-top: 6px;
+      }
+      .bar {
+        height: 6px;
+        background: var(--hi);
+        border-radius: 99px;
+        overflow: hidden;
+        margin: 14px 0 6px;
+      }
+      .bar > i {
+        display: block;
+        height: 100%;
+        background: var(--green);
+        width: 0;
+        transition: width 0.3s;
+      }
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        margin: 16px 0;
+      }
+      .chip {
+        border: 0;
+        border-radius: 99px;
+        padding: 6px 14px;
+        min-height: 32px;
+        cursor: pointer;
+        background: var(--raised);
+        color: var(--text);
+        font: inherit;
+        font-size: 14px;
+      }
+      .chip[aria-pressed="true"] {
+        background: var(--text);
+        color: var(--bg);
+      }
+      .chip:focus-visible,
+      select:focus-visible,
+      summary:focus-visible,
+      button:focus-visible {
+        outline: 2px solid var(--text);
+        outline-offset: 2px;
+      }
+      .spacer {
+        flex: 1;
+      }
+      details.sprint,
+      details.phase {
+        background: var(--panel);
+        border-radius: 8px;
+        margin: 10px 0;
+      }
+      details.phase {
+        background: var(--raised);
+        margin: 8px 12px;
+      }
+      summary {
+        cursor: pointer;
+        padding: 12px 16px;
+        list-style: none;
+        display: flex;
+        gap: 10px;
+        align-items: baseline;
+      }
+      summary::-webkit-details-marker {
+        display: none;
+      }
+      summary::before {
+        content: "▸";
+        color: var(--muted);
+        transition: transform 0.15s;
+      }
+      details[open] > summary::before {
+        transform: rotate(90deg);
+      }
+      .sprint > summary {
+        font-size: 18px;
+        font-weight: 800;
+      }
+      .phase > summary {
+        font-weight: 700;
+      }
+      .count {
+        color: var(--muted);
+        font-weight: 400;
+        font-size: 13px;
+        margin-left: auto;
+        white-space: nowrap;
+      }
+      .task {
+        margin: 8px 12px 12px;
+        padding: 12px 14px;
+        border-radius: 6px;
+        background: var(--panel);
+        border-left: 3px solid transparent;
+      }
+      .task.crit {
+        border-left-color: var(--green);
+        background:
+          linear-gradient(90deg, var(--crit), transparent 60%), var(--panel);
+      }
+      .task-head {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 12px;
+        align-items: center;
+      }
+      .tid {
+        font-variant-numeric: tabular-nums;
+        color: var(--muted);
+        font-size: 13px;
+        min-width: 3.2em;
+      }
+      .ttitle {
+        font-weight: 700;
+        flex: 1 1 260px;
+      }
+      .badge {
+        font-size: 12px;
+        border-radius: 4px;
+        padding: 2px 6px;
+        background: var(--hi);
+        color: var(--muted);
+        white-space: nowrap;
+      }
+      .badge.crit {
+        color: var(--green);
+      }
+      .badge.par {
+        color: var(--blue);
+      }
+      select.status {
+        font: inherit;
+        font-size: 13px;
+        border-radius: 99px;
+        padding: 4px 10px;
+        border: 1px solid var(--line);
+        background: var(--raised);
+        color: var(--text);
+      }
+      .status[data-s="done"] {
+        color: var(--green);
+      }
+      .status[data-s="in_progress"] {
+        color: var(--amber);
+      }
+      .status[data-s="blocked"] {
+        color: var(--red);
+      }
+      .task ul {
+        margin: 8px 0 6px 18px;
+        padding: 0;
+        color: var(--text);
+      }
+      .task li {
+        margin: 3px 0;
+      }
+      .facts {
+        display: grid;
+        grid-template-columns: max-content 1fr;
+        gap: 2px 12px;
+        font-size: 13px;
+        color: var(--muted);
+        margin-top: 6px;
+      }
+      .facts code {
+        color: var(--text);
+        font-size: 12px;
+        word-break: break-word;
+      }
+      .decisions {
+        background: var(--panel);
+        border-radius: 8px;
+        padding: 4px 0;
+        margin: 10px 0 18px;
+      }
+      .decisions dl {
+        margin: 0;
+        padding: 0 16px 12px;
+        display: grid;
+        grid-template-columns: max-content 1fr;
+        gap: 6px 16px;
+        font-size: 14px;
+      }
+      .decisions dt {
+        color: var(--muted);
+      }
+      .decisions dd {
+        margin: 0;
+      }
+      .hidden {
+        display: none !important;
+      }
+      @media (max-width: 640px) {
+        .decisions dl,
+        .facts {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media print {
+        :root,
+        [data-theme] {
+          --bg: #fff;
+          --panel: #fff;
+          --raised: #fff;
+          --hi: #eee;
+          --text: #000;
+          --muted: #444;
+          --line: #ccc;
+          --green: #0a6b2e;
+          --crit: transparent;
+        }
+        .toolbar,
+        #theme {
+          display: none;
+        }
+        details > summary::before {
+          content: "";
+        }
+        details.sprint,
+        details.phase,
+        .task {
+          break-inside: avoid;
+          border: 1px solid #ccc;
+        }
+        select.status {
+          border: 0;
+          appearance: none;
+          padding: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="top">
+        <div>
+          <div class="eyebrow">
+            Protocol plan · scope <span id="scope"></span> · integration branch
+            <code id="branch"></code>
+          </div>
+          <h1 id="title"></h1>
+          <div class="meta" id="meta"></div>
+        </div>
+        <button class="chip" id="theme" type="button" aria-pressed="false">
+          Light mode
+        </button>
+      </header>
+      <div
+        class="bar"
+        role="progressbar"
+        aria-label="Tasks done"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        id="progress"
+      >
+        <i></i>
+      </div>
+      <div class="meta" id="progress-label"></div>
+      <details class="decisions">
+        <summary>Decisions</summary>
+        <dl id="decisions"></dl>
+      </details>
+      <div class="toolbar" role="group" aria-label="Filter tasks by status">
+        <button
+          class="chip"
+          type="button"
+          data-filter="all"
+          aria-pressed="true"
+        >
+          All
+        </button>
+        <button
+          class="chip"
+          type="button"
+          data-filter="todo"
+          aria-pressed="false"
+        >
+          To do
+        </button>
+        <button
+          class="chip"
+          type="button"
+          data-filter="in_progress"
+          aria-pressed="false"
+        >
+          In progress
+        </button>
+        <button
+          class="chip"
+          type="button"
+          data-filter="done"
+          aria-pressed="false"
+        >
+          Done
+        </button>
+        <button
+          class="chip"
+          type="button"
+          data-filter="blocked"
+          aria-pressed="false"
+        >
+          Blocked
+        </button>
+        <span class="spacer"></span>
+        <button class="chip" type="button" id="expand">Expand all</button>
+        <button class="chip" type="button" id="collapse">Collapse all</button>
+      </div>
+      <main id="tree"></main>
     </div>
-    <button class="chip" id="theme" type="button" aria-pressed="false">Light mode</button>
-  </header>
-  <div class="bar" role="progressbar" aria-label="Tasks done" aria-valuemin="0" aria-valuemax="100" id="progress"><i></i></div>
-  <div class="meta" id="progress-label"></div>
-  <details class="decisions"><summary>Decisions</summary><dl id="decisions"></dl></details>
-  <div class="toolbar" role="group" aria-label="Filter tasks by status">
-    <button class="chip" type="button" data-filter="all" aria-pressed="true">All</button>
-    <button class="chip" type="button" data-filter="todo" aria-pressed="false">To do</button>
-    <button class="chip" type="button" data-filter="in_progress" aria-pressed="false">In progress</button>
-    <button class="chip" type="button" data-filter="done" aria-pressed="false">Done</button>
-    <button class="chip" type="button" data-filter="blocked" aria-pressed="false">Blocked</button>
-    <span class="spacer"></span>
-    <button class="chip" type="button" id="expand">Expand all</button>
-    <button class="chip" type="button" id="collapse">Collapse all</button>
-  </div>
-  <main id="tree"></main>
-</div>
-<script id="plan-data" type="application/json">{"version":"2.0","feature":"darshify-spotify-immersion","title":"Darshify v3: Spotify immersion + name SEO","scope":"large","integrationBranch":"feature/spotify-immersion","productionBranch":"build/darshify","rollbackPoint":"3dfae91","decisions":{"sector":"spotify-immersion","scope":"large","v1_scope":"Full immersion + Rewind: faithful Spotify shell (top bar + centered search, resizable Your Library, Now Playing panel, always-on player bar, mobile mini-player + full-screen sheet); every page rebuilt (Home, Artist, EP/Playlist, Song pages with lyrics, Search + skill genre pages, Library, Liked, 404); real player, context menus, shortcuts; content rewrite; full SEO/AEO/GEO; opt-in Darshify Rewind story at /rewind. Out: CMS, recorded voice audio.","architecture":"Rebuild the presentation layer on the existing spine: keep URLs, prerender, typed content model (extend with colors, lyric lines, impact, curation), SEO modules, a11y plumbing. Replace shell/pages/components. New player store (useSyncExternalStore, selective subscriptions) restoring old player behaviors without fake data/60fps loop/a11y bugs. Career Mix becomes a curated playlist.","data_honesty":"Honest fidelity: every Spotify slot holds a true value (plays->impact, duration->engagement length, date added->start month, listener line->real counts). No verified tick. Provenance moves to one Credits->Source row per song + one site-wide liner note; remove per-item self-reported chips.","libraries":"@base-ui/react for context menus, menus, tooltips, mobile full-screen player drawer; hand-rolled SSR-safe resizer; native range inputs for scrubber/volume; build-time sharp color extraction; Figtree variable font; extended original icon set; Motion only; schema-dts dev-only types. Player sound: opt-in ambient soundtrack generated with Web Audio API (no audio files), starts only on user Play, real volume/mute.","ui_approach":"Faithful redesign, hybrid layout: >=1280 resizable Library + main + docked Now Playing + always-on 72px player bar; 1024-1279 Now Playing overlay + Library icon rail; \u003c768 Spotify mobile app pattern (edge-to-edge, colored mini-player, full-screen player sheet, gradient tab bar). Retire Proof Waveform and monospace; Figtree; original Darshify brand/icons; non-affiliation note.","front_loaded_ux_wins":["Always-on player + Now Playing + synced lyrics (green equalizer, play this list)","Artwork color + original colorful covers + real photo (photo pending from owner)","56px track tables with hover play-swap, sticky header, context menu; card rising play button"],"test_coverage":">=90% aggregate coverage on new and modified code (all new runtime files added to the vite.config.ts gated allowlist + coverage-scope regression test), plus route, keyboard, axe, responsive and critical-flow Playwright tests (play, seek, queue, mobile sheet, search, no-JS content).","release_strategy":"Integration branch feature/spotify-immersion: task branches PR into it with green CI required; Vercel previews per push; final atomic PR feature/spotify-immersion -> build/darshify for production cutover; rollback point 3dfae91. Canonical origin is a single config value (stays wrapped-portfolio.vercel.app until owner registers darshiljain.com).","performance_contract":"Time: O(1) lookups via precomputed maps; O(n) search/filter over precomputed normalized fields; sorts precomputed at build; O(log k) binary search for active lyric cue; player clock never re-renders the tree (CSS-driven progress, time-display subscribers only, \u003c=4 Hz); scroll effects via CSS/IntersectionObserver without React state; interactions \u003c50ms. Space: O(n) indexes, no runtime image processing, audio nodes disposed on stop. Budgets: \u003c=170KB gzip initial JS, \u003c=15KB CSS, one font file; CWV LCP\u003c=2.5s, INP\u003c=200ms, CLS\u003c=0.1.","accessibility_target":"WCAG 2.2 AA: automated axe + manual keyboard, screen reader, 400% zoom, contrast, target size (24px min, 44px on coarse pointers), reduced motion. Every drag has a keyboard/button alternative; playback, Rewind and visualizer pausable; single-key shortcuts can be turned off; focus never obscured by player bar or top bar.","conflict_resolutions":{"C1_truth_vs_slots":"honest fidelity (Q3)","C2_recruiter_vs_immersion":"full Spotify IA; CV/Email/LinkedIn one click away everywhere; answer-first facts in SSR (Q2/Q5)","C3_career_mix_scope":"full real transport incl. volume because ambient sound exists (Q4)","C4_libraries":"Base UI + own icons + hand-rolled resizer + Web Audio (Q4)","C5_typography":"Figtree only; drop Archivo + Plex Mono (Q5)","C6_signature":"retire Proof Waveform; lyrics-mode songs + Rewind (Q1/Q5)","C7_ip":"clone layout/behavior; original logo/font/icons/name; non-affiliation note; keep facsimile guard test (Q5)","C8_domain":"single config origin; switch when darshiljain.com registered (Q8)","C9_search_state":"query in URL ?q= with noindex on query pages (Q1 scope)","C10_duplicate_routes":"/liked canonical, 301 /playlist/achievements (Q1 scope)","C11_default_branch":"PRs target integration branch then build/darshify; CI triggers fixed in 1.1.1 (Q8)"},"approved":true},"sprints":[{"id":"1","name":"Foundation: system, honest content, artwork, playback engine","estimateDays":3.5,"phases":[{"id":"1.1","name":"Delivery hygiene","tasks":[{"id":"1.1.1","title":"Fix CI triggers, repo hygiene and a single-source site config","acceptance":["CI runs on pull_request into build/darshify, feature/spotify-immersion and main, and on push to feature/**",".vite/ is ignored and untracked; dead assets (src/assets/vite.svg, src/assets/hero.png, public/og.png) removed","Canonical origin, site name, person name and disambiguators live in one typed module (src/seo/site.ts) used by meta, structured data and the analytics host check","README documents the product, commands, protocol workflow and the owner SEO checklist","All existing quality gates stay green"],"estimateHours":3,"timeComplexity":"n/a","spaceComplexity":"n/a","files":[".github/workflows/ci.yml",".gitignore","src/seo/site.ts","src/seo/meta.ts","src/analytics/outcomes.ts","README.md"],"dependencies":[],"smokeTest":"npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build","ciJobs":["quality","test","build","browser"],"status":"todo","criticalPath":true,"parallelizable":false}]},{"id":"1.2","name":"Design system","tasks":[{"id":"1.2.1","title":"Spotify-grade tokens, Figtree, icon set and Base UI","acceptance":["tokens.css carries the research B5 system: surfaces #000/#121212/#1f1f1f/#2a2a2a, tints, #fff/#b3b3b3 text, green states, radii 4/6/8/pill, shadows, motion durations, layout vars","Figtree Variable is the only font; Archivo and IBM Plex Mono removed; tabular figures verified (or fallback documented)","The global 44px min-size rule is scoped to coarse pointers and .interactive-target; desktop hit areas stay >= 24px","White 2px focus ring; equalizer keyframes; range-input scrubber/volume styles; reduced motion zeroes durations and freezes the equalizer","Original icon set extended on a 24px grid (shuffle, repeat, repeat-one, queue, lyrics, now-playing view, volume levels, heart, plus/check, more, download, pin, speaker, chevrons, close, expand, share, link, keyboard)","@base-ui/react installed at a pinned version"],"estimateHours":5,"timeComplexity":"n/a","spaceComplexity":"n/a","files":["src/styles/tokens.css","src/styles/base.css","src/icons/icons.tsx","package.json"],"dependencies":["1.1.1"],"smokeTest":"npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build","ciJobs":["quality","test","build","browser"],"status":"todo","criticalPath":true,"parallelizable":false}]},{"id":"1.3","name":"Honest content and artwork","tasks":[{"id":"1.3.1","title":"Content model v3: honest-fidelity copy, Spotify metadata and lyrics","acceptance":["Types gain release type (Playlist/EP/Album/Single), color (relative luminance \u003c= 0.18, validated), impact label, start/length labels, optional period, 3-7 lyric lines per song with deterministic cue timing, curation (featured/order), artist bio, answer-first summary, Q&A, location and profiles","All hedging removed: no 'The résumé reports', 'Résumé-listed', 'Date not listed in résumé' or per-proof 'self-reported' display; provenance = one Source credit per song + one site liner note","Missing résumé facts added: paid ZautoAI engagement, IIHMR Saamarthya 5.0 finalist, 13th National Business Plan Championship, 0 to 80+ members in 10 months, institute's largest management fest with industry leaders and startup founders, A/B testing, Janakpuri Delhi, LOR link","Value grammar fixed: 'Top 10%', '4th place', '₹50,000+', '9.39 CGPA'","Validator and content tests updated; bans on monthly listeners, play counts and verified badges stay"],"estimateHours":6,"timeComplexity":"O(n) validation, O(1) lookups","spaceComplexity":"O(n)","files":["src/content/types.ts","src/content/portfolio.ts","src/content/validate.ts","src/content/selectors.ts","src/content/format.ts","src/content/content.test.ts"],"dependencies":["1.2.1"],"smokeTest":"npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build","ciJobs":["quality","test","build","browser"],"status":"todo","criticalPath":true,"parallelizable":false},{"id":"1.3.2","title":"Generative original cover art and per-release color","acceptance":["A build script writes deterministic, text-free SVG artwork for every collection, song, genre and the artist fallback to public/covers/ (seeded by id, palette from content color, each \u003c 4 KB)","A \u003cCover> component renders artwork plus an optional Figtree title overlay at 40/48/56/180/232/full sizes with Spotify radii; decorative alt='' beside visible titles","Artist portrait slot uses public/photos/darshil-jain.* when present (sharp: AVIF/WebP variants + dominant color at build) and a generative fallback otherwise","Proof-card SVGs in public/artifacts retired; asset tests rewritten"],"estimateHours":6,"timeComplexity":"O(n) at build","spaceComplexity":"O(n) files","files":["scripts/generate-covers.ts","public/covers/*","src/shell/Cover.tsx","src/content/artwork.ts"],"dependencies":["1.3.1"],"smokeTest":"npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build","ciJobs":["quality","test","build","browser"],"status":"todo","criticalPath":true,"parallelizable":false}]},{"id":"1.4","name":"Playback engine","tasks":[{"id":"1.4.1","title":"Player store: queues, transport, saves and selective subscriptions","acceptance":["Pure reducer: PLAY_CONTEXT, TOGGLE, NEXT, PREVIOUS, SEEK, TICK, TOGGLE_SHUFFLE (seeded Fisher-Yates), CYCLE_REPEAT, SET_VOLUME, TOGGLE_MUTE, TOGGLE_SAVE, ENQUEUE, panel toggles; fully unit tested","External store + useSyncExternalStore selector hooks so components re-render only for their slice; the clock updates time subscribers at \u003c= 4 Hz; progress is a CSS custom property","Song length = sum of lyric cue durations; active lyric found by binary search","Saves, volume, mute and last context persisted with try/catch; server snapshot = defaults (hydration-safe)","Media Session metadata/actions; document.title shows the playing song while playing","Career Mix replaced by the curated 'This Is Darshil Jain' playlist; analytics allowlist extended"],"estimateHours":7,"timeComplexity":"O(1) per action, O(n) shuffle, O(log k) lyric lookup","spaceComplexity":"O(n)","files":["src/player/reducer.ts","src/player/store.ts","src/player/hooks.ts","src/player/mediaSession.ts","src/analytics/outcomes.ts"],"dependencies":["1.3.1"],"smokeTest":"npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build","ciJobs":["quality","test","build","browser"],"status":"todo","criticalPath":true,"parallelizable":false},{"id":"1.4.2","title":"Generative ambient soundtrack with the Web Audio API","acceptance":["AudioContext is created lazily on the first user Play; never autoplays; suspends on pause; nodes are disposed when stopped","Each release kind has its own progression, tempo and timbre (soft pad + gentle arpeggio + filtered noise + generated reverb); track changes crossfade in \u003c= 600 ms","Volume and mute drive a master gain with smooth ramps","Graceful no-op where Web Audio is unavailable (SSR, tests, old browsers)","No per-frame main-thread work; scheduling uses the audio clock"],"estimateHours":5,"timeComplexity":"O(1) per scheduled note","spaceComplexity":"O(1) live nodes per voice","files":["src/player/audio/engine.ts","src/player/audio/voices.ts"],"dependencies":["1.4.1"],"smokeTest":"npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build","ciJobs":["quality","test","build","browser"],"status":"todo","criticalPath":false,"parallelizable":true}]}]},{"id":"2","name":"The Spotify shell","estimateDays":3,"phases":[{"id":"2.1","name":"Desktop frame","tasks":[{"id":"2.1.1","title":"App frame, global top bar and living scroll color","acceptance":["CSS grid frame (64px top bar, panels, 72px player) at 100dvh with 8px gaps; only the main panel scrolls; no React state on scroll (IntersectionObserver sentinel + CSS variable)","Top bar: original Darshify mark, back/forward chevrons, round Home button, centered search pill (GET form to /search?q=, Ctrl/Cmd+K focuses it), avatar button opening a Base UI menu (Download CV, Email, LinkedIn, Copy profile link, Keyboard shortcuts)","The sticky header fills with the page color and shows the title + a mini play button once the big title scrolls away","A non-affiliation liner note closes every page"],"estimateHours":6,"timeComplexity":"n/a","spaceComplexity":"n/a","files":["src/shell/AppShell.tsx","src/shell/TopBar.tsx","src/shell/AccountMenu.tsx","src/shell/PageFooter.tsx","app/root.tsx"],"dependencies":["1.4.1"],"smokeTest":"npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build","ciJobs":["quality","test","build","browser"],"status":"todo","criticalPath":true,"parallelizable":false},{"id":"2.1.2","title":"Your Library panel: chips, sort, search, resize and collapse","acceptance":["64px rows with 48px art (round for the artist), 'EP • Darshil Jain' subtitles, pinned Liked Songs first, green title + speaker on the playing item","Filter chips as aria-pressed toggles, O(n) in-library search, Base UI sort menu (Recents, Alphabetical, Type), compact/list toggle","Resizer supports pointer drag, arrow keys and Home/End with separator semantics; a collapse button switches to a 72px rail; width 280-420px persisted; SSR default 320px (no CLS)","Every row is a real link in the server HTML"],"estimateHours":5,"timeComplexity":"O(n) filter","spaceComplexity":"O(n)","files":["src/shell/LibraryPanel.tsx","src/shell/Resizer.tsx","src/lib/layoutPrefs.ts"],"dependencies":["2.1.1"],"smokeTest":"npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build","ciJobs":["quality","test","build","browser"],"status":"todo","criticalPath":true,"parallelizable":false}]},{"id":"2.2","name":"Player UI","tasks":[{"id":"2.2.1","title":"Player bar with real transport, scrubber and volume","acceptance":["Left: art, title, artist, save toggle. Center: shuffle, previous, play/pause (black on white, visible), next, repeat + scrubber with elapsed/total times. Right: Now Playing view, lyrics, queue, Download CV, mute + volume","Always mounted; idle state is ready to play 'This Is Darshil Jain'","Native range inputs with aria-valuetext; scrubber turns green with a knob on hover; keyboard seek works","Ambient sound follows play/pause/seek/volume"],"estimateHours":5,"timeComplexity":"n/a","spaceComplexity":"n/a","files":["src/shell/PlayerBar.tsx","src/shell/Scrubber.tsx"],"dependencies":["2.1.2","1.4.2"],"smokeTest":"npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build","ciJobs":["quality","test","build","browser"],"status":"todo","criticalPath":true,"parallelizable":false},{"id":"2.2.2","title":"Now Playing view, synced lyrics and queue","acceptance":["Right panel docked at >= 1280px (resizable 280-420px), overlay at 1024-1279px; header 'Playing from \u003ccontext>'","Large art with a looping Visualizer that pauses offscreen, when the tab is hidden and under reduced motion","Cards: Lyrics (synced, active line highlighted), Credits (role, organization, source), About the artist, Next in queue","Queue view (now playing, next up, jump to, remove) and a full lyrics mode in the main view (active line white, click to seek, smooth auto-scroll)","Track changes are announced in one polite live region"],"estimateHours":7,"timeComplexity":"O(log k) active line","spaceComplexity":"O(k)","files":["src/shell/NowPlayingPanel.tsx","src/shell/QueueView.tsx","src/shell/LyricsView.tsx","src/shell/Visualizer.tsx"],"dependencies":["2.2.1"],"smokeTest":"npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build","ciJobs":["quality","test","build","browser"],"status":"todo","criticalPath":true,"parallelizable":false}]},{"id":"2.3","name":"Mobile","tasks":[{"id":"2.3.1","title":"Mobile app chrome: tab bar, mini-player and full-screen player","acceptance":["Below 768px the page scrolls edge to edge; gradient tab bar Home/Search/Your Library with safe-area padding","56px mini-player in the track color with a 2px progress line; tapping it opens the full-screen player","Full-screen player (Base UI Drawer: swipe or close button) with art, scrubber, transport, lyrics card, about and credits","viewport-fit=cover; no horizontal overflow at 320px"],"estimateHours":5,"timeComplexity":"n/a","spaceComplexity":"n/a","files":["src/shell/MobileChrome.tsx","src/shell/FullScreenPlayer.tsx","src/shell/BottomNav.tsx"],"dependencies":["2.2.2"],"smokeTest":"npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build","ciJobs":["quality","test","build","browser"],"status":"todo","criticalPath":true,"parallelizable":false}]},{"id":"2.4","name":"Interaction layer","tasks":[{"id":"2.4.1","title":"Context menus, toasts and keyboard shortcuts","acceptance":["Right-click and '…' menus on rows, cards and headers: Play, Add to queue, Save to Your Library, Copy link, Go to release/artist, View credits, Download CV","Toasts sit above the player in one polite live region and report failures truthfully (e.g. clipboard)","Shortcuts: Space, Ctrl/Cmd+K, Shift+N/P, Shift+arrows seek, M, Alt+Shift+B, ? help; ignored inside interactive elements; single-key shortcuts can be turned off (persisted)","A keyboard-shortcuts dialog reachable from the avatar menu and '?'"],"estimateHours":5,"timeComplexity":"n/a","spaceComplexity":"n/a","files":["src/shell/ContextMenu.tsx","src/shell/Toast.tsx","src/shell/useShortcuts.ts","src/shell/ShortcutsDialog.tsx"],"dependencies":["2.3.1"],"smokeTest":"npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build","ciJobs":["quality","test","build","browser"],"status":"todo","criticalPath":true,"parallelizable":false}]}]},{"id":"3","name":"Every page, Spotify-native","estimateDays":4,"phases":[{"id":"3.1","name":"Release surfaces","tasks":[{"id":"3.1.1","title":"Media primitives: cards, shelves, track table, release header and action bar","acceptance":["MediaCard with stretched link and a sibling green play button that rises on hover/focus (hidden on touch)","Shelf: one row of about 180px cards, horizontal scroll on mobile, 'Show all' link","TrackTable: 56px rows, # swaps to play on hover/focus, green equalizer + title on the playing row, sticky header, container-query columns (# / Title / Impact / Started / Length)","ReleaseHeader: artwork color gradient, type label, auto-fit display title, 'Darshil Jain • years • N songs, length' meta","ActionBar: 56px play (this list), shuffle, save, Download CV, more menu"],"estimateHours":6,"timeComplexity":"n/a","spaceComplexity":"n/a","files":["src/components/MediaCard.tsx","src/components/Shelf.tsx","src/components/TrackTable.tsx","src/components/ReleaseHeader.tsx","src/components/ActionBar.tsx"],"dependencies":["2.4.1"],"smokeTest":"npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build","ciJobs":["quality","test","build","browser"],"status":"todo","criticalPath":true,"parallelizable":false},{"id":"3.1.2","title":"Playlist, EP and Liked Songs (Awards) pages","acceptance":["/playlist/:id renders the release header, action bar and track table with honest columns","/liked is the Liked Songs-styled Awards list; /playlist/achievements permanently redirects to /liked and leaves the sitemap","Play on a page plays that list; the playing row shows the equalizer"],"estimateHours":4,"timeComplexity":"n/a","spaceComplexity":"n/a","files":["src/pages/PlaylistPage.tsx","src/pages/LikedSongs.tsx","app/routes/collection.tsx","vercel.json"],"dependencies":["3.1.1"],"smokeTest":"npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build","ciJobs":["quality","test","build","browser"],"status":"todo","criticalPath":true,"parallelizable":false},{"id":"3.1.3","title":"Song pages: lyrics, credits and more by Darshil","acceptance":["Case-study routes become Song pages: header with cover and color, 'Song • Darshil Jain • Organization • year • length'","Lyrics render as server-side text (crawlable) and sync with playback when this song plays","Credits (role, organization, team, source), About the artist card, related songs and 'More by Darshil Jain'","The hard-coded 'Back to Projects' bug is gone"],"estimateHours":5,"timeComplexity":"n/a","spaceComplexity":"n/a","files":["src/pages/CaseStudyPage.tsx","app/routes/case-study.tsx"],"dependencies":["3.1.2"],"smokeTest":"npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build","ciJobs":["quality","test","build","browser"],"status":"todo","criticalPath":true,"parallelizable":false}]},{"id":"3.2","name":"Artist and Home","tasks":[{"id":"3.2.1","title":"Artist page with an answer-first About","acceptance":["Banner header (photo when supplied, generative art otherwise), display name, honest listener line ('3 internships · 4 projects · 4 awards')","Action bar: Play, Shuffle, Follow (LinkedIn), Message (email), Download CV, more","Popular (top 5 by impact), Artist pick (latest release), Discography with chips, Appears on","About card + dialog with the answer-first 'Who is Darshil Jain?' paragraph and visible Q&A"],"estimateHours":6,"timeComplexity":"n/a","spaceComplexity":"n/a","files":["src/pages/ArtistPage.tsx","app/routes/artist.tsx"],"dependencies":["3.1.3"],"smokeTest":"npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build","ciJobs":["quality","test","build","browser"],"status":"todo","criticalPath":true,"parallelizable":false},{"id":"3.2.2","title":"Home: greeting, quick picks, living color and shelves","acceptance":["Visible H1 spotlight for Darshil Jain with play/follow; client-side greeting (neutral on the server, no hydration mismatch)","Filter chips; 8 quick-pick tiles whose hover/focus crossfades the page-top color","Shelves: 'Made for you', 'Top releases', 'Jump back in' (from local history when present); Rewind banner"],"estimateHours":5,"timeComplexity":"n/a","spaceComplexity":"n/a","files":["src/pages/Home.tsx","app/routes/home.tsx"],"dependencies":["3.2.1"],"smokeTest":"npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build","ciJobs":["quality","test","build","browser"],"status":"todo","criticalPath":true,"parallelizable":false}]},{"id":"3.3","name":"Discovery","tasks":[{"id":"3.3.1","title":"Search with URL state, top result and Browse all genres","acceptance":["/search?q= drives results (shareable, noindex on query pages, canonical /search); the top-bar pill navigates there","Chips (All / Songs / Releases / Genres / Artists), a Top result card, a Songs list and release/genre shelves","Browse all: skills as colorful genre tiles with rotated art; optional recent searches with try/catch"],"estimateHours":5,"timeComplexity":"O(n·m) search over precomputed fields","spaceComplexity":"O(n)","files":["src/pages/Search.tsx","app/routes/search.tsx","src/content/selectors.ts"],"dependencies":["3.2.2"],"smokeTest":"npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build","ciJobs":["quality","test","build","browser"],"status":"todo","criticalPath":true,"parallelizable":false},{"id":"3.3.2","title":"Genre pages for every skill","acceptance":["/genre/:skill prerendered for all 12 skills: header color, description, songs where the skill was applied","Added to the route inventory, sitemap, social cards and tests"],"estimateHours":3,"timeComplexity":"n/a","spaceComplexity":"n/a","files":["src/pages/GenrePage.tsx","app/routes/genre.tsx","src/seo/meta.ts"],"dependencies":["3.3.1"],"smokeTest":"npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build","ciJobs":["quality","test","build","browser"],"status":"todo","criticalPath":false,"parallelizable":true},{"id":"3.3.3","title":"Your Library page and a Spotify-style 404","acceptance":["/library is the dense mobile-style library (chips, sort, search, saved items)","404: centered mark, 'Page not found', Home button and Search link; noindex"],"estimateHours":3,"timeComplexity":"n/a","spaceComplexity":"n/a","files":["src/pages/Library.tsx","src/pages/NotFound.tsx"],"dependencies":["3.3.1"],"smokeTest":"npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build","ciJobs":["quality","test","build","browser"],"status":"todo","criticalPath":false,"parallelizable":true}]},{"id":"3.4","name":"Signature","tasks":[{"id":"3.4.1","title":"Darshify Rewind story","acceptance":["/rewind is a server-rendered page whose slides are sections with real numbers only","Story mode: segmented progress, tap/arrow navigation, hold or button to pause, Esc to close, reduced motion = manual mode","Final share card doubles as the route's social image; Home shows an opt-in Rewind banner"],"estimateHours":6,"timeComplexity":"n/a","spaceComplexity":"n/a","files":["src/pages/Rewind.tsx","app/routes/rewind.tsx"],"dependencies":["3.2.2"],"smokeTest":"npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build","ciJobs":["quality","test","build","browser"],"status":"todo","criticalPath":true,"parallelizable":false}]}]},{"id":"4","name":"Findability, hardening and release","estimateDays":2.5,"phases":[{"id":"4.1","name":"SEO / AEO / GEO","tasks":[{"id":"4.1.1","title":"Entity graph, titles and metadata","acceptance":["Every title contains 'Darshil Jain' with disambiguators (BBA, MSI Delhi, operations & strategy); unique titles/descriptions enforced by a test","Home @graph: WebSite + ProfilePage + Person (alternateName Darshil, alumniOf MSI under GGSIPU, homeLocation New Delhi, founder of Igniters Club, award, hasCredential, knowsAbout, sameAs, image when a photo exists); ItemList for releases, CreativeWork for songs, BreadcrumbList","og:type profile with first/last name on Home and Artist; og:site_name, locale, author"],"estimateHours":5,"timeComplexity":"n/a","spaceComplexity":"n/a","files":["src/seo/meta.ts","src/seo/structuredData.ts","app/routes/*.tsx"],"dependencies":["3.4.1"],"smokeTest":"npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build","ciJobs":["quality","test","build","browser"],"status":"todo","criticalPath":true,"parallelizable":false},{"id":"4.1.2","title":"Crawl surface: robots, sitemap, llms.txt, icons, social cards, IndexNow","acceptance":["robots.txt explicitly allows OAI-SearchBot, ChatGPT-User, GPTBot, Claude-SearchBot, Claude-User, ClaudeBot, PerplexityBot, Perplexity-User, Google-Extended, Applebot-Extended, CCBot","sitemap.xml generated from the inventory with accurate lastmod; duplicates removed","/llms.txt and /llms-full.txt generated from content","PNG favicons, apple-touch-icon and site.webmanifest; social cards regenerated in the new visual language","IndexNow key file + post-deploy ping script; résumé PDF metadata fixed (title/author)"],"estimateHours":5,"timeComplexity":"n/a","spaceComplexity":"n/a","files":["public/robots.txt","public/sitemap.xml","public/llms.txt","scripts/generate-crawl-surface.ts","scripts/generate-social-cards.ts"],"dependencies":["4.1.1"],"smokeTest":"npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build","ciJobs":["quality","test","build","browser"],"status":"todo","criticalPath":true,"parallelizable":false}]},{"id":"4.2","name":"Hardening","tasks":[{"id":"4.2.1","title":"Accessibility, performance and browser-test sweep","acceptance":["axe clean on every route at 3 viewports; keyboard-only flows for play, seek, queue, menus, library resize, mobile sheet, Rewind","Reduced motion, 400% zoom and target-size checks pass; focus never obscured","Budgets met: \u003c= 170 KB gzip initial JS, \u003c= 15 KB CSS, one font file; no long tasks on play/scroll","Recruiter-first e2e specs rewritten for the new experience; content without JavaScript verified"],"estimateHours":6,"timeComplexity":"n/a","spaceComplexity":"n/a","files":["e2e/*.spec.ts","playwright.config.ts"],"dependencies":["4.1.2"],"smokeTest":"npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build && npm run test:e2e","ciJobs":["quality","test","build","browser"],"status":"todo","criticalPath":true,"parallelizable":false}]},{"id":"4.3","name":"Release","tasks":[{"id":"4.3.1","title":"Preview validation and atomic production cutover","acceptance":["Vercel preview of the integration branch validated end to end (desktop, tablet, mobile)","Cutover PR feature/spotify-immersion -> build/darshify opened with the rollback point documented; merged only after owner approval","Owner checklist delivered: photo, domain, Search Console, Bing Webmaster, LinkedIn custom URL, résumé portfolio link"],"estimateHours":2,"timeComplexity":"n/a","spaceComplexity":"n/a","files":["README.md"],"dependencies":["4.2.1"],"smokeTest":"npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build && npm run test:e2e","ciJobs":["quality","test","build","browser"],"status":"todo","criticalPath":true,"parallelizable":false}]}]}],"generatedAt":"2026-10-17T02:19:53.959Z"}</script>
-<script>
-(function () {
-  var plan = JSON.parse(document.getElementById("plan-data").textContent);
-  var KEY = "plan:" + plan.feature;
-  var STATUSES = [["todo", "To do"], ["in_progress", "In progress"], ["done", "Done"], ["blocked", "Blocked"]];
-  var stored = null;
-  try { stored = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { stored = null; }
-  // A regenerated plan (new generatedAt) is the source of truth: it resets local overrides.
-  var overrides = stored && stored.generatedAt === plan.generatedAt ? stored.statuses || {} : {};
-  function save() {
-    try { localStorage.setItem(KEY, JSON.stringify({ generatedAt: plan.generatedAt, statuses: overrides })); } catch (e) {}
-  }
-  save();
-  function statusOf(task) { return overrides[task.id] || task.status; }
-  function el(tag, attrs, text) {
-    var node = document.createElement(tag);
-    for (var k in attrs || {}) node.setAttribute(k, attrs[k]);
-    if (text != null) node.textContent = text;
-    return node;
-  }
-  document.getElementById("title").textContent = plan.title || plan.feature;
-  document.getElementById("scope").textContent = plan.scope;
-  document.getElementById("branch").textContent = plan.integrationBranch || "";
-  var tasks = [];
-  plan.sprints.forEach(function (s) { s.phases.forEach(function (p) { p.tasks.forEach(function (t) { tasks.push(t); }); }); });
-  var hours = tasks.reduce(function (a, t) { return a + (t.estimateHours || 0); }, 0);
-  document.getElementById("meta").textContent = tasks.length + " tasks · ~" + hours + " h · generated " + new Date(plan.generatedAt).toLocaleString();
-  var dl = document.getElementById("decisions");
-  Object.keys(plan.decisions || {}).forEach(function (k) {
-    var v = plan.decisions[k];
-    if (typeof v === "object") v = Array.isArray(v) ? v.join(" · ") : Object.keys(v).map(function (x) { return x + ": " + (typeof v[x] === "object" ? JSON.stringify(v[x]) : v[x]); }).join(" · ");
-    dl.appendChild(el("dt", null, k.replace(/_/g, " ")));
-    dl.appendChild(el("dd", null, String(v)));
-  });
-  var tree = document.getElementById("tree");
-  plan.sprints.forEach(function (s) {
-    var sd = el("details", { class: "sprint", open: "" });
-    var ss = el("summary");
-    ss.appendChild(el("span", null, "Sprint " + s.id + " · " + s.name));
-    ss.appendChild(el("span", { class: "count", "data-count": "" }));
-    sd.appendChild(ss);
-    s.phases.forEach(function (p) {
-      var pd = el("details", { class: "phase", open: "" });
-      var ps = el("summary");
-      ps.appendChild(el("span", null, p.id + " " + p.name));
-      ps.appendChild(el("span", { class: "count", "data-count": "" }));
-      pd.appendChild(ps);
-      p.tasks.forEach(function (t) {
-        var card = el("article", { class: "task" + (t.criticalPath ? " crit" : ""), "data-task": t.id });
-        var head = el("div", { class: "task-head" });
-        head.appendChild(el("span", { class: "tid" }, t.id));
-        head.appendChild(el("span", { class: "ttitle" }, t.title));
-        if (t.criticalPath) head.appendChild(el("span", { class: "badge crit" }, "Critical path"));
-        if (t.parallelizable) head.appendChild(el("span", { class: "badge par" }, "Parallelizable"));
-        head.appendChild(el("span", { class: "badge" }, (t.estimateHours || 0) + " h"));
-        var sel = el("select", { class: "status", "aria-label": "Status of task " + t.id });
-        STATUSES.forEach(function (o) { var opt = el("option", { value: o[0] }, o[1]); sel.appendChild(opt); });
-        sel.value = statusOf(t);
-        sel.setAttribute("data-s", sel.value);
-        sel.addEventListener("change", function () {
-          overrides[t.id] = sel.value; sel.setAttribute("data-s", sel.value); save(); refresh();
+    <script id="plan-data" type="application/json">
+      {
+        "version": "2.0",
+        "feature": "darshify-spotify-immersion",
+        "title": "Darshify v3: Spotify immersion + name SEO",
+        "scope": "large",
+        "integrationBranch": "feature/spotify-immersion",
+        "productionBranch": "build/darshify",
+        "rollbackPoint": "3dfae91",
+        "decisions": {
+          "sector": "spotify-immersion",
+          "scope": "large",
+          "v1_scope": "Full immersion + Rewind: faithful Spotify shell (top bar + centered search, resizable Your Library, Now Playing panel, always-on player bar, mobile mini-player + full-screen sheet); every page rebuilt (Home, Artist, EP/Playlist, Song pages with lyrics, Search + skill genre pages, Library, Liked, 404); real player, context menus, shortcuts; content rewrite; full SEO/AEO/GEO; opt-in Darshify Rewind story at /rewind. Out: CMS, recorded voice audio.",
+          "architecture": "Rebuild the presentation layer on the existing spine: keep URLs, prerender, typed content model (extend with colors, lyric lines, impact, curation), SEO modules, a11y plumbing. Replace shell/pages/components. New player store (useSyncExternalStore, selective subscriptions) restoring old player behaviors without fake data/60fps loop/a11y bugs. Career Mix becomes a curated playlist.",
+          "data_honesty": "Honest fidelity: every Spotify slot holds a true value (plays->impact, duration->engagement length, date added->start month, listener line->real counts). No verified tick. Provenance moves to one Credits->Source row per song + one site-wide liner note; remove per-item self-reported chips.",
+          "libraries": "@base-ui/react for context menus, menus, tooltips, mobile full-screen player drawer; hand-rolled SSR-safe resizer; native range inputs for scrubber/volume; build-time sharp color extraction; Figtree variable font; extended original icon set; Motion only; schema-dts dev-only types. Player sound: opt-in ambient soundtrack generated with Web Audio API (no audio files), starts only on user Play, real volume/mute.",
+          "ui_approach": "Faithful redesign, hybrid layout: >=1280 resizable Library + main + docked Now Playing + always-on 72px player bar; 1024-1279 Now Playing overlay + Library icon rail; \u003c768 Spotify mobile app pattern (edge-to-edge, colored mini-player, full-screen player sheet, gradient tab bar). Retire Proof Waveform and monospace; Figtree; original Darshify brand/icons; non-affiliation note.",
+          "front_loaded_ux_wins": [
+            "Always-on player + Now Playing + synced lyrics (green equalizer, play this list)",
+            "Artwork color + original colorful covers + real photo (photo pending from owner)",
+            "56px track tables with hover play-swap, sticky header, context menu; card rising play button"
+          ],
+          "test_coverage": ">=90% aggregate coverage on new and modified code (all new runtime files added to the vite.config.ts gated allowlist + coverage-scope regression test), plus route, keyboard, axe, responsive and critical-flow Playwright tests (play, seek, queue, mobile sheet, search, no-JS content).",
+          "release_strategy": "Integration branch feature/spotify-immersion: task branches PR into it with green CI required; Vercel previews per push; final atomic PR feature/spotify-immersion -> build/darshify for production cutover; rollback point 3dfae91. Canonical origin is a single config value (stays wrapped-portfolio.vercel.app until owner registers darshiljain.com).",
+          "performance_contract": "Time: O(1) lookups via precomputed maps; O(n) search/filter over precomputed normalized fields; sorts precomputed at build; O(log k) binary search for active lyric cue; player clock never re-renders the tree (CSS-driven progress, time-display subscribers only, \u003c=4 Hz); scroll effects via CSS/IntersectionObserver without React state; interactions \u003c50ms. Space: O(n) indexes, no runtime image processing, audio nodes disposed on stop. Budgets: \u003c=170KB gzip initial JS, \u003c=15KB CSS, one font file; CWV LCP\u003c=2.5s, INP\u003c=200ms, CLS\u003c=0.1.",
+          "accessibility_target": "WCAG 2.2 AA: automated axe + manual keyboard, screen reader, 400% zoom, contrast, target size (24px min, 44px on coarse pointers), reduced motion. Every drag has a keyboard/button alternative; playback, Rewind and visualizer pausable; single-key shortcuts can be turned off; focus never obscured by player bar or top bar.",
+          "conflict_resolutions": {
+            "C1_truth_vs_slots": "honest fidelity (Q3)",
+            "C2_recruiter_vs_immersion": "full Spotify IA; CV/Email/LinkedIn one click away everywhere; answer-first facts in SSR (Q2/Q5)",
+            "C3_career_mix_scope": "full real transport incl. volume because ambient sound exists (Q4)",
+            "C4_libraries": "Base UI + own icons + hand-rolled resizer + Web Audio (Q4)",
+            "C5_typography": "Figtree only; drop Archivo + Plex Mono (Q5)",
+            "C6_signature": "retire Proof Waveform; lyrics-mode songs + Rewind (Q1/Q5)",
+            "C7_ip": "clone layout/behavior; original logo/font/icons/name; non-affiliation note; keep facsimile guard test (Q5)",
+            "C8_domain": "single config origin; switch when darshiljain.com registered (Q8)",
+            "C9_search_state": "query in URL ?q= with noindex on query pages (Q1 scope)",
+            "C10_duplicate_routes": "/liked canonical, 301 /playlist/achievements (Q1 scope)",
+            "C11_default_branch": "PRs target integration branch then build/darshify; CI triggers fixed in 1.1.1 (Q8)"
+          },
+          "approved": true
+        },
+        "sprints": [
+          {
+            "id": "1",
+            "name": "Foundation: system, honest content, artwork, playback engine",
+            "estimateDays": 3.5,
+            "phases": [
+              {
+                "id": "1.1",
+                "name": "Delivery hygiene",
+                "tasks": [
+                  {
+                    "id": "1.1.1",
+                    "title": "Fix CI triggers, repo hygiene and a single-source site config",
+                    "acceptance": [
+                      "CI runs on pull_request into build/darshify, feature/spotify-immersion and main, and on push to feature/**",
+                      ".vite/ is ignored and untracked; dead assets (src/assets/vite.svg, src/assets/hero.png, public/og.png) removed",
+                      "Canonical origin, brand, locale, title qualifier and the non-affiliation note live in one typed module (src/seo/site.ts) used by route metadata and the analytics host check; facts about Darshil stay in src/content",
+                      "README documents the product, commands, protocol workflow and the owner SEO checklist",
+                      "Test timeouts tolerate a heavily loaded machine (Testing Library async 5 s, Vitest 20 s) without masking failures",
+                      "All existing quality gates stay green"
+                    ],
+                    "estimateHours": 3,
+                    "timeComplexity": "n/a",
+                    "spaceComplexity": "n/a",
+                    "files": [
+                      ".github/workflows/ci.yml",
+                      ".gitignore",
+                      "src/seo/site.ts",
+                      "src/seo/meta.ts",
+                      "src/analytics/outcomes.ts",
+                      "README.md",
+                      "src/test/setup.ts",
+                      "vite.config.ts"
+                    ],
+                    "dependencies": [],
+                    "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
+                    "ciJobs": ["quality", "test", "build", "browser"],
+                    "status": "in_progress",
+                    "criticalPath": true,
+                    "parallelizable": false
+                  }
+                ]
+              },
+              {
+                "id": "1.2",
+                "name": "Design system",
+                "tasks": [
+                  {
+                    "id": "1.2.1",
+                    "title": "Spotify-grade tokens, Figtree, icon set and Base UI",
+                    "acceptance": [
+                      "tokens.css carries the research B5 system: surfaces #000/#121212/#1f1f1f/#2a2a2a, tints, #fff/#b3b3b3 text, green states, radii 4/6/8/pill, shadows, motion durations, layout vars",
+                      "Figtree Variable is the only font; Archivo and IBM Plex Mono removed; tabular figures verified (or fallback documented)",
+                      "The global 44px min-size rule is scoped to coarse pointers and .interactive-target; desktop hit areas stay >= 24px",
+                      "White 2px focus ring; equalizer keyframes; range-input scrubber/volume styles; reduced motion zeroes durations and freezes the equalizer",
+                      "Original icon set extended on a 24px grid (shuffle, repeat, repeat-one, queue, lyrics, now-playing view, volume levels, heart, plus/check, more, download, pin, speaker, chevrons, close, expand, share, link, keyboard)",
+                      "@base-ui/react installed at a pinned version"
+                    ],
+                    "estimateHours": 5,
+                    "timeComplexity": "n/a",
+                    "spaceComplexity": "n/a",
+                    "files": [
+                      "src/styles/tokens.css",
+                      "src/styles/base.css",
+                      "src/icons/icons.tsx",
+                      "package.json"
+                    ],
+                    "dependencies": ["1.1.1"],
+                    "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
+                    "ciJobs": ["quality", "test", "build", "browser"],
+                    "status": "todo",
+                    "criticalPath": true,
+                    "parallelizable": false
+                  }
+                ]
+              },
+              {
+                "id": "1.3",
+                "name": "Honest content and artwork",
+                "tasks": [
+                  {
+                    "id": "1.3.1",
+                    "title": "Content model v3: honest-fidelity copy, Spotify metadata and lyrics",
+                    "acceptance": [
+                      "Types gain release type (Playlist/EP/Album/Single), color (relative luminance \u003c= 0.18, validated), impact label, start/length labels, optional period, 3-7 lyric lines per song with deterministic cue timing, curation (featured/order), artist bio, answer-first summary, Q&A, location and profiles",
+                      "All hedging removed: no 'The résumé reports', 'Résumé-listed', 'Date not listed in résumé' or per-proof 'self-reported' display; provenance = one Source credit per song + one site liner note",
+                      "Missing résumé facts added: paid ZautoAI engagement, IIHMR Saamarthya 5.0 finalist, 13th National Business Plan Championship, 0 to 80+ members in 10 months, institute's largest management fest with industry leaders and startup founders, A/B testing, Janakpuri Delhi, LOR link",
+                      "Value grammar fixed: 'Top 10%', '4th place', '₹50,000+', '9.39 CGPA'",
+                      "Validator and content tests updated; bans on monthly listeners, play counts and verified badges stay"
+                    ],
+                    "estimateHours": 6,
+                    "timeComplexity": "O(n) validation, O(1) lookups",
+                    "spaceComplexity": "O(n)",
+                    "files": [
+                      "src/content/types.ts",
+                      "src/content/portfolio.ts",
+                      "src/content/validate.ts",
+                      "src/content/selectors.ts",
+                      "src/content/format.ts",
+                      "src/content/content.test.ts"
+                    ],
+                    "dependencies": ["1.2.1"],
+                    "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
+                    "ciJobs": ["quality", "test", "build", "browser"],
+                    "status": "todo",
+                    "criticalPath": true,
+                    "parallelizable": false
+                  },
+                  {
+                    "id": "1.3.2",
+                    "title": "Generative original cover art and per-release color",
+                    "acceptance": [
+                      "A build script writes deterministic, text-free SVG artwork for every collection, song, genre and the artist fallback to public/covers/ (seeded by id, palette from content color, each \u003c 4 KB)",
+                      "A \u003cCover> component renders artwork plus an optional Figtree title overlay at 40/48/56/180/232/full sizes with Spotify radii; decorative alt='' beside visible titles",
+                      "Artist portrait slot uses public/photos/darshil-jain.* when present (sharp: AVIF/WebP variants + dominant color at build) and a generative fallback otherwise",
+                      "Proof-card SVGs in public/artifacts retired; asset tests rewritten"
+                    ],
+                    "estimateHours": 6,
+                    "timeComplexity": "O(n) at build",
+                    "spaceComplexity": "O(n) files",
+                    "files": [
+                      "scripts/generate-covers.ts",
+                      "public/covers/*",
+                      "src/shell/Cover.tsx",
+                      "src/content/artwork.ts"
+                    ],
+                    "dependencies": ["1.3.1"],
+                    "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
+                    "ciJobs": ["quality", "test", "build", "browser"],
+                    "status": "todo",
+                    "criticalPath": true,
+                    "parallelizable": false
+                  }
+                ]
+              },
+              {
+                "id": "1.4",
+                "name": "Playback engine",
+                "tasks": [
+                  {
+                    "id": "1.4.1",
+                    "title": "Player store: queues, transport, saves and selective subscriptions",
+                    "acceptance": [
+                      "Pure reducer: PLAY_CONTEXT, TOGGLE, NEXT, PREVIOUS, SEEK, TICK, TOGGLE_SHUFFLE (seeded Fisher-Yates), CYCLE_REPEAT, SET_VOLUME, TOGGLE_MUTE, TOGGLE_SAVE, ENQUEUE, panel toggles; fully unit tested",
+                      "External store + useSyncExternalStore selector hooks so components re-render only for their slice; the clock updates time subscribers at \u003c= 4 Hz; progress is a CSS custom property",
+                      "Song length = sum of lyric cue durations; active lyric found by binary search",
+                      "Saves, volume, mute and last context persisted with try/catch; server snapshot = defaults (hydration-safe)",
+                      "Media Session metadata/actions; document.title shows the playing song while playing",
+                      "Career Mix replaced by the curated 'This Is Darshil Jain' playlist; analytics allowlist extended"
+                    ],
+                    "estimateHours": 7,
+                    "timeComplexity": "O(1) per action, O(n) shuffle, O(log k) lyric lookup",
+                    "spaceComplexity": "O(n)",
+                    "files": [
+                      "src/player/reducer.ts",
+                      "src/player/store.ts",
+                      "src/player/hooks.ts",
+                      "src/player/mediaSession.ts",
+                      "src/analytics/outcomes.ts"
+                    ],
+                    "dependencies": ["1.3.1"],
+                    "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
+                    "ciJobs": ["quality", "test", "build", "browser"],
+                    "status": "todo",
+                    "criticalPath": true,
+                    "parallelizable": false
+                  },
+                  {
+                    "id": "1.4.2",
+                    "title": "Generative ambient soundtrack with the Web Audio API",
+                    "acceptance": [
+                      "AudioContext is created lazily on the first user Play; never autoplays; suspends on pause; nodes are disposed when stopped",
+                      "Each release kind has its own progression, tempo and timbre (soft pad + gentle arpeggio + filtered noise + generated reverb); track changes crossfade in \u003c= 600 ms",
+                      "Volume and mute drive a master gain with smooth ramps",
+                      "Graceful no-op where Web Audio is unavailable (SSR, tests, old browsers)",
+                      "No per-frame main-thread work; scheduling uses the audio clock"
+                    ],
+                    "estimateHours": 5,
+                    "timeComplexity": "O(1) per scheduled note",
+                    "spaceComplexity": "O(1) live nodes per voice",
+                    "files": [
+                      "src/player/audio/engine.ts",
+                      "src/player/audio/voices.ts"
+                    ],
+                    "dependencies": ["1.4.1"],
+                    "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
+                    "ciJobs": ["quality", "test", "build", "browser"],
+                    "status": "todo",
+                    "criticalPath": false,
+                    "parallelizable": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "2",
+            "name": "The Spotify shell",
+            "estimateDays": 3,
+            "phases": [
+              {
+                "id": "2.1",
+                "name": "Desktop frame",
+                "tasks": [
+                  {
+                    "id": "2.1.1",
+                    "title": "App frame, global top bar and living scroll color",
+                    "acceptance": [
+                      "CSS grid frame (64px top bar, panels, 72px player) at 100dvh with 8px gaps; only the main panel scrolls; no React state on scroll (IntersectionObserver sentinel + CSS variable)",
+                      "Top bar: original Darshify mark, back/forward chevrons, round Home button, centered search pill (GET form to /search?q=, Ctrl/Cmd+K focuses it), avatar button opening a Base UI menu (Download CV, Email, LinkedIn, Copy profile link, Keyboard shortcuts)",
+                      "The sticky header fills with the page color and shows the title + a mini play button once the big title scrolls away",
+                      "A non-affiliation liner note closes every page"
+                    ],
+                    "estimateHours": 6,
+                    "timeComplexity": "n/a",
+                    "spaceComplexity": "n/a",
+                    "files": [
+                      "src/shell/AppShell.tsx",
+                      "src/shell/TopBar.tsx",
+                      "src/shell/AccountMenu.tsx",
+                      "src/shell/PageFooter.tsx",
+                      "app/root.tsx"
+                    ],
+                    "dependencies": ["1.4.1"],
+                    "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
+                    "ciJobs": ["quality", "test", "build", "browser"],
+                    "status": "todo",
+                    "criticalPath": true,
+                    "parallelizable": false
+                  },
+                  {
+                    "id": "2.1.2",
+                    "title": "Your Library panel: chips, sort, search, resize and collapse",
+                    "acceptance": [
+                      "64px rows with 48px art (round for the artist), 'EP • Darshil Jain' subtitles, pinned Liked Songs first, green title + speaker on the playing item",
+                      "Filter chips as aria-pressed toggles, O(n) in-library search, Base UI sort menu (Recents, Alphabetical, Type), compact/list toggle",
+                      "Resizer supports pointer drag, arrow keys and Home/End with separator semantics; a collapse button switches to a 72px rail; width 280-420px persisted; SSR default 320px (no CLS)",
+                      "Every row is a real link in the server HTML"
+                    ],
+                    "estimateHours": 5,
+                    "timeComplexity": "O(n) filter",
+                    "spaceComplexity": "O(n)",
+                    "files": [
+                      "src/shell/LibraryPanel.tsx",
+                      "src/shell/Resizer.tsx",
+                      "src/lib/layoutPrefs.ts"
+                    ],
+                    "dependencies": ["2.1.1"],
+                    "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
+                    "ciJobs": ["quality", "test", "build", "browser"],
+                    "status": "todo",
+                    "criticalPath": true,
+                    "parallelizable": false
+                  }
+                ]
+              },
+              {
+                "id": "2.2",
+                "name": "Player UI",
+                "tasks": [
+                  {
+                    "id": "2.2.1",
+                    "title": "Player bar with real transport, scrubber and volume",
+                    "acceptance": [
+                      "Left: art, title, artist, save toggle. Center: shuffle, previous, play/pause (black on white, visible), next, repeat + scrubber with elapsed/total times. Right: Now Playing view, lyrics, queue, Download CV, mute + volume",
+                      "Always mounted; idle state is ready to play 'This Is Darshil Jain'",
+                      "Native range inputs with aria-valuetext; scrubber turns green with a knob on hover; keyboard seek works",
+                      "Ambient sound follows play/pause/seek/volume"
+                    ],
+                    "estimateHours": 5,
+                    "timeComplexity": "n/a",
+                    "spaceComplexity": "n/a",
+                    "files": [
+                      "src/shell/PlayerBar.tsx",
+                      "src/shell/Scrubber.tsx"
+                    ],
+                    "dependencies": ["2.1.2", "1.4.2"],
+                    "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
+                    "ciJobs": ["quality", "test", "build", "browser"],
+                    "status": "todo",
+                    "criticalPath": true,
+                    "parallelizable": false
+                  },
+                  {
+                    "id": "2.2.2",
+                    "title": "Now Playing view, synced lyrics and queue",
+                    "acceptance": [
+                      "Right panel docked at >= 1280px (resizable 280-420px), overlay at 1024-1279px; header 'Playing from \u003ccontext>'",
+                      "Large art with a looping Visualizer that pauses offscreen, when the tab is hidden and under reduced motion",
+                      "Cards: Lyrics (synced, active line highlighted), Credits (role, organization, source), About the artist, Next in queue",
+                      "Queue view (now playing, next up, jump to, remove) and a full lyrics mode in the main view (active line white, click to seek, smooth auto-scroll)",
+                      "Track changes are announced in one polite live region"
+                    ],
+                    "estimateHours": 7,
+                    "timeComplexity": "O(log k) active line",
+                    "spaceComplexity": "O(k)",
+                    "files": [
+                      "src/shell/NowPlayingPanel.tsx",
+                      "src/shell/QueueView.tsx",
+                      "src/shell/LyricsView.tsx",
+                      "src/shell/Visualizer.tsx"
+                    ],
+                    "dependencies": ["2.2.1"],
+                    "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
+                    "ciJobs": ["quality", "test", "build", "browser"],
+                    "status": "todo",
+                    "criticalPath": true,
+                    "parallelizable": false
+                  }
+                ]
+              },
+              {
+                "id": "2.3",
+                "name": "Mobile",
+                "tasks": [
+                  {
+                    "id": "2.3.1",
+                    "title": "Mobile app chrome: tab bar, mini-player and full-screen player",
+                    "acceptance": [
+                      "Below 768px the page scrolls edge to edge; gradient tab bar Home/Search/Your Library with safe-area padding",
+                      "56px mini-player in the track color with a 2px progress line; tapping it opens the full-screen player",
+                      "Full-screen player (Base UI Drawer: swipe or close button) with art, scrubber, transport, lyrics card, about and credits",
+                      "viewport-fit=cover; no horizontal overflow at 320px"
+                    ],
+                    "estimateHours": 5,
+                    "timeComplexity": "n/a",
+                    "spaceComplexity": "n/a",
+                    "files": [
+                      "src/shell/MobileChrome.tsx",
+                      "src/shell/FullScreenPlayer.tsx",
+                      "src/shell/BottomNav.tsx"
+                    ],
+                    "dependencies": ["2.2.2"],
+                    "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
+                    "ciJobs": ["quality", "test", "build", "browser"],
+                    "status": "todo",
+                    "criticalPath": true,
+                    "parallelizable": false
+                  }
+                ]
+              },
+              {
+                "id": "2.4",
+                "name": "Interaction layer",
+                "tasks": [
+                  {
+                    "id": "2.4.1",
+                    "title": "Context menus, toasts and keyboard shortcuts",
+                    "acceptance": [
+                      "Right-click and '…' menus on rows, cards and headers: Play, Add to queue, Save to Your Library, Copy link, Go to release/artist, View credits, Download CV",
+                      "Toasts sit above the player in one polite live region and report failures truthfully (e.g. clipboard)",
+                      "Shortcuts: Space, Ctrl/Cmd+K, Shift+N/P, Shift+arrows seek, M, Alt+Shift+B, ? help; ignored inside interactive elements; single-key shortcuts can be turned off (persisted)",
+                      "A keyboard-shortcuts dialog reachable from the avatar menu and '?'"
+                    ],
+                    "estimateHours": 5,
+                    "timeComplexity": "n/a",
+                    "spaceComplexity": "n/a",
+                    "files": [
+                      "src/shell/ContextMenu.tsx",
+                      "src/shell/Toast.tsx",
+                      "src/shell/useShortcuts.ts",
+                      "src/shell/ShortcutsDialog.tsx"
+                    ],
+                    "dependencies": ["2.3.1"],
+                    "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
+                    "ciJobs": ["quality", "test", "build", "browser"],
+                    "status": "todo",
+                    "criticalPath": true,
+                    "parallelizable": false
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "3",
+            "name": "Every page, Spotify-native",
+            "estimateDays": 4,
+            "phases": [
+              {
+                "id": "3.1",
+                "name": "Release surfaces",
+                "tasks": [
+                  {
+                    "id": "3.1.1",
+                    "title": "Media primitives: cards, shelves, track table, release header and action bar",
+                    "acceptance": [
+                      "MediaCard with stretched link and a sibling green play button that rises on hover/focus (hidden on touch)",
+                      "Shelf: one row of about 180px cards, horizontal scroll on mobile, 'Show all' link",
+                      "TrackTable: 56px rows, # swaps to play on hover/focus, green equalizer + title on the playing row, sticky header, container-query columns (# / Title / Impact / Started / Length)",
+                      "ReleaseHeader: artwork color gradient, type label, auto-fit display title, 'Darshil Jain • years • N songs, length' meta",
+                      "ActionBar: 56px play (this list), shuffle, save, Download CV, more menu"
+                    ],
+                    "estimateHours": 6,
+                    "timeComplexity": "n/a",
+                    "spaceComplexity": "n/a",
+                    "files": [
+                      "src/components/MediaCard.tsx",
+                      "src/components/Shelf.tsx",
+                      "src/components/TrackTable.tsx",
+                      "src/components/ReleaseHeader.tsx",
+                      "src/components/ActionBar.tsx"
+                    ],
+                    "dependencies": ["2.4.1"],
+                    "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
+                    "ciJobs": ["quality", "test", "build", "browser"],
+                    "status": "todo",
+                    "criticalPath": true,
+                    "parallelizable": false
+                  },
+                  {
+                    "id": "3.1.2",
+                    "title": "Playlist, EP and Liked Songs (Awards) pages",
+                    "acceptance": [
+                      "/playlist/:id renders the release header, action bar and track table with honest columns",
+                      "/liked is the Liked Songs-styled Awards list; /playlist/achievements permanently redirects to /liked and leaves the sitemap",
+                      "Play on a page plays that list; the playing row shows the equalizer"
+                    ],
+                    "estimateHours": 4,
+                    "timeComplexity": "n/a",
+                    "spaceComplexity": "n/a",
+                    "files": [
+                      "src/pages/PlaylistPage.tsx",
+                      "src/pages/LikedSongs.tsx",
+                      "app/routes/collection.tsx",
+                      "vercel.json"
+                    ],
+                    "dependencies": ["3.1.1"],
+                    "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
+                    "ciJobs": ["quality", "test", "build", "browser"],
+                    "status": "todo",
+                    "criticalPath": true,
+                    "parallelizable": false
+                  },
+                  {
+                    "id": "3.1.3",
+                    "title": "Song pages: lyrics, credits and more by Darshil",
+                    "acceptance": [
+                      "Case-study routes become Song pages: header with cover and color, 'Song • Darshil Jain • Organization • year • length'",
+                      "Lyrics render as server-side text (crawlable) and sync with playback when this song plays",
+                      "Credits (role, organization, team, source), About the artist card, related songs and 'More by Darshil Jain'",
+                      "The hard-coded 'Back to Projects' bug is gone"
+                    ],
+                    "estimateHours": 5,
+                    "timeComplexity": "n/a",
+                    "spaceComplexity": "n/a",
+                    "files": [
+                      "src/pages/CaseStudyPage.tsx",
+                      "app/routes/case-study.tsx"
+                    ],
+                    "dependencies": ["3.1.2"],
+                    "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
+                    "ciJobs": ["quality", "test", "build", "browser"],
+                    "status": "todo",
+                    "criticalPath": true,
+                    "parallelizable": false
+                  }
+                ]
+              },
+              {
+                "id": "3.2",
+                "name": "Artist and Home",
+                "tasks": [
+                  {
+                    "id": "3.2.1",
+                    "title": "Artist page with an answer-first About",
+                    "acceptance": [
+                      "Banner header (photo when supplied, generative art otherwise), display name, honest listener line ('3 internships · 4 projects · 4 awards')",
+                      "Action bar: Play, Shuffle, Follow (LinkedIn), Message (email), Download CV, more",
+                      "Popular (top 5 by impact), Artist pick (latest release), Discography with chips, Appears on",
+                      "About card + dialog with the answer-first 'Who is Darshil Jain?' paragraph and visible Q&A"
+                    ],
+                    "estimateHours": 6,
+                    "timeComplexity": "n/a",
+                    "spaceComplexity": "n/a",
+                    "files": [
+                      "src/pages/ArtistPage.tsx",
+                      "app/routes/artist.tsx"
+                    ],
+                    "dependencies": ["3.1.3"],
+                    "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
+                    "ciJobs": ["quality", "test", "build", "browser"],
+                    "status": "todo",
+                    "criticalPath": true,
+                    "parallelizable": false
+                  },
+                  {
+                    "id": "3.2.2",
+                    "title": "Home: greeting, quick picks, living color and shelves",
+                    "acceptance": [
+                      "Visible H1 spotlight for Darshil Jain with play/follow; client-side greeting (neutral on the server, no hydration mismatch)",
+                      "Filter chips; 8 quick-pick tiles whose hover/focus crossfades the page-top color",
+                      "Shelves: 'Made for you', 'Top releases', 'Jump back in' (from local history when present); Rewind banner"
+                    ],
+                    "estimateHours": 5,
+                    "timeComplexity": "n/a",
+                    "spaceComplexity": "n/a",
+                    "files": ["src/pages/Home.tsx", "app/routes/home.tsx"],
+                    "dependencies": ["3.2.1"],
+                    "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
+                    "ciJobs": ["quality", "test", "build", "browser"],
+                    "status": "todo",
+                    "criticalPath": true,
+                    "parallelizable": false
+                  }
+                ]
+              },
+              {
+                "id": "3.3",
+                "name": "Discovery",
+                "tasks": [
+                  {
+                    "id": "3.3.1",
+                    "title": "Search with URL state, top result and Browse all genres",
+                    "acceptance": [
+                      "/search?q= drives results (shareable, noindex on query pages, canonical /search); the top-bar pill navigates there",
+                      "Chips (All / Songs / Releases / Genres / Artists), a Top result card, a Songs list and release/genre shelves",
+                      "Browse all: skills as colorful genre tiles with rotated art; optional recent searches with try/catch"
+                    ],
+                    "estimateHours": 5,
+                    "timeComplexity": "O(n·m) search over precomputed fields",
+                    "spaceComplexity": "O(n)",
+                    "files": [
+                      "src/pages/Search.tsx",
+                      "app/routes/search.tsx",
+                      "src/content/selectors.ts"
+                    ],
+                    "dependencies": ["3.2.2"],
+                    "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
+                    "ciJobs": ["quality", "test", "build", "browser"],
+                    "status": "todo",
+                    "criticalPath": true,
+                    "parallelizable": false
+                  },
+                  {
+                    "id": "3.3.2",
+                    "title": "Genre pages for every skill",
+                    "acceptance": [
+                      "/genre/:skill prerendered for all 12 skills: header color, description, songs where the skill was applied",
+                      "Added to the route inventory, sitemap, social cards and tests"
+                    ],
+                    "estimateHours": 3,
+                    "timeComplexity": "n/a",
+                    "spaceComplexity": "n/a",
+                    "files": [
+                      "src/pages/GenrePage.tsx",
+                      "app/routes/genre.tsx",
+                      "src/seo/meta.ts"
+                    ],
+                    "dependencies": ["3.3.1"],
+                    "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
+                    "ciJobs": ["quality", "test", "build", "browser"],
+                    "status": "todo",
+                    "criticalPath": false,
+                    "parallelizable": true
+                  },
+                  {
+                    "id": "3.3.3",
+                    "title": "Your Library page and a Spotify-style 404",
+                    "acceptance": [
+                      "/library is the dense mobile-style library (chips, sort, search, saved items)",
+                      "404: centered mark, 'Page not found', Home button and Search link; noindex"
+                    ],
+                    "estimateHours": 3,
+                    "timeComplexity": "n/a",
+                    "spaceComplexity": "n/a",
+                    "files": [
+                      "src/pages/Library.tsx",
+                      "src/pages/NotFound.tsx"
+                    ],
+                    "dependencies": ["3.3.1"],
+                    "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
+                    "ciJobs": ["quality", "test", "build", "browser"],
+                    "status": "todo",
+                    "criticalPath": false,
+                    "parallelizable": true
+                  }
+                ]
+              },
+              {
+                "id": "3.4",
+                "name": "Signature",
+                "tasks": [
+                  {
+                    "id": "3.4.1",
+                    "title": "Darshify Rewind story",
+                    "acceptance": [
+                      "/rewind is a server-rendered page whose slides are sections with real numbers only",
+                      "Story mode: segmented progress, tap/arrow navigation, hold or button to pause, Esc to close, reduced motion = manual mode",
+                      "Final share card doubles as the route's social image; Home shows an opt-in Rewind banner"
+                    ],
+                    "estimateHours": 6,
+                    "timeComplexity": "n/a",
+                    "spaceComplexity": "n/a",
+                    "files": ["src/pages/Rewind.tsx", "app/routes/rewind.tsx"],
+                    "dependencies": ["3.2.2"],
+                    "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
+                    "ciJobs": ["quality", "test", "build", "browser"],
+                    "status": "todo",
+                    "criticalPath": true,
+                    "parallelizable": false
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "4",
+            "name": "Findability, hardening and release",
+            "estimateDays": 2.5,
+            "phases": [
+              {
+                "id": "4.1",
+                "name": "SEO / AEO / GEO",
+                "tasks": [
+                  {
+                    "id": "4.1.1",
+                    "title": "Entity graph, titles and metadata",
+                    "acceptance": [
+                      "Every title contains 'Darshil Jain' with disambiguators (BBA, MSI Delhi, operations & strategy); unique titles/descriptions enforced by a test",
+                      "Home @graph: WebSite + ProfilePage + Person (alternateName Darshil, alumniOf MSI under GGSIPU, homeLocation New Delhi, founder of Igniters Club, award, hasCredential, knowsAbout, sameAs, image when a photo exists); ItemList for releases, CreativeWork for songs, BreadcrumbList",
+                      "og:type profile with first/last name on Home and Artist; og:site_name, locale, author"
+                    ],
+                    "estimateHours": 5,
+                    "timeComplexity": "n/a",
+                    "spaceComplexity": "n/a",
+                    "files": [
+                      "src/seo/meta.ts",
+                      "src/seo/structuredData.ts",
+                      "app/routes/*.tsx"
+                    ],
+                    "dependencies": ["3.4.1"],
+                    "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
+                    "ciJobs": ["quality", "test", "build", "browser"],
+                    "status": "todo",
+                    "criticalPath": true,
+                    "parallelizable": false
+                  },
+                  {
+                    "id": "4.1.2",
+                    "title": "Crawl surface: robots, sitemap, llms.txt, icons, social cards, IndexNow",
+                    "acceptance": [
+                      "robots.txt explicitly allows OAI-SearchBot, ChatGPT-User, GPTBot, Claude-SearchBot, Claude-User, ClaudeBot, PerplexityBot, Perplexity-User, Google-Extended, Applebot-Extended, CCBot",
+                      "sitemap.xml generated from the inventory with accurate lastmod; duplicates removed",
+                      "/llms.txt and /llms-full.txt generated from content",
+                      "PNG favicons, apple-touch-icon and site.webmanifest; social cards regenerated in the new visual language",
+                      "IndexNow key file + post-deploy ping script; résumé PDF metadata fixed (title/author)"
+                    ],
+                    "estimateHours": 5,
+                    "timeComplexity": "n/a",
+                    "spaceComplexity": "n/a",
+                    "files": [
+                      "public/robots.txt",
+                      "public/sitemap.xml",
+                      "public/llms.txt",
+                      "scripts/generate-crawl-surface.ts",
+                      "scripts/generate-social-cards.ts"
+                    ],
+                    "dependencies": ["4.1.1"],
+                    "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
+                    "ciJobs": ["quality", "test", "build", "browser"],
+                    "status": "todo",
+                    "criticalPath": true,
+                    "parallelizable": false
+                  }
+                ]
+              },
+              {
+                "id": "4.2",
+                "name": "Hardening",
+                "tasks": [
+                  {
+                    "id": "4.2.1",
+                    "title": "Accessibility, performance and browser-test sweep",
+                    "acceptance": [
+                      "axe clean on every route at 3 viewports; keyboard-only flows for play, seek, queue, menus, library resize, mobile sheet, Rewind",
+                      "Reduced motion, 400% zoom and target-size checks pass; focus never obscured",
+                      "Budgets met: \u003c= 170 KB gzip initial JS, \u003c= 15 KB CSS, one font file; no long tasks on play/scroll",
+                      "Recruiter-first e2e specs rewritten for the new experience; content without JavaScript verified"
+                    ],
+                    "estimateHours": 6,
+                    "timeComplexity": "n/a",
+                    "spaceComplexity": "n/a",
+                    "files": ["e2e/*.spec.ts", "playwright.config.ts"],
+                    "dependencies": ["4.1.2"],
+                    "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build && npm run test:e2e",
+                    "ciJobs": ["quality", "test", "build", "browser"],
+                    "status": "todo",
+                    "criticalPath": true,
+                    "parallelizable": false
+                  }
+                ]
+              },
+              {
+                "id": "4.3",
+                "name": "Release",
+                "tasks": [
+                  {
+                    "id": "4.3.1",
+                    "title": "Preview validation and atomic production cutover",
+                    "acceptance": [
+                      "Vercel preview of the integration branch validated end to end (desktop, tablet, mobile)",
+                      "Cutover PR feature/spotify-immersion -> build/darshify opened with the rollback point documented; merged only after owner approval",
+                      "Owner checklist delivered: photo, domain, Search Console, Bing Webmaster, LinkedIn custom URL, résumé portfolio link"
+                    ],
+                    "estimateHours": 2,
+                    "timeComplexity": "n/a",
+                    "spaceComplexity": "n/a",
+                    "files": ["README.md"],
+                    "dependencies": ["4.2.1"],
+                    "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build && npm run test:e2e",
+                    "ciJobs": ["quality", "test", "build", "browser"],
+                    "status": "todo",
+                    "criticalPath": true,
+                    "parallelizable": false
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "generatedAt": "2026-10-17T02:31:46.794Z"
+      }
+    </script>
+    <script>
+      (function () {
+        var plan = JSON.parse(document.getElementById("plan-data").textContent);
+        var KEY = "plan:" + plan.feature;
+        var STATUSES = [
+          ["todo", "To do"],
+          ["in_progress", "In progress"],
+          ["done", "Done"],
+          ["blocked", "Blocked"],
+        ];
+        var stored = null;
+        try {
+          stored = JSON.parse(localStorage.getItem(KEY) || "null");
+        } catch (e) {
+          stored = null;
+        }
+        // A regenerated plan (new generatedAt) is the source of truth: it resets local overrides.
+        var overrides =
+          stored && stored.generatedAt === plan.generatedAt
+            ? stored.statuses || {}
+            : {};
+        function save() {
+          try {
+            localStorage.setItem(
+              KEY,
+              JSON.stringify({
+                generatedAt: plan.generatedAt,
+                statuses: overrides,
+              }),
+            );
+          } catch (e) {}
+        }
+        save();
+        function statusOf(task) {
+          return overrides[task.id] || task.status;
+        }
+        function el(tag, attrs, text) {
+          var node = document.createElement(tag);
+          for (var k in attrs || {}) node.setAttribute(k, attrs[k]);
+          if (text != null) node.textContent = text;
+          return node;
+        }
+        document.getElementById("title").textContent =
+          plan.title || plan.feature;
+        document.getElementById("scope").textContent = plan.scope;
+        document.getElementById("branch").textContent =
+          plan.integrationBranch || "";
+        var tasks = [];
+        plan.sprints.forEach(function (s) {
+          s.phases.forEach(function (p) {
+            p.tasks.forEach(function (t) {
+              tasks.push(t);
+            });
+          });
         });
-        head.appendChild(sel);
-        card.appendChild(head);
-        var ul = el("ul");
-        (t.acceptance || []).forEach(function (a) { ul.appendChild(el("li", null, a)); });
-        card.appendChild(ul);
-        var facts = el("div", { class: "facts" });
-        [["Depends on", (t.dependencies || []).join(", ") || "—"], ["Time / space", t.timeComplexity + " / " + t.spaceComplexity],
-         ["Files", (t.files || []).join(", ")], ["Smoke test", t.smokeTest], ["CI jobs", (t.ciJobs || []).join(" → ")]].forEach(function (f) {
-          facts.appendChild(el("span", null, f[0]));
-          var dd = el("span"); dd.appendChild(el("code", null, f[1])); facts.appendChild(dd);
+        var hours = tasks.reduce(function (a, t) {
+          return a + (t.estimateHours || 0);
+        }, 0);
+        document.getElementById("meta").textContent =
+          tasks.length +
+          " tasks · ~" +
+          hours +
+          " h · generated " +
+          new Date(plan.generatedAt).toLocaleString();
+        var dl = document.getElementById("decisions");
+        Object.keys(plan.decisions || {}).forEach(function (k) {
+          var v = plan.decisions[k];
+          if (typeof v === "object")
+            v = Array.isArray(v)
+              ? v.join(" · ")
+              : Object.keys(v)
+                  .map(function (x) {
+                    return (
+                      x +
+                      ": " +
+                      (typeof v[x] === "object" ? JSON.stringify(v[x]) : v[x])
+                    );
+                  })
+                  .join(" · ");
+          dl.appendChild(el("dt", null, k.replace(/_/g, " ")));
+          dl.appendChild(el("dd", null, String(v)));
         });
-        card.appendChild(facts);
-        pd.appendChild(card);
-      });
-      sd.appendChild(pd);
-    });
-    tree.appendChild(sd);
-  });
-  var filter = "all";
-  function refresh() {
-    var done = 0;
-    document.querySelectorAll("[data-task]").forEach(function (card) {
-      var s = card.querySelector("select").value;
-      if (s === "done") done++;
-      card.classList.toggle("hidden", filter !== "all" && s !== filter);
-    });
-    document.querySelectorAll("details.phase, details.sprint").forEach(function (d) {
-      var cards = d.querySelectorAll("[data-task]");
-      var visible = d.querySelectorAll("[data-task]:not(.hidden)").length;
-      var finished = Array.prototype.filter.call(cards, function (c) { return c.querySelector("select").value === "done"; }).length;
-      d.querySelector(":scope > summary [data-count]").textContent = finished + "/" + cards.length + " done";
-      d.classList.toggle("hidden", visible === 0);
-    });
-    var pct = Math.round((done / tasks.length) * 100);
-    var bar = document.getElementById("progress");
-    bar.setAttribute("aria-valuenow", String(pct));
-    bar.firstElementChild.style.width = pct + "%";
-    document.getElementById("progress-label").textContent = done + " of " + tasks.length + " tasks done (" + pct + "%)";
-  }
-  document.querySelectorAll("[data-filter]").forEach(function (b) {
-    b.addEventListener("click", function () {
-      filter = b.getAttribute("data-filter");
-      document.querySelectorAll("[data-filter]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
-      refresh();
-    });
-  });
-  document.getElementById("expand").addEventListener("click", function () { document.querySelectorAll("details").forEach(function (d) { d.open = true; }); });
-  document.getElementById("collapse").addEventListener("click", function () { document.querySelectorAll("details.phase, details.sprint").forEach(function (d) { d.open = false; }); });
-  var themeBtn = document.getElementById("theme");
-  function applyTheme(t) {
-    document.documentElement.setAttribute("data-theme", t);
-    themeBtn.textContent = t === "dark" ? "Light mode" : "Dark mode";
-    themeBtn.setAttribute("aria-pressed", String(t === "light"));
-  }
-  var theme = "dark";
-  try { theme = localStorage.getItem(KEY + ":theme") || "dark"; } catch (e) {}
-  applyTheme(theme);
-  themeBtn.addEventListener("click", function () {
-    theme = theme === "dark" ? "light" : "dark"; applyTheme(theme);
-    try { localStorage.setItem(KEY + ":theme", theme); } catch (e) {}
-  });
-  window.addEventListener("beforeprint", function () { document.querySelectorAll("details").forEach(function (d) { d.open = true; }); });
-  refresh();
-})();
-</script>
-</body>
+        var tree = document.getElementById("tree");
+        plan.sprints.forEach(function (s) {
+          var sd = el("details", { class: "sprint", open: "" });
+          var ss = el("summary");
+          ss.appendChild(el("span", null, "Sprint " + s.id + " · " + s.name));
+          ss.appendChild(el("span", { class: "count", "data-count": "" }));
+          sd.appendChild(ss);
+          s.phases.forEach(function (p) {
+            var pd = el("details", { class: "phase", open: "" });
+            var ps = el("summary");
+            ps.appendChild(el("span", null, p.id + " " + p.name));
+            ps.appendChild(el("span", { class: "count", "data-count": "" }));
+            pd.appendChild(ps);
+            p.tasks.forEach(function (t) {
+              var card = el("article", {
+                class: "task" + (t.criticalPath ? " crit" : ""),
+                "data-task": t.id,
+              });
+              var head = el("div", { class: "task-head" });
+              head.appendChild(el("span", { class: "tid" }, t.id));
+              head.appendChild(el("span", { class: "ttitle" }, t.title));
+              if (t.criticalPath)
+                head.appendChild(
+                  el("span", { class: "badge crit" }, "Critical path"),
+                );
+              if (t.parallelizable)
+                head.appendChild(
+                  el("span", { class: "badge par" }, "Parallelizable"),
+                );
+              head.appendChild(
+                el("span", { class: "badge" }, (t.estimateHours || 0) + " h"),
+              );
+              var sel = el("select", {
+                class: "status",
+                "aria-label": "Status of task " + t.id,
+              });
+              STATUSES.forEach(function (o) {
+                var opt = el("option", { value: o[0] }, o[1]);
+                sel.appendChild(opt);
+              });
+              sel.value = statusOf(t);
+              sel.setAttribute("data-s", sel.value);
+              sel.addEventListener("change", function () {
+                overrides[t.id] = sel.value;
+                sel.setAttribute("data-s", sel.value);
+                save();
+                refresh();
+              });
+              head.appendChild(sel);
+              card.appendChild(head);
+              var ul = el("ul");
+              (t.acceptance || []).forEach(function (a) {
+                ul.appendChild(el("li", null, a));
+              });
+              card.appendChild(ul);
+              var facts = el("div", { class: "facts" });
+              [
+                ["Depends on", (t.dependencies || []).join(", ") || "—"],
+                ["Time / space", t.timeComplexity + " / " + t.spaceComplexity],
+                ["Files", (t.files || []).join(", ")],
+                ["Smoke test", t.smokeTest],
+                ["CI jobs", (t.ciJobs || []).join(" → ")],
+              ].forEach(function (f) {
+                facts.appendChild(el("span", null, f[0]));
+                var dd = el("span");
+                dd.appendChild(el("code", null, f[1]));
+                facts.appendChild(dd);
+              });
+              card.appendChild(facts);
+              pd.appendChild(card);
+            });
+            sd.appendChild(pd);
+          });
+          tree.appendChild(sd);
+        });
+        var filter = "all";
+        function refresh() {
+          var done = 0;
+          document.querySelectorAll("[data-task]").forEach(function (card) {
+            var s = card.querySelector("select").value;
+            if (s === "done") done++;
+            card.classList.toggle("hidden", filter !== "all" && s !== filter);
+          });
+          document
+            .querySelectorAll("details.phase, details.sprint")
+            .forEach(function (d) {
+              var cards = d.querySelectorAll("[data-task]");
+              var visible = d.querySelectorAll(
+                "[data-task]:not(.hidden)",
+              ).length;
+              var finished = Array.prototype.filter.call(cards, function (c) {
+                return c.querySelector("select").value === "done";
+              }).length;
+              d.querySelector(":scope > summary [data-count]").textContent =
+                finished + "/" + cards.length + " done";
+              d.classList.toggle("hidden", visible === 0);
+            });
+          var pct = Math.round((done / tasks.length) * 100);
+          var bar = document.getElementById("progress");
+          bar.setAttribute("aria-valuenow", String(pct));
+          bar.firstElementChild.style.width = pct + "%";
+          document.getElementById("progress-label").textContent =
+            done + " of " + tasks.length + " tasks done (" + pct + "%)";
+        }
+        document.querySelectorAll("[data-filter]").forEach(function (b) {
+          b.addEventListener("click", function () {
+            filter = b.getAttribute("data-filter");
+            document.querySelectorAll("[data-filter]").forEach(function (x) {
+              x.setAttribute("aria-pressed", String(x === b));
+            });
+            refresh();
+          });
+        });
+        document
+          .getElementById("expand")
+          .addEventListener("click", function () {
+            document.querySelectorAll("details").forEach(function (d) {
+              d.open = true;
+            });
+          });
+        document
+          .getElementById("collapse")
+          .addEventListener("click", function () {
+            document
+              .querySelectorAll("details.phase, details.sprint")
+              .forEach(function (d) {
+                d.open = false;
+              });
+          });
+        var themeBtn = document.getElementById("theme");
+        function applyTheme(t) {
+          document.documentElement.setAttribute("data-theme", t);
+          themeBtn.textContent = t === "dark" ? "Light mode" : "Dark mode";
+          themeBtn.setAttribute("aria-pressed", String(t === "light"));
+        }
+        var theme = "dark";
+        try {
+          theme = localStorage.getItem(KEY + ":theme") || "dark";
+        } catch (e) {}
+        applyTheme(theme);
+        themeBtn.addEventListener("click", function () {
+          theme = theme === "dark" ? "light" : "dark";
+          applyTheme(theme);
+          try {
+            localStorage.setItem(KEY + ":theme", theme);
+          } catch (e) {}
+        });
+        window.addEventListener("beforeprint", function () {
+          document.querySelectorAll("details").forEach(function (d) {
+            d.open = true;
+          });
+        });
+        refresh();
+      })();
+    </script>
+  </body>
 </html>

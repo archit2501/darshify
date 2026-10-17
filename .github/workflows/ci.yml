@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main, "feature/**"]
+    branches: [main, build/darshify, "feature/**"]
   pull_request:
-    branches: [main]
+    branches: [main, build/darshify, feature/spotify-immersion]
 
 jobs:
   quality:

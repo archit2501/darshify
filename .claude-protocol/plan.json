@@ -54,8 +54,9 @@
               "acceptance": [
                 "CI runs on pull_request into build/darshify, feature/spotify-immersion and main, and on push to feature/**",
                 ".vite/ is ignored and untracked; dead assets (src/assets/vite.svg, src/assets/hero.png, public/og.png) removed",
-                "Canonical origin, site name, person name and disambiguators live in one typed module (src/seo/site.ts) used by meta, structured data and the analytics host check",
+                "Canonical origin, brand, locale, title qualifier and the non-affiliation note live in one typed module (src/seo/site.ts) used by route metadata and the analytics host check; facts about Darshil stay in src/content",
                 "README documents the product, commands, protocol workflow and the owner SEO checklist",
+                "Test timeouts tolerate a heavily loaded machine (Testing Library async 5 s, Vitest 20 s) without masking failures",
                 "All existing quality gates stay green"
               ],
               "estimateHours": 3,
@@ -67,12 +68,14 @@
                 "src/seo/site.ts",
                 "src/seo/meta.ts",
                 "src/analytics/outcomes.ts",
-                "README.md"
+                "README.md",
+                "src/test/setup.ts",
+                "vite.config.ts"
               ],
               "dependencies": [],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
               "ciJobs": ["quality", "test", "build", "browser"],
-              "status": "todo",
+              "status": "in_progress",
               "criticalPath": true,
               "parallelizable": false
             }
