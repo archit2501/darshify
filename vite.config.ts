@@ -63,6 +63,7 @@ const cumulativeRedesignRuntime = [
   "src/player/context.ts",
   "src/player/PlayerProvider.tsx",
   "src/player/NowPlayingTitle.tsx",
+  "src/player/audio/engine.ts",
   "src/content/portfolio.ts",
   "src/content/selectors.ts",
   "src/content/validate.ts",

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { createAmbientEngine, type AmbientEngine } from "./audio/engine";
 import { PlayerStoreContext } from "./context";
 import { elapsedAt } from "./reducer";
 import { createPlayerStore, type PlayerStore } from "./store";
@@ -12,16 +13,22 @@ const browserStorage = (): Storage | null => {
   }
 };
 
+const defaultAudio = () => createAmbientEngine();
+
 export function PlayerProvider({
   children,
   store: providedStore,
+  createAudio = defaultAudio,
 }: {
   children: ReactNode;
   store?: PlayerStore;
+  /** Builds the sound engine on the first Play; null means a silent player. */
+  createAudio?: () => AmbientEngine | null;
 }) {
   const [store] = useState(() => providedStore ?? createPlayerStore());
   useEffect(() => store.start(browserStorage()), [store]);
   useMediaSession(store);
+  useAmbientSound(store, createAudio);
   return (
     <PlayerStoreContext.Provider value={store}>
       {children}
@@ -114,4 +121,41 @@ function useMediaSession(store: PlayerStore) {
       }
     };
   }, [apply, store]);
+}
+
+/**
+ * Keeps the generated soundtrack in step with the player. The engine (and its
+ * AudioContext) is only created once something actually plays, which always
+ * follows a click, tap or media key, so browsers never block or autoplay it.
+ */
+function useAmbientSound(
+  store: PlayerStore,
+  createAudio: () => AmbientEngine | null,
+) {
+  useEffect(() => {
+    let engine: AmbientEngine | null | undefined;
+    let playingId: string | null = null;
+    const sync = () => {
+      const state = store.getState();
+      if (state.status === "playing") {
+        if (engine === undefined) engine = createAudio();
+        if (!engine) return;
+        engine.setVolume(state.volume, state.muted);
+        const track = trackById(state.currentId);
+        if (track && (playingId !== track.id || !engine.active)) {
+          engine.play(track.id, track.kind);
+          playingId = track.id;
+        }
+        return;
+      }
+      if (!engine) return;
+      engine.setVolume(state.volume, state.muted);
+      if (engine.active) engine.pause();
+    };
+    const unsubscribe = store.subscribe(sync);
+    return () => {
+      unsubscribe();
+      engine?.dispose();
+    };
+  }, [store, createAudio]);
 }
