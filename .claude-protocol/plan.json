@@ -74,12 +74,7 @@
               ],
               "dependencies": [],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
-              "ciJobs": [
-                "quality",
-                "test",
-                "build",
-                "browser"
-              ],
+              "ciJobs": ["quality", "test", "build", "browser"],
               "status": "done",
               "criticalPath": true,
               "parallelizable": false
@@ -111,16 +106,9 @@
                 "src/icons/icons.tsx",
                 "package.json"
               ],
-              "dependencies": [
-                "1.1.1"
-              ],
+              "dependencies": ["1.1.1"],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
-              "ciJobs": [
-                "quality",
-                "test",
-                "build",
-                "browser"
-              ],
+              "ciJobs": ["quality", "test", "build", "browser"],
               "status": "done",
               "criticalPath": true,
               "parallelizable": false
@@ -153,16 +141,9 @@
                 "src/content/format.ts",
                 "src/content/content.test.ts"
               ],
-              "dependencies": [
-                "1.2.1"
-              ],
+              "dependencies": ["1.2.1"],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
-              "ciJobs": [
-                "quality",
-                "test",
-                "build",
-                "browser"
-              ],
+              "ciJobs": ["quality", "test", "build", "browser"],
               "status": "done",
               "criticalPath": true,
               "parallelizable": false
@@ -185,16 +166,9 @@
                 "src/shell/Cover.tsx",
                 "src/content/artwork.ts"
               ],
-              "dependencies": [
-                "1.3.1"
-              ],
+              "dependencies": ["1.3.1"],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
-              "ciJobs": [
-                "quality",
-                "test",
-                "build",
-                "browser"
-              ],
+              "ciJobs": ["quality", "test", "build", "browser"],
               "status": "done",
               "criticalPath": true,
               "parallelizable": false
@@ -228,16 +202,9 @@
                 "src/player/NowPlayingTitle.tsx",
                 "app/root.tsx"
               ],
-              "dependencies": [
-                "1.3.1"
-              ],
+              "dependencies": ["1.3.1"],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
-              "ciJobs": [
-                "quality",
-                "test",
-                "build",
-                "browser"
-              ],
+              "ciJobs": ["quality", "test", "build", "browser"],
               "status": "done",
               "criticalPath": true,
               "parallelizable": false
@@ -259,16 +226,9 @@
                 "src/player/audio/engine.ts",
                 "src/player/audio/voices.ts"
               ],
-              "dependencies": [
-                "1.4.1"
-              ],
+              "dependencies": ["1.4.1"],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
-              "ciJobs": [
-                "quality",
-                "test",
-                "build",
-                "browser"
-              ],
+              "ciJobs": ["quality", "test", "build", "browser"],
               "status": "done",
               "criticalPath": false,
               "parallelizable": true
@@ -305,16 +265,9 @@
                 "src/shell/PageFooter.tsx",
                 "app/root.tsx"
               ],
-              "dependencies": [
-                "1.4.1"
-              ],
+              "dependencies": ["1.4.1"],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
-              "ciJobs": [
-                "quality",
-                "test",
-                "build",
-                "browser"
-              ],
+              "ciJobs": ["quality", "test", "build", "browser"],
               "status": "done",
               "criticalPath": true,
               "parallelizable": false
@@ -336,16 +289,9 @@
                 "src/shell/Resizer.tsx",
                 "src/lib/layoutPrefs.ts"
               ],
-              "dependencies": [
-                "2.1.1"
-              ],
+              "dependencies": ["2.1.1"],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
-              "ciJobs": [
-                "quality",
-                "test",
-                "build",
-                "browser"
-              ],
+              "ciJobs": ["quality", "test", "build", "browser"],
               "status": "done",
               "criticalPath": true,
               "parallelizable": false
@@ -369,21 +315,10 @@
               "estimateHours": 5,
               "timeComplexity": "n/a",
               "spaceComplexity": "n/a",
-              "files": [
-                "src/shell/PlayerBar.tsx",
-                "src/shell/Scrubber.tsx"
-              ],
-              "dependencies": [
-                "2.1.2",
-                "1.4.2"
-              ],
+              "files": ["src/shell/PlayerBar.tsx", "src/shell/Scrubber.tsx"],
+              "dependencies": ["2.1.2", "1.4.2"],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
-              "ciJobs": [
-                "quality",
-                "test",
-                "build",
-                "browser"
-              ],
+              "ciJobs": ["quality", "test", "build", "browser"],
               "status": "done",
               "criticalPath": true,
               "parallelizable": false
@@ -407,16 +342,9 @@
                 "src/shell/LyricsView.tsx",
                 "src/shell/Visualizer.tsx"
               ],
-              "dependencies": [
-                "2.2.1"
-              ],
+              "dependencies": ["2.2.1"],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
-              "ciJobs": [
-                "quality",
-                "test",
-                "build",
-                "browser"
-              ],
+              "ciJobs": ["quality", "test", "build", "browser"],
               "status": "done",
               "criticalPath": true,
               "parallelizable": false
@@ -449,16 +377,9 @@
                 "src/lib/useMediaQuery.ts",
                 "src/shell/AppShell.tsx"
               ],
-              "dependencies": [
-                "2.2.2"
-              ],
+              "dependencies": ["2.2.2"],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
-              "ciJobs": [
-                "quality",
-                "test",
-                "build",
-                "browser"
-              ],
+              "ciJobs": ["quality", "test", "build", "browser"],
               "status": "in_progress",
               "criticalPath": true,
               "parallelizable": false
@@ -487,16 +408,9 @@
                 "src/shell/useShortcuts.ts",
                 "src/shell/ShortcutsDialog.tsx"
               ],
-              "dependencies": [
-                "2.3.1"
-              ],
+              "dependencies": ["2.3.1"],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
-              "ciJobs": [
-                "quality",
-                "test",
-                "build",
-                "browser"
-              ],
+              "ciJobs": ["quality", "test", "build", "browser"],
               "status": "todo",
               "criticalPath": true,
               "parallelizable": false
@@ -534,16 +448,9 @@
                 "src/components/ReleaseHeader.tsx",
                 "src/components/ActionBar.tsx"
               ],
-              "dependencies": [
-                "2.4.1"
-              ],
+              "dependencies": ["2.4.1"],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
-              "ciJobs": [
-                "quality",
-                "test",
-                "build",
-                "browser"
-              ],
+              "ciJobs": ["quality", "test", "build", "browser"],
               "status": "todo",
               "criticalPath": true,
               "parallelizable": false
@@ -565,16 +472,9 @@
                 "app/routes/collection.tsx",
                 "vercel.json"
               ],
-              "dependencies": [
-                "3.1.1"
-              ],
+              "dependencies": ["3.1.1"],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
-              "ciJobs": [
-                "quality",
-                "test",
-                "build",
-                "browser"
-              ],
+              "ciJobs": ["quality", "test", "build", "browser"],
               "status": "todo",
               "criticalPath": true,
               "parallelizable": false
@@ -595,16 +495,9 @@
                 "src/pages/CaseStudyPage.tsx",
                 "app/routes/case-study.tsx"
               ],
-              "dependencies": [
-                "3.1.2"
-              ],
+              "dependencies": ["3.1.2"],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
-              "ciJobs": [
-                "quality",
-                "test",
-                "build",
-                "browser"
-              ],
+              "ciJobs": ["quality", "test", "build", "browser"],
               "status": "todo",
               "criticalPath": true,
               "parallelizable": false
@@ -627,20 +520,10 @@
               "estimateHours": 6,
               "timeComplexity": "n/a",
               "spaceComplexity": "n/a",
-              "files": [
-                "src/pages/ArtistPage.tsx",
-                "app/routes/artist.tsx"
-              ],
-              "dependencies": [
-                "3.1.3"
-              ],
+              "files": ["src/pages/ArtistPage.tsx", "app/routes/artist.tsx"],
+              "dependencies": ["3.1.3"],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
-              "ciJobs": [
-                "quality",
-                "test",
-                "build",
-                "browser"
-              ],
+              "ciJobs": ["quality", "test", "build", "browser"],
               "status": "todo",
               "criticalPath": true,
               "parallelizable": false
@@ -656,20 +539,10 @@
               "estimateHours": 5,
               "timeComplexity": "n/a",
               "spaceComplexity": "n/a",
-              "files": [
-                "src/pages/Home.tsx",
-                "app/routes/home.tsx"
-              ],
-              "dependencies": [
-                "3.2.1"
-              ],
+              "files": ["src/pages/Home.tsx", "app/routes/home.tsx"],
+              "dependencies": ["3.2.1"],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
-              "ciJobs": [
-                "quality",
-                "test",
-                "build",
-                "browser"
-              ],
+              "ciJobs": ["quality", "test", "build", "browser"],
               "status": "todo",
               "criticalPath": true,
               "parallelizable": false
@@ -696,16 +569,9 @@
                 "app/routes/search.tsx",
                 "src/content/selectors.ts"
               ],
-              "dependencies": [
-                "3.2.2"
-              ],
+              "dependencies": ["3.2.2"],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
-              "ciJobs": [
-                "quality",
-                "test",
-                "build",
-                "browser"
-              ],
+              "ciJobs": ["quality", "test", "build", "browser"],
               "status": "todo",
               "criticalPath": true,
               "parallelizable": false
@@ -725,16 +591,9 @@
                 "app/routes/genre.tsx",
                 "src/seo/meta.ts"
               ],
-              "dependencies": [
-                "3.3.1"
-              ],
+              "dependencies": ["3.3.1"],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
-              "ciJobs": [
-                "quality",
-                "test",
-                "build",
-                "browser"
-              ],
+              "ciJobs": ["quality", "test", "build", "browser"],
               "status": "todo",
               "criticalPath": false,
               "parallelizable": true
@@ -749,20 +608,10 @@
               "estimateHours": 3,
               "timeComplexity": "n/a",
               "spaceComplexity": "n/a",
-              "files": [
-                "src/pages/Library.tsx",
-                "src/pages/NotFound.tsx"
-              ],
-              "dependencies": [
-                "3.3.1"
-              ],
+              "files": ["src/pages/Library.tsx", "src/pages/NotFound.tsx"],
+              "dependencies": ["3.3.1"],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
-              "ciJobs": [
-                "quality",
-                "test",
-                "build",
-                "browser"
-              ],
+              "ciJobs": ["quality", "test", "build", "browser"],
               "status": "todo",
               "criticalPath": false,
               "parallelizable": true
@@ -784,20 +633,10 @@
               "estimateHours": 6,
               "timeComplexity": "n/a",
               "spaceComplexity": "n/a",
-              "files": [
-                "src/pages/Rewind.tsx",
-                "app/routes/rewind.tsx"
-              ],
-              "dependencies": [
-                "3.2.2"
-              ],
+              "files": ["src/pages/Rewind.tsx", "app/routes/rewind.tsx"],
+              "dependencies": ["3.2.2"],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
-              "ciJobs": [
-                "quality",
-                "test",
-                "build",
-                "browser"
-              ],
+              "ciJobs": ["quality", "test", "build", "browser"],
               "status": "todo",
               "criticalPath": true,
               "parallelizable": false
@@ -831,16 +670,9 @@
                 "src/seo/structuredData.ts",
                 "app/routes/*.tsx"
               ],
-              "dependencies": [
-                "3.4.1"
-              ],
+              "dependencies": ["3.4.1"],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
-              "ciJobs": [
-                "quality",
-                "test",
-                "build",
-                "browser"
-              ],
+              "ciJobs": ["quality", "test", "build", "browser"],
               "status": "todo",
               "criticalPath": true,
               "parallelizable": false
@@ -865,16 +697,9 @@
                 "scripts/generate-crawl-surface.ts",
                 "scripts/generate-social-cards.ts"
               ],
-              "dependencies": [
-                "4.1.1"
-              ],
+              "dependencies": ["4.1.1"],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
-              "ciJobs": [
-                "quality",
-                "test",
-                "build",
-                "browser"
-              ],
+              "ciJobs": ["quality", "test", "build", "browser"],
               "status": "todo",
               "criticalPath": true,
               "parallelizable": false
@@ -897,20 +722,10 @@
               "estimateHours": 6,
               "timeComplexity": "n/a",
               "spaceComplexity": "n/a",
-              "files": [
-                "e2e/*.spec.ts",
-                "playwright.config.ts"
-              ],
-              "dependencies": [
-                "4.1.2"
-              ],
+              "files": ["e2e/*.spec.ts", "playwright.config.ts"],
+              "dependencies": ["4.1.2"],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build && npm run test:e2e",
-              "ciJobs": [
-                "quality",
-                "test",
-                "build",
-                "browser"
-              ],
+              "ciJobs": ["quality", "test", "build", "browser"],
               "status": "todo",
               "criticalPath": true,
               "parallelizable": false
@@ -932,19 +747,10 @@
               "estimateHours": 2,
               "timeComplexity": "n/a",
               "spaceComplexity": "n/a",
-              "files": [
-                "README.md"
-              ],
-              "dependencies": [
-                "4.2.1"
-              ],
+              "files": ["README.md"],
+              "dependencies": ["4.2.1"],
               "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build && npm run test:e2e",
-              "ciJobs": [
-                "quality",
-                "test",
-                "build",
-                "browser"
-              ],
+              "ciJobs": ["quality", "test", "build", "browser"],
               "status": "todo",
               "criticalPath": true,
               "parallelizable": false
