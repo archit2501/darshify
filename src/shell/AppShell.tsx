@@ -1,12 +1,13 @@
 import { useRef, type CSSProperties } from "react";
 import { Outlet } from "react-router-dom";
-import { CareerMixDock } from "../career-mix/CareerMixDock";
+import { Tooltip } from "@base-ui/react/tooltip";
 import { useReducedMotion } from "../lib/useReducedMotion";
 import { MotionProvider } from "../motion/MotionProvider";
 import { NowPlayingTitle } from "../player/NowPlayingTitle";
 import { BottomNav } from "./BottomNav";
 import { GlobalTopBar } from "./GlobalTopBar";
 import { PageFooter } from "./PageFooter";
+import { PlayerBar } from "./PlayerBar";
 import { RouteFocus } from "./RouteFocus";
 import { LIBRARY, useLayoutPrefs } from "./layoutPrefs";
 import { LibraryPanel } from "./LibraryPanel";
@@ -30,57 +31,61 @@ export function AppShell() {
 
   return (
     <MotionProvider>
-      <SkipLink />
-      <NowPlayingTitle />
-      <div
-        ref={frameRef}
-        className="app-frame"
-        data-reduced-motion={reduced}
-        style={{ "--lib-current": `${libraryWidth}px` } as CSSProperties}
-      >
-        <div className="app-top max-md:hidden">
-          <GlobalTopBar />
-        </div>
-        <div className="app-library relative max-md:hidden">
-          <LibraryPanel
-            collapsed={layout.libraryCollapsed}
-            onToggleCollapsed={() =>
-              updateLayout({ libraryCollapsed: !layout.libraryCollapsed })
-            }
-          />
-          {layout.libraryCollapsed ? null : (
-            <div className="absolute inset-y-0 -right-[0.3125rem] flex">
-              <Resizer
-                label="Resize Your Library"
-                value={layout.libraryWidth}
-                min={LIBRARY.min}
-                max={LIBRARY.max}
-                target={() => frameRef.current}
-                cssVar="--lib-current"
-                onCommit={(libraryWidth) => updateLayout({ libraryWidth })}
-              />
-            </div>
-          )}
-        </div>
-        <main
-          id="main-content"
-          ref={mainRef}
-          data-scroll-root
-          className="app-main"
+      <Tooltip.Provider delay={400}>
+        <SkipLink />
+        <NowPlayingTitle />
+        <div
+          ref={frameRef}
+          className="app-frame"
+          data-reduced-motion={reduced}
+          style={{ "--lib-current": `${libraryWidth}px` } as CSSProperties}
         >
-          {/* Pages own their gutters once rebuilt (sprint 3); older pages
-              still rely on this padding. */}
-          <div className="px-4 pt-4 pb-8 md:px-6">
-            <Outlet />
+          <div className="app-top max-md:hidden">
+            <GlobalTopBar />
           </div>
-          <PageFooter />
-        </main>
-        <div className="app-bar">
-          <CareerMixDock />
-          <BottomNav />
+          <div className="app-library relative max-md:hidden">
+            <LibraryPanel
+              collapsed={layout.libraryCollapsed}
+              onToggleCollapsed={() =>
+                updateLayout({ libraryCollapsed: !layout.libraryCollapsed })
+              }
+            />
+            {layout.libraryCollapsed ? null : (
+              <div className="absolute inset-y-0 -right-[0.3125rem] flex">
+                <Resizer
+                  label="Resize Your Library"
+                  value={layout.libraryWidth}
+                  min={LIBRARY.min}
+                  max={LIBRARY.max}
+                  target={() => frameRef.current}
+                  cssVar="--lib-current"
+                  onCommit={(libraryWidth) => updateLayout({ libraryWidth })}
+                />
+              </div>
+            )}
+          </div>
+          <main
+            id="main-content"
+            ref={mainRef}
+            data-scroll-root
+            className="app-main"
+          >
+            {/* Pages own their gutters once rebuilt (sprint 3); older pages
+              still rely on this padding. */}
+            <div className="px-4 pt-4 pb-8 md:px-6">
+              <Outlet />
+            </div>
+            <PageFooter />
+          </main>
+          <div className="app-bar">
+            <div className="max-md:hidden">
+              <PlayerBar />
+            </div>
+            <BottomNav />
+          </div>
         </div>
-      </div>
-      <RouteFocus mainRef={mainRef} />
+        <RouteFocus mainRef={mainRef} />
+      </Tooltip.Provider>
     </MotionProvider>
   );
 }

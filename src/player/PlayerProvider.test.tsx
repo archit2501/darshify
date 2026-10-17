@@ -16,6 +16,12 @@ import { NowPlayingTitle } from "./NowPlayingTitle";
 import { PlayerProvider } from "./PlayerProvider";
 import { STORAGE_KEY, createPlayerStore } from "./store";
 import { activeCueIndex, releaseContext, trackById } from "./tracks";
+import { trackOutcome } from "../analytics/outcomes";
+
+vi.mock("../analytics/outcomes", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../analytics/outcomes")>()),
+  trackOutcome: vi.fn(),
+}));
 
 const experience = releaseContext(
   portfolio.collections.find((item) => item.id === "experience")!,
@@ -445,5 +451,31 @@ describe("ambient sound", () => {
     act(() => store.send({ type: "PLAY" }));
     expect(createAudio).toHaveBeenCalledTimes(1);
     expect(store.getState().status).toBe("playing");
+  });
+});
+
+describe("play analytics", () => {
+  it("counts each song once when it starts, not on pause and resume", () => {
+    const { store, setNow } = manualClockStore();
+    vi.mocked(trackOutcome).mockClear();
+    render(
+      <PlayerProvider store={store} createAudio={() => null}>
+        <p>player</p>
+      </PlayerProvider>,
+    );
+    act(() => store.send({ type: "PLAY_CONTEXT", context: experience }));
+    act(() => {
+      setNow(2000);
+      store.send({ type: "PAUSE" });
+    });
+    act(() => {
+      setNow(5000);
+      store.send({ type: "PLAY" });
+    });
+    act(() => store.send({ type: "NEXT" }));
+    expect(vi.mocked(trackOutcome).mock.calls).toEqual([
+      ["song_play", { caseStudyId: "r1", placement: "player" }],
+      ["song_play", { caseStudyId: "r2", placement: "player" }],
+    ]);
   });
 });

@@ -11,7 +11,7 @@ import {
   Route as DomRoute,
   Routes as DomRoutes,
 } from "react-router-dom";
-import { CareerMixProvider } from "../../src/career-mix/CareerMixContext";
+import { PlayerProvider } from "../../src/player/PlayerProvider";
 import { collectionById } from "../../src/content/selectors";
 import { buildNotFoundMeta, buildRouteMeta } from "../../src/seo/meta";
 import { ToastProvider } from "../../src/shell/Toast";
@@ -38,8 +38,8 @@ function renderCollectionRoute(path: string, routePath: string) {
             createElement(DomRoute, {
               path: routePath,
               element: createElement(
-                CareerMixProvider,
-                null,
+                PlayerProvider,
+                { createAudio: () => null, children: null },
                 createElement(
                   ToastProvider,
                   null,
@@ -101,7 +101,7 @@ describe("collection route", () => {
       await screen.findByRole("heading", { name: "Selected achievements" }),
     ).toBeVisible();
     expect(
-      screen.getByRole("button", { name: "Start Career Mix" }),
+      screen.getByRole("button", { name: "Play Achievements" }),
     ).toBeVisible();
   });
 
@@ -134,7 +134,7 @@ describe("collection route", () => {
       await screen.findByRole("heading", { name: "Experience" }),
     ).toBeVisible();
     expect(
-      screen.getByRole("button", { name: "Start Career Mix" }),
+      screen.getByRole("button", { name: "Play Experience" }),
     ).toBeVisible();
   });
 });

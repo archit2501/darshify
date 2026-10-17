@@ -7,6 +7,7 @@ import { resolve } from "node:path";
 import { useContext } from "react";
 import {
   act,
+  within,
   fireEvent,
   render,
   screen,
@@ -28,10 +29,9 @@ import {
   it,
   vi,
 } from "vitest";
-import {
-  CareerMixProvider,
-  useCareerMix,
-} from "../career-mix/CareerMixContext";
+import { PlayPill } from "../shell/PlayPill";
+import { defaultContext, releaseContext } from "../player/tracks";
+import { portfolio } from "../content/portfolio";
 import { AppShell } from "../shell/AppShell";
 import { MediaCard } from "../shell/MediaCard";
 import { PlayButton } from "../shell/PlayButton";
@@ -116,7 +116,10 @@ const renderShell = async (reduced: boolean) => {
             element: (
               <>
                 <h1>Portfolio</h1>
-                <CareerMixTrigger />
+                <PlayPill
+                  context={defaultContext}
+                  label="This Is Darshil Jain"
+                />
               </>
             ),
           },
@@ -127,10 +130,8 @@ const renderShell = async (reduced: boolean) => {
   );
 
   const view = render(
-    <PlayerProvider>
-      <CareerMixProvider>
-        <RouterProvider router={router} />
-      </CareerMixProvider>
+    <PlayerProvider createAudio={() => null}>
+      <RouterProvider router={router} />
     </PlayerProvider>,
   );
   await act(async () => {
@@ -138,15 +139,6 @@ const renderShell = async (reduced: boolean) => {
   });
   return view;
 };
-
-function CareerMixTrigger() {
-  const { open } = useCareerMix();
-  return (
-    <button onClick={(event) => open(event.currentTarget)}>
-      Start Career Mix
-    </button>
-  );
-}
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -183,23 +175,25 @@ describe("editorial motion foundation", () => {
     expect(screen.getByText("user")).toBeVisible();
   });
 
-  // Regression: a reduced-motion dock starting translated or transparent hides final UI before animation settles.
-  it("renders the real reduced-motion Career Mix dock in its final visible state", async () => {
+  // Regression: a reduced-motion player starting translated or transparent hides final UI before animation settles.
+  it("renders the always-mounted player bar in its final visible state under reduced motion", async () => {
     await renderShell(true);
 
-    fireEvent.click(screen.getByRole("button", { name: "Start Career Mix" }));
-
-    const dock = screen.getByRole("region", { name: "Career Mix" });
-    expect(dock).toBeInTheDocument();
-    expect(dock.style.transform).not.toContain("translate");
-    expect(dock.style.opacity).not.toBe("0");
+    const player = screen.getByRole("region", { name: "Player" });
+    expect(player.style.transform).not.toContain("translate");
+    expect(player.style.opacity).not.toBe("0");
+    expect(screen.getByRole("button", { name: "Play" })).toBeVisible();
   });
 
   // Regression: reduced motion that only shortens duration makes hover scaling snap instead of suppressing the transform.
   it("suppresses transform state changes on the real reduced-motion controls", async () => {
     await renderShell(true);
-    fireEvent.click(screen.getByRole("button", { name: "Start Career Mix" }));
-    const pause = screen.getByRole("button", { name: "Pause Career Mix" });
+    fireEvent.click(
+      screen.getByRole("button", { name: "Play This Is Darshil Jain" }),
+    );
+    const pause = screen.getByRole("button", {
+      name: "Pause This Is Darshil Jain",
+    });
 
     pause.style.transform = "scale(1.05)";
 
@@ -218,7 +212,7 @@ describe("editorial motion foundation", () => {
   });
 
   // Regression: global Space and arrow shortcuts steal normal scrolling, text navigation, and native control interaction.
-  it("leaves ordinary page keys alone while keeping the explicit Career Mix trigger working", async () => {
+  it("leaves ordinary page keys alone while keeping the explicit play trigger working", async () => {
     await renderShell(false);
 
     const space = new KeyboardEvent("keydown", {
@@ -235,52 +229,36 @@ describe("editorial motion foundation", () => {
     expect(space.defaultPrevented).toBe(false);
     expect(arrow.defaultPrevented).toBe(false);
     expect(
-      screen.getByRole("button", { name: "Start Career Mix" }),
+      screen.getByRole("button", { name: "Play This Is Darshil Jain" }),
     ).toBeVisible();
-    expect(
-      screen.queryByRole("region", { name: "Career Mix" }),
-    ).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Play" })).toBeVisible();
   });
 
-  // Regression: the shell can accidentally expose dead audio controls even after replacing the visible player.
-  it("keeps simulated playback controls out of the closed product shell", async () => {
+  // Regression: a player bar that renders controls without wiring them to the store looks real but does nothing.
+  it("exposes real, wired playback controls in the shell", async () => {
     await renderShell(false);
 
+    const player = screen.getByRole("region", { name: "Player" });
+    expect(within(player).getByRole("slider", { name: "Seek" })).toBeVisible();
     expect(
-      screen.queryByRole("slider", { name: "Seek" }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("slider", { name: "Volume" }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", { name: "Shuffle" }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("heading", { name: "Queue" }),
-    ).not.toBeInTheDocument();
-  });
+      within(player).getByRole("slider", { name: "Volume" }),
+    ).toBeVisible();
 
-  // Regression: shell integration can render the dock while leaving its transport callbacks disconnected.
-  it("keeps every Career Mix shell control wired to observable state", async () => {
-    await renderShell(false);
-
-    fireEvent.click(screen.getByRole("button", { name: "Start Career Mix" }));
-    await waitFor(() =>
-      expect(screen.getByRole("region", { name: "Career Mix" })).toBeVisible(),
+    fireEvent.click(
+      screen.getByRole("button", { name: "Play This Is Darshil Jain" }),
     );
-    fireEvent.click(screen.getByRole("button", { name: "Pause Career Mix" }));
+    expect(within(player).getByRole("button", { name: "Pause" })).toBeVisible();
+    fireEvent.click(within(player).getByRole("button", { name: "Pause" }));
     expect(
-      screen.getByRole("button", { name: "Play Career Mix" }),
+      screen.getByRole("button", { name: "Play This Is Darshil Jain" }),
     ).toBeVisible();
-    fireEvent.click(screen.getByRole("button", { name: "Next chapter" }));
-    expect(screen.getByRole("heading", { name: "Analyze" })).toBeVisible();
-    fireEvent.click(screen.getByRole("button", { name: "Previous chapter" }));
-    expect(screen.getByRole("heading", { name: "Operate" })).toBeVisible();
-    fireEvent.click(screen.getByRole("button", { name: "Close Career Mix" }));
+
+    const firstTitle = within(player).getAllByRole("link")[0]!.textContent;
+    fireEvent.click(within(player).getByRole("button", { name: "Next" }));
     await waitFor(() =>
-      expect(
-        screen.queryByRole("region", { name: "Career Mix" }),
-      ).not.toBeInTheDocument(),
+      expect(within(player).getAllByRole("link")[0]!.textContent).not.toBe(
+        firstTitle,
+      ),
     );
   });
 
@@ -319,18 +297,24 @@ describe("editorial motion foundation", () => {
 
   // Regression: PlayButton icon and accessible name can drift apart when playback changes.
   it("keeps PlayButton action and state labels synchronized", () => {
-    const onClick = vi.fn();
-    const { rerender } = render(
-      <PlayButton label="Start evidence" onClick={onClick} />,
+    const experience = releaseContext(
+      portfolio.collections.find((item) => item.id === "experience")!,
     );
-    fireEvent.click(screen.getByRole("button", { name: "Start evidence" }));
-    expect(onClick).toHaveBeenCalledOnce();
-
-    rerender(<PlayButton playing label="Start evidence" onClick={onClick} />);
-    expect(screen.getByRole("button", { name: "Pause" })).toBeVisible();
+    render(
+      <PlayerProvider createAudio={() => null}>
+        <PlayButton context={experience} label="Experience" />
+      </PlayerProvider>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Play Experience" }));
+    expect(
+      screen.getByRole("button", { name: "Pause Experience" }),
+    ).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "Pause Experience" }));
+    expect(
+      screen.getByRole("button", { name: "Play Experience" }),
+    ).toBeVisible();
   });
 
-  // Regression: route-specific tint selection can silently fall back when known Artist, Liked, or playlist paths render.
   // Regression: history controls can stop calling router navigation while retaining their visual button states.
   it("keeps the global top bar's history controls wired to real router navigation", () => {
     function LocationProbe() {

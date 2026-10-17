@@ -251,9 +251,9 @@ test.describe("production HTML without JavaScript", () => {
       await expect(
         page.getByRole("link", { name: "Back to Home" }),
       ).toHaveAttribute("href", "/");
-      await expect(page.getByText("Operations Intern at Figmenta")).toHaveCount(
-        0,
-      );
+      await expect(
+        page.getByRole("main").getByText("Operations Intern at Figmenta"),
+      ).toHaveCount(0);
     }
   });
 });
@@ -288,8 +288,9 @@ test("hydration regression: timezone, local storage, and reduced motion do not a
     }),
   ).toBeVisible();
   await expect(page.locator('[data-reduced-motion="true"]')).toBeVisible();
-  await expect(page.getByRole("region", { name: "Career Mix" })).toHaveCount(0);
-  await expect(page.getByLabel("Volume")).toHaveCount(0);
+  // Remembered player preferences apply after hydration, never during it.
+  await expect(page.getByRole("region", { name: "Player" })).toBeVisible();
+  await expect(page.getByRole("slider", { name: "Volume" })).toBeVisible();
   await expect(page.getByLabel("Toggle ambient audio")).toHaveCount(0);
 
   await page.goto("/search", { waitUntil: "networkidle" });

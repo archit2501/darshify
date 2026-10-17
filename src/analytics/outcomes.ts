@@ -14,7 +14,7 @@ export type OutcomeEvent =
   | "linkedin_open"
   | "case_study_open"
   | "evidence_open"
-  | "career_mix_complete";
+  | "song_play";
 
 export type OutcomePlacement =
   | "hero"
@@ -24,7 +24,7 @@ export type OutcomePlacement =
   | "proof-track"
   | "evidence-panel"
   | "proof-waveform"
-  | "career-mix";
+  | "player";
 
 export interface OutcomeProperties {
   routeId?: RouteId;
@@ -44,7 +44,7 @@ const approvedEvents = new Set<OutcomeEvent>([
   "linkedin_open",
   "case_study_open",
   "evidence_open",
-  "career_mix_complete",
+  "song_play",
 ]);
 const approvedKeys = new Set<keyof OutcomeProperties>([
   "routeId",
@@ -67,7 +67,7 @@ const approvedPlacements = new Set<OutcomePlacement>([
   "proof-track",
   "evidence-panel",
   "proof-waveform",
-  "career-mix",
+  "player",
 ]);
 
 const validateProperties = (

@@ -1,5 +1,5 @@
 import { releaseArt } from "../content/artwork";
-import { useCareerMix } from "../career-mix/CareerMixContext";
+import { releaseContext } from "../player/tracks";
 import { ProofTrackRow } from "../components/ProofTrackRow";
 import { caseStudyEvidenceById, collectionById } from "../content/selectors";
 import { Art } from "../shell/Art";
@@ -19,8 +19,6 @@ const achievementEvidence = achievements.caseStudyIds.map((caseStudyId) => {
 });
 
 export function LikedSongs() {
-  const { open } = useCareerMix();
-
   return (
     <div className="pb-12">
       <header className="-mx-4 flex flex-col gap-5 border-b border-line bg-elevated px-4 pb-6 pt-4 md:-mx-6 md:flex-row md:items-end md:gap-6 md:px-6">
@@ -42,7 +40,7 @@ export function LikedSongs() {
           </p>
           <p className="mt-3 font-evidence text-utility text-muted">
             <span className="text-text">{achievements.releaseType}</span> ·{" "}
-            {achievementEvidence.length} résumé-listed recognition items
+            {achievementEvidence.length} songs
           </p>
         </div>
       </header>
@@ -50,8 +48,8 @@ export function LikedSongs() {
       <div className="py-5">
         <PlayButton
           size={56}
-          label="Start Career Mix"
-          onClick={(event) => open(event.currentTarget)}
+          context={releaseContext(achievements)}
+          label={achievements.title}
         />
       </div>
 

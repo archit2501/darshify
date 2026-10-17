@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import { Home } from "../src/pages/Home";
@@ -20,7 +20,7 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("route root", () => {
-  it("provides the real Career Mix runtime to Home and restores launcher focus", () => {
+  it("provides the real player to Home through the root providers", () => {
     const router = createMemoryRouter(
       [
         {
@@ -34,13 +34,15 @@ describe("route root", () => {
       { initialEntries: ["/"] },
     );
     render(<RouterProvider router={router} />);
-    const trigger = screen.getByRole("button", { name: "Start Career Mix" });
-
-    fireEvent.click(trigger);
-    expect(screen.getByRole("region", { name: "Career Mix" })).toBeVisible();
-    fireEvent.click(screen.getByRole("button", { name: "Close Career Mix" }));
-
-    expect(trigger).toHaveFocus();
+    fireEvent.click(
+      screen.getByRole("button", { name: "Play This Is Darshil Jain" }),
+    );
+    const player = screen.getByRole("region", { name: "Player" });
+    expect(within(player).getByRole("button", { name: "Pause" })).toBeVisible();
+    fireEvent.click(within(player).getByRole("button", { name: "Pause" }));
+    expect(
+      screen.getByRole("button", { name: "Play This Is Darshil Jain" }),
+    ).toBeVisible();
   });
 
   it("keeps favicon metadata and both error-boundary messages available", () => {

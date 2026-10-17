@@ -116,9 +116,11 @@ test.describe("shareable evidence-rich case studies", () => {
       await expect(
         page.getByRole("link", { name: "Browse Projects" }),
       ).toHaveAttribute("href", "/playlist/projects");
-      await expect(page.getByText(portfolio.caseStudies[0].title)).toHaveCount(
-        0,
-      );
+      // The player bar is app chrome and may be cued to any song; the
+      // page itself must not fall back to case-study content.
+      await expect(
+        page.getByRole("main").getByText(portfolio.caseStudies[0].title),
+      ).toHaveCount(0);
     });
   });
 

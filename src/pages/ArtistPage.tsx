@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { useCareerMix } from "../career-mix/CareerMixContext";
+import { PlayPill } from "../shell/PlayPill";
+import { artistContext } from "../player/tracks";
 import { ContactActions } from "../components/ContactActions";
 import { Cover } from "../shell/Cover";
 import { artistArt } from "../content/artwork";
@@ -13,7 +14,6 @@ import {
   proofById,
 } from "../content/selectors";
 import { formatProofValue } from "../content/waveform";
-import { PlayIcon } from "../icons/icons";
 
 const selectedImpact = ["r1", "p2", "l1"].map((id) => {
   const evidence = caseStudyEvidenceById(id);
@@ -49,8 +49,6 @@ const sectionClass = "mt-12 scroll-mt-24";
 const sectionHeadingClass = "text-section-title font-black text-text";
 
 export function ArtistPage() {
-  const { open } = useCareerMix();
-
   return (
     <div className="pb-12 pt-2">
       <section
@@ -78,15 +76,7 @@ export function ArtistPage() {
                 candidate={portfolio.candidate}
                 placement="hero"
               />
-              <button
-                type="button"
-                onClick={(event) => open(event.currentTarget)}
-                data-motion-transform
-                className="interactive-target inline-flex items-center justify-center gap-2 rounded-full border border-text px-4 text-sm font-bold text-text transition-transform duration-[var(--transition-hover-fast)] motion-safe:hover:scale-[1.02]"
-              >
-                <PlayIcon />
-                Start Career Mix
-              </button>
+              <PlayPill context={artistContext} label="Darshil Jain" />
             </div>
 
             <article

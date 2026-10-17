@@ -1,11 +1,8 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
-import {
-  CareerMixProvider,
-  useCareerMix,
-} from "../career-mix/CareerMixContext";
-import { CareerMixDock } from "../career-mix/CareerMixDock";
+import { usePlayer } from "../player/hooks";
+import { PlayerProvider } from "../player/PlayerProvider";
 import { MotionProvider } from "../motion/MotionProvider";
 import { ToastProvider } from "../shell/Toast";
 import { ArtistPage } from "./ArtistPage";
@@ -16,27 +13,26 @@ import { PlaylistPage } from "./PlaylistPage";
 import { Search } from "./Search";
 
 function RuntimeProbe() {
-  const mix = useCareerMix();
+  const status = usePlayer((state) => `${state.context.id} ${state.status}`);
   const { pathname } = useLocation();
   return (
     <>
       <output aria-label="Current route">{pathname}</output>
-      <output aria-label="Career Mix state">{mix.state.status}</output>
+      <output aria-label="Player state">{status}</output>
     </>
   );
 }
 
 function TestRuntime({ children }: { children: React.ReactNode }) {
   return (
-    <CareerMixProvider>
+    <PlayerProvider createAudio={() => null}>
       <MotionProvider>
         <ToastProvider>
           {children}
-          <CareerMixDock />
           <RuntimeProbe />
         </ToastProvider>
       </MotionProvider>
-    </CareerMixProvider>
+    </PlayerProvider>
   );
 }
 
@@ -106,18 +102,19 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("routed portfolio pages without the legacy player runtime", () => {
-  it("starts the silent Career Mix from Home and returns focus on close", () => {
+  it("plays This Is Darshil Jain from Home and pauses it from the same button", () => {
     renderPage(<Home initialGreeting="Good morning" />);
-    const trigger = screen.getByRole("button", { name: "Start Career Mix" });
 
-    fireEvent.click(trigger);
-
-    expect(screen.getByLabelText("Career Mix state")).toHaveTextContent(
-      "playing",
+    fireEvent.click(
+      screen.getByRole("button", { name: "Play This Is Darshil Jain" }),
     );
-    expect(screen.getByRole("region", { name: "Career Mix" })).toBeVisible();
-    fireEvent.click(screen.getByRole("button", { name: "Close Career Mix" }));
-    expect(trigger).toHaveFocus();
+    expect(screen.getByLabelText("Player state")).toHaveTextContent(
+      "release:this-is-darshil-jain playing",
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "Pause This Is Darshil Jain" }),
+    );
+    expect(screen.getByLabelText("Player state")).toHaveTextContent("paused");
   });
 
   it("keeps Home cards as truthful evidence navigation without playback framing", () => {
@@ -212,10 +209,8 @@ describe("routed portfolio pages without the legacy player runtime", () => {
       "920,000",
       "3:52",
     ]);
-    fireEvent.click(screen.getByRole("button", { name: "Start Career Mix" }));
-    expect(screen.getByLabelText("Career Mix state")).toHaveTextContent(
-      "playing",
-    );
+    fireEvent.click(screen.getAllByRole("button", { name: /^Play / })[0]!);
+    expect(screen.getByLabelText("Player state")).toHaveTextContent("playing");
   });
 
   it("renders a collection without PlayerProvider, playback, likes, or queue", () => {
@@ -234,17 +229,12 @@ describe("routed portfolio pages without the legacy player runtime", () => {
     expectNoSimulatedMetadata(view.container, ["500,000", "4:20", "12:20"]);
     expect(screen.queryByText("Plays")).not.toBeInTheDocument();
     expect(
-      screen.queryByRole("button", { name: /^Play / }),
-    ).not.toBeInTheDocument();
-    expect(
       screen.queryByRole("button", { name: /Like|Unlike/ }),
     ).not.toBeInTheDocument();
     fireEvent.contextMenu(screen.getByText("Operations Intern at Figmenta"));
     expect(screen.queryByText("Add to queue")).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Start Career Mix" }));
-    expect(screen.getByLabelText("Career Mix state")).toHaveTextContent(
-      "playing",
-    );
+    fireEvent.click(screen.getAllByRole("button", { name: /^Play / })[0]!);
+    expect(screen.getByLabelText("Player state")).toHaveTextContent("playing");
   });
 
   it("renders Search results as proof without simulated skill metrics", () => {
@@ -310,9 +300,7 @@ describe("routed portfolio pages without the legacy player runtime", () => {
     expect(
       screen.queryByRole("button", { name: /Like|Unlike/ }),
     ).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Start Career Mix" }));
-    expect(screen.getByLabelText("Career Mix state")).toHaveTextContent(
-      "playing",
-    );
+    fireEvent.click(screen.getAllByRole("button", { name: /^Play / })[0]!);
+    expect(screen.getByLabelText("Player state")).toHaveTextContent("playing");
   });
 });

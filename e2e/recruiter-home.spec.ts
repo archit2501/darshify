@@ -39,7 +39,7 @@ for (const viewport of viewports) {
           .first()
           .getByRole("link", { name, exact: true }),
       ),
-      page.getByRole("button", { name: "Start Career Mix" }),
+      page.getByRole("button", { name: "Play This Is Darshil Jain" }),
     ];
 
     for (const item of firstView) await expectEntirelyInViewport(page, item);
@@ -63,10 +63,12 @@ for (const viewport of viewports) {
     });
     await expect(contact).toHaveCount(1);
 
-    await page.getByRole("button", { name: "Start Career Mix" }).focus();
+    await page
+      .getByRole("button", { name: "Play This Is Darshil Jain" })
+      .focus();
     await page.keyboard.press("Enter");
     await expect(
-      page.getByRole("region", { name: "Career Mix" }),
+      page.getByRole("button", { name: "Pause This Is Darshil Jain" }),
     ).toBeVisible();
   });
 }

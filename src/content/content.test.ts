@@ -165,7 +165,6 @@ describe("portfolio content", () => {
     invalid.caseStudies[0].relatedIds.push("missing-related");
     invalid.collections[0].caseStudyIds.push("missing-case");
     invalid.collections[1].slug = invalid.collections[0].slug;
-    invalid.careerMixChapters[0].caseStudyIds.push("missing-chapter-case");
     invalid.artifacts[0].alt = "";
     invalid.artifacts[0].provenance = "";
     invalid.artifacts[0].sourceIds = ["missing-artifact-source"];
@@ -199,9 +198,6 @@ describe("portfolio content", () => {
     );
     expect(errors).toContain(
       "Collection this-is-darshil-jain references unknown case study missing-case",
-    );
-    expect(errors).toContain(
-      "Career mix chapter operate references unknown case study missing-chapter-case",
     );
     expect(errors).toContain("Artifact darshil-resume-pdf is missing alt text");
     expect(errors).toContain(

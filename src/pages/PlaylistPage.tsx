@@ -1,6 +1,6 @@
 import { releaseArt } from "../content/artwork";
 import { useParams } from "react-router-dom";
-import { useCareerMix } from "../career-mix/CareerMixContext";
+import { releaseContext } from "../player/tracks";
 import { ProofTrackRow } from "../components/ProofTrackRow";
 import { caseStudyEvidenceById, collectionById } from "../content/selectors";
 import { Art } from "../shell/Art";
@@ -9,7 +9,6 @@ import { NotFound } from "./NotFound";
 
 export function PlaylistPage() {
   const { id = "" } = useParams();
-  const { open } = useCareerMix();
   const collection = collectionById(id);
   if (!collection) return <NotFound />;
 
@@ -53,8 +52,8 @@ export function PlaylistPage() {
       <div className="py-5">
         <PlayButton
           size={56}
-          label="Start Career Mix"
-          onClick={(event) => open(event.currentTarget)}
+          context={releaseContext(collection)}
+          label={collection.title}
         />
       </div>
 

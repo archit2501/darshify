@@ -19,7 +19,7 @@ test("mobile Artist prioritizes proposition and sourced impact before releases",
     proposition.getByRole("link", { name: "Download CV" }),
   ).toBeVisible();
   await expect(
-    proposition.getByRole("button", { name: "Start Career Mix" }),
+    proposition.getByRole("button", { name: "Play Darshil Jain" }),
   ).toBeVisible();
 
   const featuredProof = proposition.getByRole("article", {

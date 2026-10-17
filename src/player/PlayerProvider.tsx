@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { trackOutcome } from "../analytics/outcomes";
 import { createAmbientEngine, type AmbientEngine } from "./audio/engine";
 import { PlayerStoreContext } from "./context";
 import { elapsedAt } from "./reducer";
@@ -29,6 +30,7 @@ export function PlayerProvider({
   useEffect(() => store.start(browserStorage()), [store]);
   useMediaSession(store);
   useAmbientSound(store, createAudio);
+  usePlayAnalytics(store);
   return (
     <PlayerStoreContext.Provider value={store}>
       {children}
@@ -158,4 +160,24 @@ function useAmbientSound(
       engine?.dispose();
     };
   }, [store, createAudio]);
+}
+
+/** Counts each song once per play-through, with no personal data. */
+function usePlayAnalytics(store: PlayerStore) {
+  useEffect(() => {
+    let reported: string | null = null;
+    return store.subscribe(() => {
+      const state = store.getState();
+      if (state.status !== "playing") return;
+      const key = `${state.currentId}@${state.anchorAt === null ? "" : Math.round(state.anchorAt - state.elapsedMs)}`;
+      if (key === reported) return;
+      reported = key;
+      if (state.elapsedMs === 0) {
+        trackOutcome("song_play", {
+          caseStudyId: state.currentId,
+          placement: "player",
+        });
+      }
+    });
+  }, [store]);
 }

@@ -1,5 +1,4 @@
 import { releaseArt } from "../content/artwork";
-import { useCareerMix } from "../career-mix/CareerMixContext";
 import { RecruiterHero } from "../components/RecruiterHero";
 import { Shelf } from "../shell/Shelf";
 import { MediaCard } from "../shell/MediaCard";
@@ -27,11 +26,9 @@ const recruiterEssentials = essentialReferences.map(
 );
 
 export function Home({ initialGreeting }: { initialGreeting: string }) {
-  const { open } = useCareerMix();
-
   return (
     <div className="pt-2">
-      <RecruiterHero greeting={initialGreeting} onStartCareerMix={open} />
+      <RecruiterHero greeting={initialGreeting} />
 
       <Shelf
         title="Recruiter Essentials"
