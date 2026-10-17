@@ -1,5 +1,3 @@
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 import { fireEvent, render, screen } from "@testing-library/react";
 import {
   afterAll,
@@ -15,14 +13,12 @@ import { MemoryRouter } from "react-router-dom";
 import { MotionProvider } from "../motion/MotionProvider";
 import { CareerMixProvider, useCareerMix } from "./CareerMixContext";
 import { CareerMixDock } from "./CareerMixDock";
+import { readStylesheet } from "../test/stylesheets";
 
 const styles = document.createElement("style");
 
 beforeAll(() => {
-  styles.textContent = `${readFileSync(
-    resolve(process.cwd(), "src/styles/tokens.css"),
-    "utf8",
-  )}\n${readFileSync(resolve(process.cwd(), "src/styles/base.css"), "utf8")}`;
+  styles.textContent = `${readStylesheet("src/styles/tokens.css")}\n${readStylesheet("src/styles/base.css")}`;
   document.head.append(styles);
 });
 

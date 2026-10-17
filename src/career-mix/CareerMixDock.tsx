@@ -94,7 +94,7 @@ export function CareerMixDock() {
             onClick={toggle}
             data-motion-transform
             aria-label={toggleLabel}
-            className={`${controlClass} bg-white text-black hover:bg-white/90`}
+            className="interactive-target inline-flex items-center justify-center rounded-full bg-white text-black transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40"
           >
             {state.status === "playing" ? <PauseIcon /> : <PlayIcon />}
           </button>

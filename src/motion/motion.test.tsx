@@ -1,6 +1,7 @@
 /// <reference types="node" />
 
 import { readFileSync } from "node:fs";
+import { readStylesheet } from "../test/stylesheets";
 import { resolve } from "node:path";
 import { useContext } from "react";
 import {
@@ -63,14 +64,8 @@ const memoryStorage = (): Storage => {
 };
 
 beforeAll(() => {
-  tokenStyles.textContent = readFileSync(
-    resolve(process.cwd(), "src/styles/tokens.css"),
-    "utf8",
-  );
-  baseStyles.textContent = readFileSync(
-    resolve(process.cwd(), "src/styles/base.css"),
-    "utf8",
-  );
+  tokenStyles.textContent = readStylesheet("src/styles/tokens.css");
+  baseStyles.textContent = readStylesheet("src/styles/base.css");
   document.head.append(tokenStyles);
   document.head.append(baseStyles);
   Object.defineProperty(HTMLElement.prototype, "scrollTo", {
@@ -156,13 +151,16 @@ afterEach(() => {
 
 describe("editorial motion foundation", () => {
   // Regression: removing the signal token leaves primary actions without the approved shared color contract.
-  it("exposes the approved signal color on the document root", () => {
-    expect(
-      getComputedStyle(document.documentElement)
-        .getPropertyValue("--color-signal")
-        .trim()
-        .toUpperCase(),
-    ).toBe("#1ED760");
+  it("declares the approved signal color as an always-emitted theme token", () => {
+    const tokens = readFileSync(
+      resolve(process.cwd(), "src/styles/tokens.css"),
+      "utf8",
+    );
+    // `static` makes Tailwind emit every token on :root, including ones only
+    // read from inline styles or scripts.
+    expect(tokens).toMatch(/@theme static \{/);
+    expect(tokens).toMatch(/--color-green:\s*#1ed760;/i);
+    expect(tokens).toMatch(/--color-signal:\s*var\(--color-green\);/);
   });
 
   // Regression: omitting reducedMotion="user" lets translated entrance motion run against the user's OS preference.

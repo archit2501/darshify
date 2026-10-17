@@ -9,6 +9,7 @@ import {
   type LinksFunction,
 } from "react-router";
 import "../src/index.css";
+import figtreeLatin from "@fontsource-variable/figtree/files/figtree-latin-wght-normal.woff2?url";
 import { CareerMixProvider } from "../src/career-mix/CareerMixContext";
 import { AppShell } from "../src/shell/AppShell";
 import { ToastProvider } from "../src/shell/Toast";
@@ -18,6 +19,13 @@ import {
 } from "../src/analytics/outcomes";
 
 export const links: LinksFunction = () => [
+  {
+    rel: "preload",
+    href: figtreeLatin,
+    as: "font",
+    type: "font/woff2",
+    crossOrigin: "anonymous",
+  },
   { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
 ];
 

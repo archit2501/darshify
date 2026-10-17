@@ -45,6 +45,13 @@ describe("route root", () => {
 
   it("keeps favicon metadata and both error-boundary messages available", () => {
     expect(links()).toEqual([
+      {
+        rel: "preload",
+        href: expect.stringMatching(/figtree-latin-wght-normal.*\.woff2$/),
+        as: "font",
+        type: "font/woff2",
+        crossOrigin: "anonymous",
+      },
       { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
     ]);
     const view = render(<ErrorBoundary error={new Error("boom")} />);
