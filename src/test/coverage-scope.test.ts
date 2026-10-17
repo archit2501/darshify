@@ -31,7 +31,7 @@ const taskRuntimeModules = [
   "src/shell/MediaCard.tsx",
   "src/shell/Shelf.tsx",
   "src/shell/Sidebar.tsx",
-  "src/shell/TopBar.tsx",
+  "src/shell/GlobalTopBar.tsx",
 ];
 
 afterEach(() => {

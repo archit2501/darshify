@@ -38,7 +38,7 @@ test("category identity and result groups do not leak shared résumé prose", as
   page,
 }) => {
   await page.goto("/search", { waitUntil: "networkidle" });
-  const search = page.getByRole("searchbox");
+  const search = page.getByRole("main").getByRole("searchbox");
 
   const cases: Array<[string, string, string]> = [
     ["projects", "Projects", "Strategy Consulting for ZautoAI"],
@@ -93,8 +93,9 @@ test("Career Library filters and A–Z sort remain keyboard operable on mobile",
 
 test("search does not persist raw recruiter queries", async ({ page }) => {
   await page.goto("/search");
-  await page.getByRole("searchbox").fill("confidential recruiter query");
-  await page.getByRole("searchbox").press("Enter");
+  const field = page.getByRole("main").getByRole("searchbox");
+  await field.fill("confidential recruiter query");
+  await field.press("Enter");
 
   const storage = await page.evaluate(() => ({ ...localStorage }));
   expect(JSON.stringify(storage)).not.toContain("confidential recruiter query");

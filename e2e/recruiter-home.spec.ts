@@ -33,9 +33,12 @@ for (const viewport of viewports) {
       page.getByText(portfolio.candidate.headline),
       page.getByText(portfolio.candidate.summary),
       page.getByRole("group", { name: "Featured recruiter proof" }),
-      page.getByRole("link", { name: "Download CV", exact: true }),
-      page.getByRole("link", { name: "Email", exact: true }),
-      page.getByRole("link", { name: "LinkedIn", exact: true }),
+      ...["Download CV", "Email", "LinkedIn"].map((name) =>
+        page
+          .getByRole("group", { name: `Contact ${portfolio.candidate.name}` })
+          .first()
+          .getByRole("link", { name, exact: true }),
+      ),
       page.getByRole("button", { name: "Start Career Mix" }),
     ];
 

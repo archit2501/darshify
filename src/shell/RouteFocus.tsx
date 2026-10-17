@@ -14,7 +14,9 @@ export function RouteFocus({
     previousPathname.current = pathname;
 
     const main = mainRef.current;
-    main?.scrollTo({ top: 0 });
+    main?.scrollTo?.({ top: 0 });
+    // Below 768px the document itself scrolls.
+    window.scrollTo?.({ top: 0 });
 
     const heading = main?.querySelector<HTMLHeadingElement>("h1");
     if (!heading) return;

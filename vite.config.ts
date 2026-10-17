@@ -11,7 +11,11 @@ const designSystemRuntime = [
   "src/shell/MediaCard.tsx",
   "src/shell/PlayButton.tsx",
   "src/shell/Sidebar.tsx",
-  "src/shell/TopBar.tsx",
+  "src/shell/GlobalTopBar.tsx",
+  "src/shell/AccountMenu.tsx",
+  "src/shell/PageFooter.tsx",
+  "src/shell/StickyHeader.tsx",
+  "src/shell/menuStyles.ts",
 ];
 const semanticShellRuntime = [
   "src/components/ContactActions.tsx",

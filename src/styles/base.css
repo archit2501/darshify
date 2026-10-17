@@ -45,8 +45,6 @@
     margin: 0;
     min-width: 20rem;
     min-height: 100dvh;
-    /* The app frame scrolls inside panels until the mobile shell lands (2.1.1). */
-    overflow: hidden;
     background: var(--color-app);
     color: var(--color-fg);
     font-family: var(--font-sans);
@@ -91,15 +89,6 @@
     text-wrap: balance;
   }
 
-  /*
-   * Legacy 44px floor for every control. The rebuilt shell (task 2.1.1) replaces
-   * it with --target-fine on fine pointers and --target-touch on touch screens.
-   */
-  :where(a, button, [role="button"], input, select, textarea) {
-    min-block-size: var(--target-min);
-    min-inline-size: var(--target-min);
-  }
-
   .interactive-target {
     min-block-size: var(--target-min);
     min-inline-size: var(--target-min);
@@ -113,6 +102,63 @@
 }
 
 @layer components {
+  /* App frame: the desktop player's grid from 768px, a scrolling page below. */
+  .app-frame {
+    min-height: 100dvh;
+    background: var(--color-app);
+  }
+
+  .app-main {
+    position: relative;
+    min-width: 0;
+    background: var(--color-surface);
+    padding-bottom: calc(8.5rem + env(safe-area-inset-bottom));
+  }
+
+  .app-bar {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 40;
+  }
+
+  @media (min-width: 768px) {
+    .app-frame {
+      display: grid;
+      height: 100dvh;
+      overflow: hidden;
+      column-gap: var(--panel-gap);
+      padding: 0 var(--panel-gap) var(--panel-gap);
+      grid-template:
+        "top top" var(--topbar-h)
+        "lib main" minmax(0, 1fr)
+        "bar bar" auto / var(--lib-current, var(--lib-w)) minmax(0, 1fr);
+    }
+
+    .app-top {
+      grid-area: top;
+    }
+
+    .app-library {
+      grid-area: lib;
+      min-height: 0;
+    }
+
+    .app-main {
+      grid-area: main;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      border-radius: var(--radius-panel);
+      padding-bottom: 0;
+      scroll-padding-top: var(--topbar-h);
+    }
+
+    .app-bar {
+      grid-area: bar;
+      position: static;
+    }
+  }
+
   .tabular {
     font-variant-numeric: tabular-nums;
   }
