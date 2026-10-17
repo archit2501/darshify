@@ -2,11 +2,14 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import SearchRoute, { meta } from "../../app/routes/search";
+import { PlayerProvider } from "../player/PlayerProvider";
 
 const renderSearch = () =>
   render(
     <MemoryRouter>
-      <SearchRoute />
+      <PlayerProvider createAudio={() => null}>
+        <SearchRoute />
+      </PlayerProvider>
     </MemoryRouter>,
   );
 
@@ -87,7 +90,7 @@ describe("Search professional discovery", () => {
     const skills = screen.getByRole("region", { name: "Skills" });
     expect(
       within(skills).getByRole("link", { name: "Explore Strategic Analysis" }),
-    ).toHaveAttribute("href", "/playlist/skills");
+    ).toHaveAttribute("href", "/genre/strategic-analysis");
   });
 
   it("keeps education and certifications out of Achievements", () => {

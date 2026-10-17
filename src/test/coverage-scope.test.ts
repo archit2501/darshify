@@ -11,7 +11,7 @@ const taskRuntimeModules = [
   "src/components/ProofWaveform.tsx",
   "src/components/OutcomeLink.tsx",
   "src/components/RecruiterHero.tsx",
-  "src/components/ReleaseCard.tsx",
+  "src/components/BrowseTile.tsx",
   "src/components/SearchField.tsx",
   "src/components/SearchResults.tsx",
   "src/content/portfolio.ts",

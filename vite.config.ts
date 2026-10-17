@@ -74,7 +74,7 @@ const cumulativeRedesignRuntime = [
   "src/components/OutcomeLink.tsx",
   "src/components/ProofWaveform.tsx",
   "src/components/RecruiterHero.tsx",
-  "src/components/ReleaseCard.tsx",
+  "src/components/BrowseTile.tsx",
   "src/components/SearchField.tsx",
   "src/components/SearchResults.tsx",
   "src/content/artifactFallback.ts",

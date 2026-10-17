@@ -979,13 +979,14 @@
                     "spaceComplexity": "O(n)",
                     "files": [
                       "src/pages/Search.tsx",
-                      "app/routes/search.tsx",
-                      "src/content/selectors.ts"
+                      "src/components/SearchResults.tsx",
+                      "src/components/SearchField.tsx",
+                      "src/components/BrowseTile.tsx"
                     ],
                     "dependencies": ["3.2.2"],
                     "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
                     "ciJobs": ["quality", "test", "build", "browser"],
-                    "status": "todo",
+                    "status": "in_progress",
                     "criticalPath": true,
                     "parallelizable": false
                   },
@@ -1011,7 +1012,7 @@
                     "dependencies": ["3.3.1"],
                     "smokeTest": "npm run format:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
                     "ciJobs": ["quality", "test", "build", "browser"],
-                    "status": "in_progress",
+                    "status": "done",
                     "criticalPath": false,
                     "parallelizable": true,
                     "notes": "Built before 3.3.1 so Search tiles link to existing pages."
@@ -1181,7 +1182,7 @@
             ]
           }
         ],
-        "generatedAt": "2026-10-17T05:40:57.341Z"
+        "generatedAt": "2026-10-17T05:48:27.673Z"
       }
     </script>
     <script>
