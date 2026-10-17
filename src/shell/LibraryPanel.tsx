@@ -25,6 +25,7 @@ import {
   menuSeparatorClass,
 } from "./menuStyles";
 import { Cover } from "./Cover";
+import { ReleaseContextMenu } from "./ReleaseMenu";
 
 const FILTERS: LibraryFilter[] = ["Playlists", "Albums", "Artists"];
 
@@ -212,44 +213,56 @@ export function LibraryPanel({
       <ul className="scroll-area min-h-0 flex-1 overflow-y-auto px-2 pb-2">
         {items.map((item) => {
           const isPlaying = playing === item.contextId;
-          return (
-            <li key={item.id}>
-              <NavLink
-                to={item.href}
-                title={collapsed ? item.title : undefined}
-                className={({ isActive }) =>
-                  `group flex items-center gap-3 rounded-art p-2 transition-colors hover:bg-tint ${isActive ? "bg-tint-hover hover:bg-tint-strong" : ""} ${collapsed ? "justify-center" : ""}`
-                }
-              >
-                {compact && !collapsed ? null : (
-                  <Cover
-                    art={item.art}
-                    size="sm"
-                    round={item.type === "Artist"}
-                  />
-                )}
-                <span className={collapsed ? "sr-only" : "min-w-0 flex-1"}>
-                  <span
-                    className={`block truncate ${isPlaying ? "text-green" : "text-fg"}`}
-                  >
-                    {item.title}
-                  </span>
-                  <span className="flex items-center gap-1 truncate text-sm text-subdued">
-                    {item.pinned ? (
-                      <PinIcon size={12} className="shrink-0 text-green" />
-                    ) : null}
-                    {item.subtitle}
-                  </span>
+          const releaseId = item.contextId.startsWith("release:")
+            ? item.contextId.slice("release:".length)
+            : null;
+          const row = (
+            <NavLink
+              to={item.href}
+              title={collapsed ? item.title : undefined}
+              className={({ isActive }) =>
+                `group flex items-center gap-3 rounded-art p-2 transition-colors hover:bg-tint ${isActive ? "bg-tint-hover hover:bg-tint-strong" : ""} ${collapsed ? "justify-center" : ""}`
+              }
+            >
+              {compact && !collapsed ? null : (
+                <Cover
+                  art={item.art}
+                  size="sm"
+                  round={item.type === "Artist"}
+                />
+              )}
+              <span className={collapsed ? "sr-only" : "min-w-0 flex-1"}>
+                <span
+                  className={`block truncate ${isPlaying ? "text-green" : "text-fg"}`}
+                >
+                  {item.title}
                 </span>
-                {isPlaying && !collapsed ? (
-                  <SpeakerIcon
-                    size={16}
-                    title="Now playing"
-                    className="shrink-0 text-green"
-                  />
-                ) : null}
-              </NavLink>
-            </li>
+                <span className="flex items-center gap-1 truncate text-sm text-subdued">
+                  {item.pinned ? (
+                    <PinIcon size={12} className="shrink-0 text-green" />
+                  ) : null}
+                  {item.subtitle}
+                </span>
+              </span>
+              {isPlaying && !collapsed ? (
+                <SpeakerIcon
+                  size={16}
+                  title="Now playing"
+                  className="shrink-0 text-green"
+                />
+              ) : null}
+            </NavLink>
+          );
+          return releaseId ? (
+            <ReleaseContextMenu
+              key={item.id}
+              releaseId={releaseId}
+              render={<li />}
+            >
+              {row}
+            </ReleaseContextMenu>
+          ) : (
+            <li key={item.id}>{row}</li>
           );
         })}
         {items.length === 0 ? (

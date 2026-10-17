@@ -1,6 +1,7 @@
-import { useRef, type CSSProperties } from "react";
+import { useCallback, useRef, useState, type CSSProperties } from "react";
 import { Outlet } from "react-router-dom";
 import { Tooltip } from "@base-ui/react/tooltip";
+import { useLocalStorage } from "../lib/useLocalStorage";
 import { useIsDesktop } from "../lib/useMediaQuery";
 import { useReducedMotion } from "../lib/useReducedMotion";
 import { MotionProvider } from "../motion/MotionProvider";
@@ -18,7 +19,9 @@ import { RouteFocus } from "./RouteFocus";
 import { LIBRARY, useLayoutPrefs } from "./layoutPrefs";
 import { LibraryPanel } from "./LibraryPanel";
 import { Resizer } from "./Resizer";
+import { ShortcutsDialog } from "./ShortcutsDialog";
 import { SkipLink } from "./SkipLink";
+import { SHORTCUTS_STORAGE_KEY, usePlayerShortcuts } from "./useShortcuts";
 
 /**
  * The app frame. From 768px up it is the desktop player's grid: a global top
@@ -40,6 +43,13 @@ export function AppShell() {
   const libraryWidth = layout.libraryCollapsed
     ? LIBRARY.rail
     : layout.libraryWidth;
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [characterKeys, setCharacterKeys] = useLocalStorage(
+    SHORTCUTS_STORAGE_KEY,
+    true,
+  );
+  const showShortcuts = useCallback(() => setShortcutsOpen(true), []);
+  usePlayerShortcuts({ characterKeys, onShowHelp: showShortcuts });
 
   return (
     <MotionProvider>
@@ -54,7 +64,7 @@ export function AppShell() {
           style={{ "--lib-current": `${libraryWidth}px` } as CSSProperties}
         >
           <div className="app-top max-md:hidden">
-            <GlobalTopBar />
+            <GlobalTopBar onShortcuts={showShortcuts} />
           </div>
           <div className="app-library relative max-md:hidden">
             <LibraryPanel
@@ -77,7 +87,9 @@ export function AppShell() {
               </div>
             )}
           </div>
-          {desktop === true ? null : <MobileTopBar />}
+          {desktop === true ? null : (
+            <MobileTopBar onShortcuts={showShortcuts} />
+          )}
           <main
             id="main-content"
             ref={mainRef}
@@ -119,6 +131,12 @@ export function AppShell() {
           </div>
         </div>
         <RouteFocus mainRef={mainRef} />
+        <ShortcutsDialog
+          open={shortcutsOpen}
+          onOpenChange={setShortcutsOpen}
+          characterKeys={characterKeys}
+          onCharacterKeysChange={setCharacterKeys}
+        />
       </Tooltip.Provider>
     </MotionProvider>
   );

@@ -55,7 +55,12 @@ function useHistoryAvailability() {
  * pill and the account area. Search is a real GET form, so it works without
  * JavaScript and every query has a shareable URL (/search?q=…).
  */
-export function GlobalTopBar() {
+export function GlobalTopBar({
+  onShortcuts,
+}: {
+  /** Opens the keyboard shortcuts sheet from the avatar menu. */
+  onShortcuts?: () => void;
+} = {}) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [params] = useSearchParams();
@@ -213,7 +218,7 @@ export function GlobalTopBar() {
           <MailIcon size={16} />
           Email Darshil
         </a>
-        <AccountMenu />
+        <AccountMenu onShortcuts={onShortcuts} />
       </div>
     </header>
   );

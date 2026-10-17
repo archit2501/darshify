@@ -36,6 +36,13 @@ const semanticShellRuntime = [
   "src/shell/Scrubber.tsx",
   "src/shell/NowPlayingCards.tsx",
   "src/shell/Marquee.tsx",
+  "src/shell/Toast.tsx",
+  "src/shell/toastContext.ts",
+  "src/shell/songActions.ts",
+  "src/shell/SongMenu.tsx",
+  "src/shell/ReleaseMenu.tsx",
+  "src/shell/ShortcutsDialog.tsx",
+  "src/shell/useShortcuts.ts",
   "src/shell/RouteFocus.tsx",
   "src/shell/SkipLink.tsx",
 ];

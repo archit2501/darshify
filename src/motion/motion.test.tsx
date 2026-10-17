@@ -213,27 +213,41 @@ describe("editorial motion foundation", () => {
     expect(currentDescriptor?.value).toBe(localStorageDescriptor?.value);
   });
 
-  // Regression: global Space and arrow shortcuts steal normal scrolling, text navigation, and native control interaction.
-  it("leaves ordinary page keys alone while keeping the explicit play trigger working", async () => {
+  // Regression: global shortcuts must not steal keys from controls, fields or
+  // links, and plain arrows must keep scrolling and text navigation native.
+  it("keeps keys native in controls and for plain arrows, and plays on Space from the page", async () => {
     await renderShell(false);
+    const player = screen.getByRole("region", { name: "Player" });
 
-    const space = new KeyboardEvent("keydown", {
-      key: " ",
-      cancelable: true,
-    });
     const arrow = new KeyboardEvent("keydown", {
       key: "ArrowRight",
       cancelable: true,
     });
-    window.dispatchEvent(space);
     window.dispatchEvent(arrow);
-
-    expect(space.defaultPrevented).toBe(false);
     expect(arrow.defaultPrevented).toBe(false);
-    expect(
-      screen.getByRole("button", { name: "Play This Is Darshil Jain" }),
-    ).toBeVisible();
-    expect(screen.getByRole("button", { name: "Play" })).toBeVisible();
+
+    const playButton = screen.getByRole("button", {
+      name: "Play This Is Darshil Jain",
+    });
+    const onControl = new KeyboardEvent("keydown", {
+      key: " ",
+      bubbles: true,
+      cancelable: true,
+    });
+    playButton.dispatchEvent(onControl);
+    expect(onControl.defaultPrevented).toBe(false);
+    expect(within(player).getByRole("button", { name: "Play" })).toBeVisible();
+
+    const onPage = new KeyboardEvent("keydown", {
+      key: " ",
+      bubbles: true,
+      cancelable: true,
+    });
+    act(() => {
+      document.body.dispatchEvent(onPage);
+    });
+    expect(onPage.defaultPrevented).toBe(true);
+    expect(within(player).getByRole("button", { name: "Pause" })).toBeVisible();
   });
 
   // Regression: a player bar that renders controls without wiring them to the store looks real but does nothing.

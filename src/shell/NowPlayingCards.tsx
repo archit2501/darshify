@@ -71,42 +71,48 @@ export function LyricsCard({
 }
 
 /** Who did what, where and when, with the résumé as the source. */
-export function CreditsCard({ songId }: { songId: string }) {
-  const id = useId();
+export function CreditsList({ songId }: { songId: string }) {
   const song = caseStudyById(songId);
   if (!song) return null;
+  return (
+    <dl className="space-y-3 text-sm">
+      <div>
+        <dt className="text-fg">{song.role}</dt>
+        <dd className="text-subdued">Darshil Jain</dd>
+      </div>
+      <div>
+        <dt className="text-fg">{song.organization}</dt>
+        <dd className="text-subdued">{song.team ?? "Organization"}</dd>
+      </div>
+      {song.period ? (
+        <div>
+          <dt className="text-fg">{song.period}</dt>
+          <dd className="text-subdued">Released</dd>
+        </div>
+      ) : null}
+      <div>
+        <dt>
+          <a
+            href={portfolio.candidate.resumeUrl}
+            className="text-fg hover:underline"
+          >
+            Darshil Jain résumé (PDF)
+          </a>
+        </dt>
+        <dd className="text-subdued">Source</dd>
+      </div>
+    </dl>
+  );
+}
+
+export function CreditsCard({ songId }: { songId: string }) {
+  const id = useId();
   return (
     <section aria-labelledby={id} className={card}>
       <h3 id={id} className="mb-3 font-bold">
         Credits
       </h3>
-      <dl className="space-y-3 text-sm">
-        <div>
-          <dt className="text-fg">{song.role}</dt>
-          <dd className="text-subdued">Darshil Jain</dd>
-        </div>
-        <div>
-          <dt className="text-fg">{song.organization}</dt>
-          <dd className="text-subdued">{song.team ?? "Organization"}</dd>
-        </div>
-        {song.period ? (
-          <div>
-            <dt className="text-fg">{song.period}</dt>
-            <dd className="text-subdued">Released</dd>
-          </div>
-        ) : null}
-        <div>
-          <dt>
-            <a
-              href={portfolio.candidate.resumeUrl}
-              className="text-fg hover:underline"
-            >
-              Darshil Jain résumé (PDF)
-            </a>
-          </dt>
-          <dd className="text-subdued">Source</dd>
-        </div>
-      </dl>
+      <CreditsList songId={songId} />
     </section>
   );
 }
